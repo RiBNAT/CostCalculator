@@ -85,8 +85,9 @@ ribnat/
   docs/superpowers/specs/
 ```
 
-- **Money:** `int64` paisa internally; API exchanges decimal taka (JSON numbers);
-  UI formats as BDT (`৳`).
+- **Money:** `int64` paisa internally and on the wire (all API money fields are integer
+  paisa — no float drift); amount inputs accept taka expressions (`amountExpr`); UI
+  formats as BDT (`৳`).
 - **Auth:** access token (15 min) + refresh token (7 days), bcrypt password hashes.
 - **All queries scoped by `userId`.** Indexes on `(userId, periodId, date)` for
   expenses/transfers.
