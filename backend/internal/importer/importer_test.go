@@ -103,6 +103,12 @@ func TestImportRealWorkbook(t *testing.T) {
 		t.Errorf("June 26 budget items = %d, want >= 20", len(budget.Items))
 	}
 
+	// Lend register is taken from the latest sheet (June 26 carries 3 open lends).
+	nLends, _ := db.Lends.CountDocuments(ctx, bson.M{"userId": userID})
+	if nLends != 3 {
+		t.Errorf("lends imported = %d, want 3 (Rajib vai, Rafi vai, Mubin)", nLends)
+	}
+
 	// Re-import must be fully idempotent.
 	f2, _ := os.Open("testdata/costsheet.xlsx")
 	defer f2.Close()

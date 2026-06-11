@@ -157,7 +157,7 @@ export class PlannerComponent {
       const p = this.state.selected();
       if (p) this.reloadWindows(p.id);
       else this.windows.set([]);
-    });
+    }, { allowSignalWrites: true });
   }
 
   readonly allSubcategories = computed(() =>

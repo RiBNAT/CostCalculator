@@ -230,7 +230,7 @@ export class DashboardComponent {
         return;
       }
       this.api.periodSummary(p.id).subscribe((s) => this.summary.set(s));
-    });
+    }, { allowSignalWrites: true });
   }
 
   readonly liquidAccounts = computed(() =>

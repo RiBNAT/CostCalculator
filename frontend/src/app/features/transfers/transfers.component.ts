@@ -164,7 +164,7 @@ export class TransfersComponent {
       const p = this.state.selected();
       if (p) this.reload(p.id);
       else this.transfers.set([]);
-    });
+    }, { allowSignalWrites: true });
     this.form.controls.amountExpr.valueChanges.subscribe((v) => this.amountValue.set(v));
   }
 

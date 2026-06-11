@@ -67,11 +67,16 @@ func (im *Importer) Run(ctx context.Context, userID string, r io.Reader) (*Repor
 	report := &Report{}
 	var imported []*domain.Period
 
+	var matureSheets []string
 	for _, sheet := range f.GetSheetList() {
-		if !isMatureSheet(f, sheet) {
-			continue
+		if isMatureSheet(f, sheet) {
+			matureSheets = append(matureSheets, sheet)
 		}
+	}
+
+	for i, sheet := range matureSheets {
 		sr := SheetReport{Sheet: sheet}
+		isFirst, isLast := i == 0, i == len(matureSheets)-1
 
 		hash := sheetHash(f, sheet)
 		dup, err := repo.FindOne[bson.M](ctx, im.DB.Imports, bson.M{"userId": userID, "sheet": sheet, "hash": hash})
@@ -84,7 +89,7 @@ func (im *Importer) Run(ctx context.Context, userID string, r io.Reader) (*Repor
 			continue
 		}
 
-		period, err := im.importSheet(ctx, f, sheet, userID, catByName, accByName, &sr, len(imported) == 0)
+		period, err := im.importSheet(ctx, f, sheet, userID, catByName, accByName, &sr, isFirst, isLast)
 		if err != nil {
 			return nil, fmt.Errorf("sheet %s: %w", sheet, err)
 		}
@@ -127,7 +132,7 @@ func isMatureSheet(f *excelize.File, sheet string) bool {
 func (im *Importer) importSheet(
 	ctx context.Context, f *excelize.File, sheet, userID string,
 	catByName map[string]*domain.Category, accByName map[string]*domain.Account,
-	sr *SheetReport, first bool,
+	sr *SheetReport, first, last bool,
 ) (*domain.Period, error) {
 	warn := func(format string, args ...any) { sr.Warnings = append(sr.Warnings, fmt.Sprintf(format, args...)) }
 
@@ -326,7 +331,7 @@ func (im *Importer) importSheet(
 	}
 
 	// --- lends: header rows "LEND GIVEN TO" / "LEND TAKEN FROM" in column L ---
-	if first { // lend register carries across sheets; import once
+	if last { // the register carries forward each month; the latest sheet holds the current state
 		for r := 10; r <= 40; r++ {
 			label, _ := f.GetCellValue(sheet, fmt.Sprintf("L%d", r))
 			label = strings.TrimSpace(label)

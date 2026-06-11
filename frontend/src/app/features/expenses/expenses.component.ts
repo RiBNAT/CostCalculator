@@ -206,7 +206,7 @@ export class ExpensesComponent {
       const p = this.state.selected();
       if (p) this.reload(p.id);
       else this.expenses.set([]);
-    });
+    }, { allowSignalWrites: true });
     this.form.controls.amountExpr.valueChanges.subscribe((v) => this.amountExprValue.set(v));
     this.form.controls.categoryId.valueChanges.subscribe(() => this.form.patchValue({ subcategory: '' }));
   }

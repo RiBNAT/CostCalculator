@@ -129,7 +129,7 @@ export class BudgetComponent {
     effect(() => {
       const p = this.state.selected();
       if (p) this.reload(p.id);
-    });
+    }, { allowSignalWrites: true });
   }
 
   reload(periodId: string): void {

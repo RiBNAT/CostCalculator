@@ -82,7 +82,7 @@ export class SavingsComponent {
       const p = this.state.selected();
       if (!p) return;
       this.api.periodSummary(p.id).subscribe((s) => this.savings.set(s.savings ?? []));
-    });
+    }, { allowSignalWrites: true });
     effect(() => {
       const periods = [...this.state.periods()].sort((a, b) => a.startDate.localeCompare(b.startDate));
       if (!periods.length) return;
@@ -100,6 +100,6 @@ export class SavingsComponent {
           ],
         });
       });
-    });
+    }, { allowSignalWrites: true });
   }
 }
