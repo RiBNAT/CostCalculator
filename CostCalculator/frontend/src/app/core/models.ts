@@ -116,6 +116,7 @@ export interface Budget {
   id: string;
   periodId: string;
   items: BudgetItem[];
+  rollover?: boolean;
 }
 
 export interface Settlement {

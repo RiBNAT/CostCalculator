@@ -322,6 +322,23 @@ func (s *Summary) Build(ctx context.Context, userID, periodID string, today time
 	if budget != nil {
 		items = budget.Items
 	}
+	// When rollover is on, fold the previous period's unspent budget into this
+	// period's effective budget (positive leftovers only).
+	if budget != nil && budget.Rollover && period.PreviousPeriodID != "" {
+		prevBudget, err := repo.FindOne[domain.Budget](ctx, s.DB.Budgets, bson.M{"userId": userID, "periodId": period.PreviousPeriodID})
+		if err != nil {
+			return nil, err
+		}
+		prevExpenses, err := repo.FindAll[domain.Expense](ctx, s.DB.Expenses, bson.M{"userId": userID, "periodId": period.PreviousPeriodID})
+		if err != nil {
+			return nil, err
+		}
+		var prevItems []domain.BudgetItem
+		if prevBudget != nil {
+			prevItems = prevBudget.Items
+		}
+		items = append(items, domain.RolloverItems(prevItems, prevExpenses, accounts)...)
+	}
 	sum.Budget = domain.BudgetReport(items, expenses, accounts)
 
 	// Payment windows with status.

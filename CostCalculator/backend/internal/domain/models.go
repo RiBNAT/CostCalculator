@@ -129,6 +129,7 @@ type Budget struct {
 	UserID   string       `bson:"userId" json:"-"`
 	PeriodID string       `bson:"periodId" json:"periodId"`
 	Items    []BudgetItem `bson:"items" json:"items"`
+	Rollover bool         `bson:"rollover,omitempty" json:"rollover"` // carry previous period's unspent budget forward
 }
 
 type LendType string

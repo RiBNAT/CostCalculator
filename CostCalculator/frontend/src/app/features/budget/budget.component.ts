@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { forkJoin } from 'rxjs';
 
 import { ApiService } from '../../core/api.service';
 import { PeriodStateService } from '../../core/period-state.service';
-import { BudgetLine, Category } from '../../core/models';
+import { Category } from '../../core/models';
 import { MoneyPipe } from '../../core/money.pipe';
 
 interface EditableLine {
@@ -20,7 +22,7 @@ interface EditableLine {
 @Component({
   selector: 'app-budget',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatSnackBarModule, MoneyPipe],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatSlideToggleModule, MatSnackBarModule, MoneyPipe],
   template: `
     <div class="page">
       <div class="head-row">
@@ -29,6 +31,11 @@ interface EditableLine {
           <p class="page-subtitle">{{ state.selected()?.name }} · plan vs actual per subcategory</p>
         </div>
         <div class="head-actions">
+          <mat-slide-toggle class="rollover-toggle" [ngModel]="rollover()" (ngModelChange)="setRollover($event)"
+                            [disabled]="!state.selected()?.previousPeriodId"
+                            title="Carry the previous period's unspent budget into this one">
+            Roll over unspent
+          </mat-slide-toggle>
           <button mat-stroked-button (click)="copyPrevious()" [disabled]="!state.selected()?.previousPeriodId">
             <mat-icon>content_copy</mat-icon> Copy previous
           </button>
@@ -103,7 +110,8 @@ interface EditableLine {
   styles: [
     `
       .head-row { display: flex; justify-content: space-between; align-items: flex-start; }
-      .head-actions { display: flex; gap: 10px; }
+      .head-actions { display: flex; gap: 14px; align-items: center; }
+      .rollover-toggle { font-size: 13px; }
       .group-card { margin-bottom: 14px; padding: 14px 18px; }
       .group-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
       .group-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
@@ -142,6 +150,7 @@ export class BudgetComponent {
   readonly categories = signal<Category[]>([]);
   readonly lines = signal<EditableLine[]>([]);
   readonly dirty = signal(false);
+  readonly rollover = signal(false);
   readonly cashActual = signal(0);
   readonly nonCashActual = signal(0);
 
@@ -154,34 +163,49 @@ export class BudgetComponent {
   }
 
   reload(periodId: string): void {
-    // summary gives merged budget+actual lines; budget endpoint gives raw items
-    this.api.periodSummary(periodId).subscribe((s) => {
-      const reportLines = s.budget.lines ?? [];
-      const map = new Map<string, BudgetLine>();
-      for (const l of reportLines) map.set(l.categoryId + '|' + l.subcategory, l);
+    // Edit the RAW budget items (so rollover, which the summary folds in, never
+    // compounds on save); take actuals from the summary's report.
+    forkJoin({ budget: this.api.getBudget(periodId), summary: this.api.periodSummary(periodId) }).subscribe(
+      ({ budget, summary }) => {
+        this.rollover.set(!!budget.rollover);
 
-      const lines: EditableLine[] = [];
-      for (const cat of this.categories()) {
-        for (const sub of cat.subcategories.filter((x) => x.active)) {
-          const existing = map.get(cat.id + '|' + sub.name);
-          lines.push({
-            categoryId: cat.id,
-            subcategory: sub.name,
-            budgetTaka: (existing?.budget ?? 0) / 100,
-            actual: existing?.actual ?? 0,
-          });
-          map.delete(cat.id + '|' + sub.name);
+        const rawBudget = new Map<string, number>(); // catSub -> paisa
+        for (const it of budget.items ?? []) rawBudget.set(it.categoryId + '|' + it.subcategory, it.amount);
+        const actualMap = new Map<string, number>();
+        for (const l of summary.budget.lines ?? []) actualMap.set(l.categoryId + '|' + l.subcategory, l.actual);
+
+        const lines: EditableLine[] = [];
+        const seen = new Set<string>();
+        for (const cat of this.categories()) {
+          for (const sub of cat.subcategories.filter((x) => x.active)) {
+            const key = cat.id + '|' + sub.name;
+            seen.add(key);
+            lines.push({
+              categoryId: cat.id,
+              subcategory: sub.name,
+              budgetTaka: (rawBudget.get(key) ?? 0) / 100,
+              actual: actualMap.get(key) ?? 0,
+            });
+          }
         }
-      }
-      // lines for deactivated/unknown subcats that still have data
-      for (const l of map.values()) {
-        lines.push({ categoryId: l.categoryId, subcategory: l.subcategory, budgetTaka: l.budget / 100, actual: l.actual });
-      }
-      this.lines.set(lines);
-      this.cashActual.set(s.budget.totals.cashActual);
-      this.nonCashActual.set(s.budget.totals.nonCashActual);
-      this.dirty.set(false);
-    });
+        // lines for deactivated/unknown subcats that still have budget or spend
+        for (const key of new Set([...rawBudget.keys(), ...actualMap.keys()])) {
+          if (seen.has(key)) continue;
+          const [categoryId, subcategory] = key.split('|');
+          lines.push({ categoryId, subcategory, budgetTaka: (rawBudget.get(key) ?? 0) / 100, actual: actualMap.get(key) ?? 0 });
+        }
+
+        this.lines.set(lines);
+        this.cashActual.set(summary.budget.totals.cashActual);
+        this.nonCashActual.set(summary.budget.totals.nonCashActual);
+        this.dirty.set(false);
+      },
+    );
+  }
+
+  setRollover(on: boolean): void {
+    this.rollover.set(on);
+    this.dirty.set(true);
   }
 
   readonly grouped = computed(() => {
@@ -217,7 +241,7 @@ export class BudgetComponent {
     const items = this.lines()
       .filter((l) => l.budgetTaka > 0)
       .map((l) => ({ categoryId: l.categoryId, subcategory: l.subcategory, amount: Math.round(l.budgetTaka * 100) }));
-    this.api.putBudget(p.id, items).subscribe({
+    this.api.putBudget(p.id, items, this.rollover()).subscribe({
       next: () => {
         this.snack.open('Budget saved', undefined, { duration: 2000 });
         this.reload(p.id);

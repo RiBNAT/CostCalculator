@@ -138,8 +138,8 @@ export class ApiService {
   getBudget(periodId: string): Observable<Budget> {
     return this.http.get<Budget>(`${base}/periods/${periodId}/budget`);
   }
-  putBudget(periodId: string, items: BudgetItem[]) {
-    return this.http.put<Budget>(`${base}/periods/${periodId}/budget`, { items });
+  putBudget(periodId: string, items: BudgetItem[], rollover = false) {
+    return this.http.put<Budget>(`${base}/periods/${periodId}/budget`, { items, rollover });
   }
   copyPreviousBudget(periodId: string) {
     return this.http.post<Budget>(`${base}/periods/${periodId}/budget/copy-previous`, {});
