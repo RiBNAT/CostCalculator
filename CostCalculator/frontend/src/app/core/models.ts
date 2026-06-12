@@ -119,6 +119,15 @@ export interface Budget {
   rollover?: boolean;
 }
 
+export interface RecurringExpense {
+  id: string;
+  label: string;
+  categoryId: string;
+  subcategory: string;
+  accountId: string;
+  amount: number;
+}
+
 export interface Settlement {
   date: string;
   amount: number;

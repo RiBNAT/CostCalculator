@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,14 +15,15 @@ import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { ConfirmService } from '../../core/confirm-dialog.component';
 import { PeriodStateService } from '../../core/period-state.service';
-import { Account, Category } from '../../core/models';
+import { Account, Category, RecurringExpense, Subcategory } from '../../core/models';
+import { MoneyPipe } from '../../core/money.pipe';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatIconModule, MatTabsModule, MatTooltipModule, MatSnackBarModule,
+    MatSelectModule, MatIconModule, MatTabsModule, MatTooltipModule, MatSnackBarModule, MoneyPipe,
   ],
   template: `
     <div class="page">
@@ -225,6 +226,59 @@ import { Account, Category } from '../../core/models';
             </div>
           </div>
         </mat-tab>
+
+        <!-- ===================== RECURRING ===================== -->
+        <mat-tab>
+          <ng-template mat-tab-label><mat-icon>repeat</mat-icon> Recurring</ng-template>
+          <div class="tab-body">
+            <div class="card">
+              <p class="hint">
+                Reusable expense templates (rent, utilities, fees). Add them to any period in one tap
+                from the Expenses page → Recurring.
+              </p>
+              @for (r of recurring(); track r.id) {
+                <div class="row">
+                  <mat-icon>repeat</mat-icon>
+                  <span class="grow">{{ r.label }}</span>
+                  <span class="kind">{{ catName(r.categoryId) }} · {{ r.subcategory }} · {{ accName(r.accountId) }}</span>
+                  <strong class="rec-amount">{{ r.amount | money }}</strong>
+                  <button mat-icon-button (click)="deleteRecurring(r)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+                </div>
+              } @empty {
+                <div class="empty-hint">No templates yet — add one below.</div>
+              }
+              <form [formGroup]="recForm" (ngSubmit)="addRecurring()" class="add-form">
+                <mat-form-field appearance="outline" class="grow" subscriptSizing="dynamic">
+                  <mat-label>Label</mat-label>
+                  <input matInput formControlName="label" placeholder="House rent" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-kind" subscriptSizing="dynamic">
+                  <mat-label>Category</mat-label>
+                  <mat-select formControlName="categoryId">
+                    @for (c of expenseCategories(); track c.id) { <mat-option [value]="c.id">{{ c.name }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-kind" subscriptSizing="dynamic">
+                  <mat-label>Subcategory</mat-label>
+                  <mat-select formControlName="subcategory" [disabled]="!recSubs().length">
+                    @for (s of recSubs(); track s.name) { <mat-option [value]="s.name">{{ s.name }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-kind" subscriptSizing="dynamic">
+                  <mat-label>Account</mat-label>
+                  <mat-select formControlName="accountId">
+                    @for (a of paymentAccounts(); track a.id) { <mat-option [value]="a.id">{{ a.name }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-date" subscriptSizing="dynamic">
+                  <mat-label>Amount (৳)</mat-label>
+                  <input matInput type="number" min="0" formControlName="amountTaka" />
+                </mat-form-field>
+                <button mat-flat-button color="primary" [disabled]="recForm.invalid"><mat-icon>add</mat-icon> Add</button>
+              </form>
+            </div>
+          </div>
+        </mat-tab>
       </mat-tab-group>
     </div>
   `,
@@ -273,6 +327,7 @@ import { Account, Category } from '../../core/models';
         font-variant-numeric: tabular-nums;
       }
       .goal-edit input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+      .rec-amount { font-variant-numeric: tabular-nums; margin-right: 6px; }
     `,
   ],
 })
@@ -286,11 +341,22 @@ export class SettingsComponent {
 
   readonly categories = signal<Category[]>([]);
   readonly accounts = signal<Account[]>([]);
+  readonly recurring = signal<RecurringExpense[]>([]);
+  private readonly recCategoryId = signal('');
   newSub: Record<string, string> = {};
   goalTaka: Record<string, number> = {}; // savings goal editor, in taka
   tabIndex = 0;
 
-  private static readonly TABS = ['profile', 'categories', 'accounts', 'periods'];
+  private static readonly TABS = ['profile', 'categories', 'accounts', 'periods', 'recurring'];
+
+  readonly expenseCategories = computed(() => this.categories().filter((c) => c.active && c.kind === 'expense'));
+  readonly paymentAccounts = computed(() =>
+    this.accounts().filter((a) => a.active && ['cash', 'bank', 'mobile'].includes(a.kind)),
+  );
+  readonly recSubs = computed<Subcategory[]>(() => {
+    const cat = this.categories().find((c) => c.id === this.recCategoryId());
+    return (cat?.subcategories ?? []).filter((s) => s.active);
+  });
 
   profileForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -319,12 +385,23 @@ export class SettingsComponent {
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
   });
+  recForm = this.fb.nonNullable.group({
+    label: ['', Validators.required],
+    categoryId: ['', Validators.required],
+    subcategory: ['', Validators.required],
+    accountId: ['', Validators.required],
+    amountTaka: [0, [Validators.required, Validators.min(0.01)]],
+  });
 
   constructor() {
     const route = inject(ActivatedRoute);
     route.queryParamMap.subscribe((q) => {
       const i = SettingsComponent.TABS.indexOf(q.get('tab') ?? '');
       if (i >= 0) this.tabIndex = i;
+    });
+    this.recForm.controls.categoryId.valueChanges.subscribe((id) => {
+      this.recCategoryId.set(id);
+      this.recForm.controls.subcategory.setValue('');
     });
     this.reload();
     this.api.me().subscribe((u) => {
@@ -340,6 +417,39 @@ export class SettingsComponent {
       this.accounts.set(a);
       for (const x of a) if (x.kind === 'savings') this.goalTaka[x.id] = (x.goal ?? 0) / 100;
     });
+    this.api.listRecurring().subscribe((r) => this.recurring.set(r));
+  }
+
+  catName(id: string): string {
+    return this.categories().find((c) => c.id === id)?.name ?? '—';
+  }
+  accName(id: string): string {
+    return this.accounts().find((a) => a.id === id)?.name ?? '—';
+  }
+
+  addRecurring(): void {
+    const v = this.recForm.getRawValue();
+    this.api
+      .createRecurring({
+        label: v.label,
+        categoryId: v.categoryId,
+        subcategory: v.subcategory,
+        accountId: v.accountId,
+        amount: Math.round(Number(v.amountTaka) * 100),
+      })
+      .subscribe({
+        next: () => {
+          this.recForm.reset({ label: '', categoryId: '', subcategory: '', accountId: '', amountTaka: 0 });
+          this.recCategoryId.set('');
+          this.reload();
+          this.snack.open('Template added', undefined, { duration: 2000 });
+        },
+        error: this.fail,
+      });
+  }
+
+  deleteRecurring(r: RecurringExpense): void {
+    this.api.deleteRecurring(r.id).subscribe({ next: () => this.reload(), error: this.fail });
   }
 
   accIcon(kind: string): string {

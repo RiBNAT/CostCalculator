@@ -191,3 +191,15 @@ type Reminder struct {
 	Task   string    `bson:"task" json:"task"`
 	Done   bool      `bson:"done" json:"done"`
 }
+
+// RecurringExpense is a reusable expense template (rent, utilities, fees)
+// the user can drop into any period with one tap.
+type RecurringExpense struct {
+	ID          string `bson:"_id,omitempty" json:"id"`
+	UserID      string `bson:"userId" json:"-"`
+	Label       string `bson:"label" json:"label"`
+	CategoryID  string `bson:"categoryId" json:"categoryId"`
+	Subcategory string `bson:"subcategory" json:"subcategory"`
+	AccountID   string `bson:"accountId" json:"accountId"`
+	Amount      int64  `bson:"amount" json:"amount"`
+}

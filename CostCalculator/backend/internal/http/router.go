@@ -24,6 +24,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 	lh := &lendHandlers{db: db}
 	wh := &plannerHandlers{db: db}
 	ioh := &ioHandlers{db: db, imp: &importer.Importer{DB: db, Periods: periods}}
+	rch := &recurringHandlers{db: db}
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery(), CORS(cfg.CORSOrigin))
@@ -97,6 +98,11 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 		p.POST("/reminders", wh.createReminder)
 		p.PUT("/reminders/:id", wh.updateReminder)
 		p.DELETE("/reminders/:id", wh.deleteReminder)
+
+		p.GET("/recurring", rch.list)
+		p.POST("/recurring", rch.create)
+		p.PUT("/recurring/:id", rch.update)
+		p.DELETE("/recurring/:id", rch.delete)
 
 		p.POST("/import/excel", ioh.importExcel)
 		p.GET("/template/excel", ioh.downloadTemplate)

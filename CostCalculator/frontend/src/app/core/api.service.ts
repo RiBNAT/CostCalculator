@@ -16,6 +16,7 @@ import {
   Period,
   PeriodSummary,
   PeriodTrends,
+  RecurringExpense,
   Reminder,
   SavingsHistoryPoint,
   Transfer,
@@ -190,6 +191,17 @@ export class ApiService {
   }
   deleteReminder(id: string) {
     return this.http.delete<void>(`${base}/reminders/${id}`);
+  }
+
+  // recurring expense templates
+  listRecurring(): Observable<RecurringExpense[]> {
+    return this.http.get<RecurringExpense[]>(`${base}/recurring`);
+  }
+  createRecurring(body: { label: string; categoryId: string; subcategory: string; accountId: string; amount: number }) {
+    return this.http.post<RecurringExpense>(`${base}/recurring`, body);
+  }
+  deleteRecurring(id: string) {
+    return this.http.delete<void>(`${base}/recurring/${id}`);
   }
 
   // import
