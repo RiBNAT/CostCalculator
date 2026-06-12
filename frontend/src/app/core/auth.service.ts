@@ -51,6 +51,12 @@ export class AuthService {
     this.user.set(null);
   }
 
+  /** Sync the cached user after a profile update. */
+  setUser(user: User): void {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.user.set(user);
+  }
+
   private store(user: User, tokens: TokenPair): void {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     this.user.set(user);

@@ -35,8 +35,15 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 	a.POST("/login", ah.login)
 	a.POST("/refresh", ah.refresh)
 
+	mh := &meHandlers{db: db}
+
 	p := v1.Group("", AuthRequired(auth))
 	{
+		p.GET("/me", mh.get)
+		p.PUT("/me", mh.updateProfile)
+		p.PUT("/me/email", mh.updateEmail)
+		p.PUT("/me/password", mh.updatePassword)
+
 		p.GET("/categories", rh.listCategories)
 		p.POST("/categories", rh.createCategory)
 		p.PUT("/categories/:id", rh.updateCategory)

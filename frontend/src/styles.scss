@@ -123,3 +123,24 @@ table.data {
 .chip.settled { background: #f1f3f4; color: var(--ink-soft); }
 .chip.given { background: #e8f0fe; color: #1a73e8; }
 .chip.taken { background: #fde7f3; color: #b80672; }
+
+// dialogs
+.app-dialog .mat-mdc-dialog-surface {
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 48px rgba(20, 28, 58, 0.22) !important;
+}
+
+// page entry animation
+.page {
+  animation: page-in 0.25s ease-out;
+}
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+// paginator blends into table card
+.mat-mdc-paginator {
+  background: transparent;
+  border-top: 1px solid #f0f2f8;
+}

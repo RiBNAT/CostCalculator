@@ -17,6 +17,7 @@ import {
   PeriodSummary,
   Reminder,
   Transfer,
+  User,
 } from './models';
 
 const base = environment.apiBase;
@@ -24,6 +25,20 @@ const base = environment.apiBase;
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   constructor(private http: HttpClient) {}
+
+  // profile
+  me(): Observable<User> {
+    return this.http.get<User>(`${base}/me`);
+  }
+  updateProfile(body: { name: string; phone: string }): Observable<User> {
+    return this.http.put<User>(`${base}/me`, body);
+  }
+  updateEmail(body: { email: string; password: string }): Observable<User> {
+    return this.http.put<User>(`${base}/me/email`, body);
+  }
+  updatePassword(body: { currentPassword: string; newPassword: string }) {
+    return this.http.put<void>(`${base}/me/password`, body);
+  }
 
   // categories
   listCategories(): Observable<Category[]> {

@@ -3,20 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { forkJoin } from 'rxjs';
 
 import { ApiService } from '../../core/api.service';
 import { PeriodStateService } from '../../core/period-state.service';
-import { PeriodSummary } from '../../core/models';
+import { AccountStatus, PeriodSummary } from '../../core/models';
 import { MoneyPipe } from '../../core/money.pipe';
 import { formatTaka } from '../../core/amount-expr';
+import { DetailDialogComponent, DetailDialogData, DetailRow } from './detail-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, MatButtonModule, MatTooltipModule, BaseChartDirective, MoneyPipe],
+  imports: [
+    CommonModule, RouterLink, MatIconModule, MatButtonModule, MatDialogModule, MatRippleModule,
+    BaseChartDirective, MoneyPipe,
+  ],
   template: `
     <div class="page">
       @if (summary(); as s) {
@@ -25,50 +31,56 @@ import { formatTaka } from '../../core/amount-expr';
           {{ s.period.name }} · {{ s.period.startDate | date: 'd MMM' }} – {{ s.period.endDate | date: 'd MMM yyyy' }}
         </p>
 
-        <!-- hero row -->
+        <!-- overview -->
+        <div class="section-label">Overview</div>
         <div class="cards-grid hero">
-          <div class="card hero-card inhand">
-            <div class="label">In hand</div>
+          <div class="card hero-card inhand clickable" matRipple (click)="openInHand()">
+            <div class="label"><mat-icon>account_balance_wallet</mat-icon> In hand</div>
             <div class="value">{{ s.inHand | money }}</div>
-            <div class="foot">across cash, bank & mobile accounts</div>
+            <div class="foot">cash, bank & mobile <span class="more">details <mat-icon>chevron_right</mat-icon></span></div>
           </div>
-          <div class="card hero-card">
-            <div class="label">Spent this period</div>
+          <div class="card hero-card clickable" matRipple (click)="openSpent()">
+            <div class="label"><mat-icon>shopping_cart</mat-icon> Spent</div>
             <div class="value">{{ s.budget.totals.actual | money }}</div>
             <div class="foot">
-              budget {{ s.budget.totals.budget | money }} ·
               <span [class]="s.budget.totals.remaining >= 0 ? 'pos' : 'neg'">
                 {{ s.budget.totals.remaining | money }} {{ s.budget.totals.remaining >= 0 ? 'left' : 'over' }}
               </span>
+              of {{ s.budget.totals.budget | money }}
+              <span class="more">details <mat-icon>chevron_right</mat-icon></span>
             </div>
           </div>
-          <div class="card hero-card">
-            <div class="label">Savings</div>
+          <div class="card hero-card clickable" matRipple (click)="openSavings()">
+            <div class="label"><mat-icon>savings</mat-icon> Savings</div>
             <div class="value">{{ savingsTotal() | money }}</div>
-            <div class="foot">{{ (s.savings ?? []).length }} accounts</div>
+            <div class="foot">{{ (s.savings ?? []).length }} accounts <span class="more">details <mat-icon>chevron_right</mat-icon></span></div>
           </div>
-          <div class="card hero-card">
-            <div class="label">Lending</div>
+          <div class="card hero-card clickable" matRipple (click)="openLends()">
+            <div class="label"><mat-icon>handshake</mat-icon> Lending</div>
             <div class="value">{{ s.lendTotals.given | money }}</div>
-            <div class="foot">given out · owe {{ s.lendTotals.taken | money }}</div>
+            <div class="foot">given out · owe {{ s.lendTotals.taken | money }} <span class="more">details <mat-icon>chevron_right</mat-icon></span></div>
           </div>
         </div>
 
         <!-- accounts -->
+        <div class="section-label">Accounts</div>
         <div class="cards-grid accounts">
           @for (a of liquidAccounts(); track a.account.id) {
-            <div class="card acc-card">
+            <div class="card acc-card clickable" matRipple (click)="openAccount(a)">
               <div class="acc-head">
-                <mat-icon>{{ accIcon(a.account.kind) }}</mat-icon>
+                <span class="acc-icon"><mat-icon>{{ accIcon(a.account.kind) }}</mat-icon></span>
                 <span>{{ a.account.name }}</span>
               </div>
               <div class="acc-balance" [class.neg]="a.current < 0">{{ a.current | money }}</div>
-              <div class="acc-open">opened at {{ a.opening | money }}</div>
+              <div class="acc-open" [class.pos]="a.current - a.opening > 0" [class.neg]="a.current - a.opening < 0">
+                {{ a.current - a.opening | money: true }} this period
+              </div>
             </div>
           }
         </div>
 
-        <!-- charts row -->
+        <!-- charts -->
+        <div class="section-label">Activity</div>
         <div class="charts-row">
           <div class="card chart-card">
             <h3>Daily spend</h3>
@@ -84,7 +96,7 @@ import { formatTaka } from '../../core/amount-expr';
           </div>
         </div>
 
-        <!-- budget + planner row -->
+        <!-- budget + planner -->
         <div class="charts-row">
           <div class="card chart-card">
             <div class="card-head-row">
@@ -114,9 +126,7 @@ import { formatTaka } from '../../core/amount-expr';
             @for (w of s.windows ?? []; track w.window.id) {
               <div class="window-row">
                 <span>{{ w.window.name }}</span>
-                <span class="chip" [class]="w.status.state">
-                  {{ windowLabel(w.status) }}
-                </span>
+                <span class="chip" [class]="w.status.state">{{ windowLabel(w.status) }}</span>
               </div>
             } @empty {
               <div class="empty-hint">No payment windows for this period</div>
@@ -136,7 +146,7 @@ import { formatTaka } from '../../core/amount-expr';
         <div class="empty-hint big">
           @if (state.periods().length === 0) {
             <mat-icon class="hint-icon">calendar_month</mat-icon>
-            <p>No periods yet. <a routerLink="/import">Import your Excel</a> or create a period from the Expenses page.</p>
+            <p>No periods yet. <a routerLink="/import">Import your Excel</a> or create a period in Settings.</p>
           } @else {
             Loading…
           }
@@ -146,19 +156,34 @@ import { formatTaka } from '../../core/amount-expr';
   `,
   styles: [
     `
-      .hero { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 16px; }
-      .hero-card .label { color: var(--ink-soft); font-size: 13px; font-weight: 600; }
-      .hero-card .value { font-size: 28px; font-weight: 800; margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
-      .hero-card .foot { color: var(--ink-soft); font-size: 12px; }
-      .hero-card.inhand { background: linear-gradient(135deg, #3949ab, #1e88e5); color: #fff; }
-      .hero-card.inhand .label, .hero-card.inhand .foot { color: rgba(255, 255, 255, 0.85); }
+      .section-label {
+        font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+        color: var(--ink-soft); margin: 18px 0 10px;
+      }
+      .clickable { cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
+      .clickable:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(20, 28, 58, 0.08), 0 14px 34px rgba(20, 28, 58, 0.12); }
+      .more { display: inline-flex; align-items: center; opacity: 0; transition: opacity 0.18s; font-weight: 600; margin-left: 6px; }
+      .more mat-icon { font-size: 14px; width: 14px; height: 14px; }
+      .clickable:hover .more { opacity: 1; }
 
-      .accounts { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); margin-bottom: 16px; }
+      .hero { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      .hero-card .label { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+      .hero-card .label mat-icon { font-size: 17px; width: 17px; height: 17px; }
+      .hero-card .value { font-size: 28px; font-weight: 800; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
+      .hero-card .foot { color: var(--ink-soft); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+      .hero-card.inhand { background: linear-gradient(135deg, #3949ab, #1e88e5); color: #fff; }
+      .hero-card.inhand .label, .hero-card.inhand .foot { color: rgba(255, 255, 255, 0.88); }
+
+      .accounts { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
       .acc-card { padding: 14px 16px; }
-      .acc-head { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: 13px; font-weight: 600; }
-      .acc-head mat-icon { font-size: 18px; width: 18px; height: 18px; }
-      .acc-balance { font-size: 20px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-      .acc-open { color: var(--ink-soft); font-size: 11px; margin-top: 2px; }
+      .acc-head { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 13px; font-weight: 700; }
+      .acc-icon {
+        width: 30px; height: 30px; border-radius: 9px; background: var(--primary-soft);
+        display: grid; place-items: center; color: var(--primary);
+      }
+      .acc-icon mat-icon { font-size: 17px; width: 17px; height: 17px; }
+      .acc-balance { font-size: 20px; font-weight: 700; margin-top: 8px; font-variant-numeric: tabular-nums; }
+      .acc-open { font-size: 11px; margin-top: 2px; color: var(--ink-soft); }
 
       .charts-row { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 16px; }
       @media (max-width: 1000px) { .charts-row { grid-template-columns: 1fr; } }
@@ -172,7 +197,7 @@ import { formatTaka } from '../../core/amount-expr';
       .burn-row { display: grid; grid-template-columns: 130px 1fr auto; gap: 12px; align-items: center; padding: 7px 0; }
       .burn-name { font-size: 13px; font-weight: 600; }
       .burn-bar { height: 8px; background: #eef0f7; border-radius: 99px; overflow: hidden; }
-      .burn-fill { height: 100%; background: linear-gradient(90deg, #43a047, #9ccc65); border-radius: 99px; }
+      .burn-fill { height: 100%; background: linear-gradient(90deg, #43a047, #9ccc65); border-radius: 99px; transition: width 0.4s ease; }
       .burn-fill.over { background: linear-gradient(90deg, #e53935, #ef5350); }
       .burn-nums { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 
@@ -188,9 +213,11 @@ import { formatTaka } from '../../core/amount-expr';
 })
 export class DashboardComponent {
   private api = inject(ApiService);
+  private dialog = inject(MatDialog);
   readonly state = inject(PeriodStateService);
 
   readonly summary = signal<PeriodSummary | null>(null);
+  private readonly categoryNames = signal<Record<string, string>>({});
 
   readonly barOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
@@ -215,8 +242,6 @@ export class DashboardComponent {
     cutout: '62%',
   };
 
-  private readonly categoryNames = signal<Record<string, string>>({});
-
   constructor() {
     this.api.listCategories().subscribe((cats) => {
       const map: Record<string, string> = {};
@@ -238,7 +263,6 @@ export class DashboardComponent {
   );
 
   readonly savingsTotal = computed(() => (this.summary()?.savings ?? []).reduce((t, s) => t + s.current, 0));
-
   readonly budgetCats = computed(() => this.summary()?.budget.categories ?? []);
 
   readonly dailyChart = computed<ChartConfiguration<'bar'>['data']>(() => {
@@ -294,5 +318,124 @@ export class DashboardComponent {
       default:
         return 'paid';
     }
+  }
+
+  private open(data: DetailDialogData): void {
+    this.dialog.open(DetailDialogComponent, { data, autoFocus: false, panelClass: 'app-dialog' });
+  }
+
+  openInHand(): void {
+    const s = this.summary();
+    if (!s) return;
+    this.open({
+      title: 'In hand — account balances',
+      icon: 'account_balance_wallet',
+      subtitle: `${s.period.name} · opening vs current`,
+      rows: this.liquidAccounts().map((a) => ({
+        icon: this.accIcon(a.account.kind),
+        label: a.account.name,
+        sub: `opened at ৳${formatTaka(a.opening)}`,
+        amount: a.current,
+        cls: a.current < 0 ? 'neg' : '',
+      })),
+      total: { label: 'Total in hand', amount: s.inHand },
+    });
+  }
+
+  openSpent(): void {
+    const s = this.summary();
+    if (!s) return;
+    const cats = [...(s.categoryTotals ?? [])].sort((a, b) => b.total - a.total);
+    this.open({
+      title: 'Spending by category',
+      icon: 'shopping_cart',
+      subtitle: `${s.period.name} · budget ৳${formatTaka(s.budget.totals.budget)} · cash ৳${formatTaka(
+        s.budget.totals.cashActual,
+      )} / non-cash ৳${formatTaka(s.budget.totals.nonCashActual)}`,
+      rows: cats.map((c) => ({ icon: 'label', label: c.name, amount: c.total })),
+      total: { label: 'Total spent', amount: s.budget.totals.actual },
+      emptyHint: 'No expenses recorded yet',
+    });
+  }
+
+  openSavings(): void {
+    const s = this.summary();
+    if (!s) return;
+    this.open({
+      title: 'Savings accounts',
+      icon: 'savings',
+      subtitle: `${s.period.name} · current balance with this period's change`,
+      rows: (s.savings ?? []).map((a) => ({
+        icon: 'account_balance',
+        label: a.account.name,
+        sub: `${a.current - a.opening >= 0 ? '+' : ''}৳${formatTaka(a.current - a.opening)} this period`,
+        amount: a.current,
+        cls: a.current - a.opening > 0 ? 'pos' : '',
+      })),
+      total: { label: 'Total savings', amount: this.savingsTotal() },
+      emptyHint: 'No savings accounts yet',
+    });
+  }
+
+  openLends(): void {
+    this.api.listLends({ status: 'open' }).subscribe((lends) => {
+      const rows: DetailRow[] = lends.map((l) => ({
+        icon: l.type === 'given' ? 'call_made' : 'call_received',
+        label: l.person,
+        sub: `${l.type === 'given' ? 'given' : 'taken'} ${l.date.slice(0, 10)}${l.settlements.length ? ` · ${l.settlements.length} settlement(s)` : ''}`,
+        amount: l.amount - l.settlements.reduce((t, x) => t + x.amount, 0),
+        cls: l.type === 'given' ? '' : 'neg',
+      }));
+      this.open({
+        title: 'Open lends',
+        icon: 'handshake',
+        subtitle: 'outstanding amounts per person',
+        rows,
+        emptyHint: 'No open lends',
+      });
+    });
+  }
+
+  openAccount(a: AccountStatus): void {
+    const s = this.summary();
+    const p = this.state.selected();
+    if (!s || !p) return;
+    forkJoin({
+      expenses: this.api.listExpenses(p.id, { accountId: a.account.id }),
+      transfers: this.api.listTransfers(p.id),
+    }).subscribe(({ expenses, transfers }) => {
+      const rows: DetailRow[] = [];
+      for (const t of transfers) {
+        if (t.fromAccountId === a.account.id) {
+          rows.push({
+            icon: 'call_made', label: `Transfer out${t.note ? ' · ' + t.note : ''}`,
+            sub: t.date.slice(0, 10) + (t.fee ? ` · fee ৳${formatTaka(t.fee)}` : ''),
+            amount: -(t.amount + t.fee), cls: 'neg',
+          });
+        } else if (t.toAccountId === a.account.id) {
+          rows.push({
+            icon: 'call_received', label: `Transfer in${t.note ? ' · ' + t.note : ''}`,
+            sub: t.date.slice(0, 10), amount: t.amount, cls: 'pos',
+          });
+        }
+      }
+      for (const e of expenses) {
+        rows.push({
+          icon: 'shopping_cart',
+          label: `${this.catName(e.categoryId)} · ${e.subcategory}`,
+          sub: e.date.slice(0, 10) + (e.remarks ? ' · ' + e.remarks : ''),
+          amount: -e.amount,
+          cls: 'neg',
+        });
+      }
+      rows.sort((x, y) => (y.sub ?? '').localeCompare(x.sub ?? ''));
+      this.open({
+        title: `${a.account.name} — activity`,
+        icon: this.accIcon(a.account.kind),
+        subtitle: `opening ৳${formatTaka(a.opening)} → current ৳${formatTaka(a.current)}`,
+        rows,
+        emptyHint: 'No activity this period',
+      });
+    });
   }
 }
