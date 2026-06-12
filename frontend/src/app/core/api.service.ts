@@ -84,8 +84,11 @@ export class ApiService {
   periodSummary(id: string): Observable<PeriodSummary> {
     return this.http.get<PeriodSummary>(`${base}/periods/${id}/summary`);
   }
-  exportUrl(id: string): string {
-    return `${base}/periods/${id}/export?format=csv`;
+  exportCsv(id: string): Observable<Blob> {
+    return this.http.get(`${base}/periods/${id}/export?format=csv`, { responseType: 'blob' });
+  }
+  downloadTemplate(): Observable<Blob> {
+    return this.http.get(`${base}/template/excel`, { responseType: 'blob' });
   }
 
   // expenses

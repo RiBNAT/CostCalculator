@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/api.service';
 import { PeriodStateService } from '../../core/period-state.service';
 import { ImportReport } from '../../core/models';
+import { saveBlob } from '../../core/save-blob';
 
 @Component({
   selector: 'app-import',
@@ -17,24 +18,61 @@ import { ImportReport } from '../../core/models';
     <div class="page">
       <h1 class="page-title">Import Excel</h1>
       <p class="page-subtitle">
-        Upload your CostSheet workbook — periods, expenses, transfers, budgets and lends are imported from the
-        mature-format sheets (June 25 onward). Re-uploading skips unchanged sheets.
+        Bring a month's data in from Excel — or skip Excel entirely and add periods, expenses and transfers
+        directly from the app.
       </p>
 
-      <div
-        class="card dropzone"
-        [class.drag]="dragging()"
-        (dragover)="$event.preventDefault(); dragging.set(true)"
-        (dragleave)="dragging.set(false)"
-        (drop)="onDrop($event)"
-      >
-        <mat-icon class="big-icon">upload_file</mat-icon>
-        <p><strong>Drag & drop</strong> your .xlsx here, or</p>
-        <button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="busy()">Choose file</button>
-        <input #fileInput type="file" accept=".xlsx" hidden (change)="onPick($event)" />
-        @if (busy()) {
-          <mat-progress-bar mode="indeterminate" class="bar" />
-        }
+      <div class="import-grid">
+        <!-- step 1: template -->
+        <div class="card step-card">
+          <div class="step-num">1</div>
+          <h3><mat-icon>file_download</mat-icon> Get the monthly template</h3>
+          <p>
+            A blank one-month workbook with six sheets, prefilled with <strong>your</strong> categories and
+            accounts as dropdowns:
+          </p>
+          <ul class="sheet-list">
+            <li><strong>Config</strong> — period name, start & end date</li>
+            <li><strong>Expenses</strong> — date, category, subcategory, payment method, amount, remarks</li>
+            <li><strong>Transactions</strong> — transfers between accounts with fees</li>
+            <li><strong>Budget</strong> — per-subcategory budget amounts (rows prefilled)</li>
+            <li><strong>Finance</strong> — opening balances, savings openings, new lends</li>
+            <li><strong>Planner</strong> — payment windows & reminders</li>
+          </ul>
+          <button mat-flat-button color="primary" (click)="downloadTemplate()" [disabled]="downloading()">
+            <mat-icon>download</mat-icon> {{ downloading() ? 'Preparing…' : 'Download template' }}
+          </button>
+        </div>
+
+        <!-- step 2: upload -->
+        <div class="card step-card">
+          <div class="step-num">2</div>
+          <h3><mat-icon>upload_file</mat-icon> Fill it in & upload</h3>
+          <p>
+            One file = one month. Leave the Finance openings blank to roll balances over from the previous
+            period automatically. The legacy CostSheet workbook format is also accepted.
+          </p>
+          <div
+            class="dropzone"
+            [class.drag]="dragging()"
+            (dragover)="$event.preventDefault(); dragging.set(true)"
+            (dragleave)="dragging.set(false)"
+            (drop)="onDrop($event)"
+          >
+            <mat-icon class="big-icon">cloud_upload</mat-icon>
+            <p><strong>Drag & drop</strong> your .xlsx here, or</p>
+            <button mat-stroked-button color="primary" (click)="fileInput.click()" [disabled]="busy()">
+              Choose file
+            </button>
+            <input #fileInput type="file" accept=".xlsx" hidden (change)="onPick($event)" />
+            @if (busy()) {
+              <mat-progress-bar mode="indeterminate" class="bar" />
+            }
+          </div>
+          <p class="note">
+            <mat-icon class="mini">replay</mat-icon> Re-uploading an unchanged file is skipped — no duplicates.
+          </p>
+        </div>
       </div>
 
       @if (report(); as rep) {
@@ -43,7 +81,7 @@ import { ImportReport } from '../../core/models';
           <table class="data">
             <thead>
               <tr>
-                <th>Sheet</th><th class="num">Expenses</th><th class="num">Transfers</th>
+                <th>Period / Sheet</th><th class="num">Expenses</th><th class="num">Transfers</th>
                 <th class="num">Budget items</th><th class="num">Lends</th><th>Status</th>
               </tr>
             </thead>
@@ -57,7 +95,7 @@ import { ImportReport } from '../../core/models';
                   <td class="num">{{ s.lends }}</td>
                   <td>
                     @if (s.skipped) {
-                      <span class="chip closed">skipped</span>
+                      <span class="chip closed">skipped (unchanged)</span>
                     } @else {
                       <span class="chip paid">imported</span>
                     }
@@ -81,17 +119,35 @@ import { ImportReport } from '../../core/models';
   `,
   styles: [
     `
+      .import-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+      @media (max-width: 1000px) { .import-grid { grid-template-columns: 1fr; } }
+      .step-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 24px; }
+      .step-num {
+        position: absolute; top: 18px; right: 20px;
+        width: 30px; height: 30px; border-radius: 50%;
+        background: var(--primary-soft); color: var(--primary);
+        display: grid; place-items: center; font-weight: 800;
+      }
+      h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 700; }
+      h3 mat-icon { color: var(--primary); }
+      p { color: var(--ink-soft); font-size: 13px; margin: 0; }
+      .sheet-list { margin: 4px 0 12px; padding-left: 18px; color: var(--ink-soft); font-size: 13px; line-height: 1.8; }
+      .sheet-list strong { color: var(--ink); }
+      .step-card > button { align-self: flex-start; }
       .dropzone {
         display: flex; flex-direction: column; align-items: center; gap: 8px;
-        padding: 48px; text-align: center;
-        border: 2px dashed #c3c9dd;
+        padding: 28px; text-align: center;
+        border: 2px dashed #c3c9dd; border-radius: 12px;
         transition: border-color 0.15s, background 0.15s;
+        margin-top: 6px;
       }
       .dropzone.drag { border-color: var(--primary); background: var(--primary-soft); }
-      .big-icon { font-size: 48px; width: 48px; height: 48px; color: var(--primary); }
-      .bar { width: 240px; margin-top: 16px; }
+      .big-icon { font-size: 40px; width: 40px; height: 40px; color: var(--primary); }
+      .bar { width: 220px; margin-top: 12px; }
+      .note { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; }
+      .mini { font-size: 15px; width: 15px; height: 15px; }
       .report { margin-top: 16px; }
-      .report h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
+      .report h3 { margin: 0 0 12px; font-size: 15px; }
       .warn-row td { background: #fff8e8; }
       .warning { display: flex; align-items: center; gap: 6px; color: #8a6d00; font-size: 12px; padding: 2px 0; }
       .warning mat-icon { font-size: 16px; width: 16px; height: 16px; }
@@ -104,8 +160,23 @@ export class ImportComponent {
   private state = inject(PeriodStateService);
 
   readonly busy = signal(false);
+  readonly downloading = signal(false);
   readonly dragging = signal(false);
   readonly report = signal<ImportReport | null>(null);
+
+  downloadTemplate(): void {
+    this.downloading.set(true);
+    this.api.downloadTemplate().subscribe({
+      next: (blob) => {
+        this.downloading.set(false);
+        saveBlob(blob, 'ribnat-monthly-template.xlsx');
+      },
+      error: () => {
+        this.downloading.set(false);
+        this.snack.open('Template download failed', 'OK', { duration: 4000 });
+      },
+    });
+  }
 
   onPick(ev: Event): void {
     const file = (ev.target as HTMLInputElement).files?.[0];
@@ -134,7 +205,7 @@ export class ImportComponent {
       },
       error: (e) => {
         this.busy.set(false);
-        this.snack.open(e?.error?.error?.message ?? 'Import failed', 'OK', { duration: 5000 });
+        this.snack.open(e?.error?.error?.message ?? 'Import failed', 'OK', { duration: 6000 });
       },
     });
   }

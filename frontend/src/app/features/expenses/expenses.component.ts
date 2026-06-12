@@ -16,6 +16,7 @@ import { PeriodStateService } from '../../core/period-state.service';
 import { Account, Category, Expense } from '../../core/models';
 import { MoneyPipe } from '../../core/money.pipe';
 import { categoryColor } from '../../core/cat-color';
+import { saveBlob } from '../../core/save-blob';
 import { ExpenseDialogComponent, ExpenseDialogData } from './expense-dialog.component';
 
 @Component({
@@ -36,9 +37,9 @@ import { ExpenseDialogComponent, ExpenseDialogData } from './expense-dialog.comp
           </p>
         </div>
         <div class="head-actions">
-          <a mat-stroked-button [href]="exportUrl()" target="_blank" [class.disabled]="!state.selected()">
+          <button mat-stroked-button (click)="exportCsv()" [disabled]="!state.selected()">
             <mat-icon>download</mat-icon> Export CSV
-          </a>
+          </button>
           <button mat-flat-button color="primary" class="add-btn" (click)="openDialog()" [disabled]="closed() || !state.selected()">
             <mat-icon>add</mat-icon> Add expense
           </button>
@@ -248,9 +249,13 @@ export class ExpensesComponent {
   breakdownTitle(e: Expense): string {
     return (e.breakdown ?? []).length > 1 ? (e.breakdown ?? []).map((p) => p / 100).join(' + ') : '';
   }
-  exportUrl(): string {
+  exportCsv(): void {
     const p = this.state.selected();
-    return p ? this.api.exportUrl(p.id) : '#';
+    if (!p) return;
+    this.api.exportCsv(p.id).subscribe({
+      next: (blob) => saveBlob(blob, `${p.name}.csv`),
+      error: () => this.snack.open('Export failed', 'OK', { duration: 4000 }),
+    });
   }
 
   openDialog(expense?: Expense): void {

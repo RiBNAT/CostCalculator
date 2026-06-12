@@ -11,6 +11,7 @@ import (
 	"ribnat/backend/internal/domain"
 	"ribnat/backend/internal/importer"
 	"ribnat/backend/internal/repo"
+	"ribnat/backend/internal/template"
 )
 
 type ioHandlers struct {
@@ -37,6 +38,33 @@ func (h *ioHandlers) importExcel(c *gin.Context) {
 		return
 	}
 	c.JSON(200, report)
+}
+
+// downloadTemplate streams a blank monthly template personalized with the
+// user's categories and accounts (dropdowns + prefilled rows).
+func (h *ioHandlers) downloadTemplate(c *gin.Context) {
+	uid := userID(c)
+	cats, err := repo.FindAll[domain.Category](c, h.db.Categories, bson.M{"userId": uid})
+	if err != nil {
+		Internal(c, err)
+		return
+	}
+	accs, err := repo.FindAll[domain.Account](c, h.db.Accounts, bson.M{"userId": uid})
+	if err != nil {
+		Internal(c, err)
+		return
+	}
+	f, err := template.Generate(cats, accs)
+	if err != nil {
+		Internal(c, err)
+		return
+	}
+	defer f.Close()
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", `attachment; filename="ribnat-monthly-template.xlsx"`)
+	if err := f.Write(c.Writer); err != nil {
+		Internal(c, err)
+	}
 }
 
 // exportCSV streams a period's expenses and transfers as CSV.

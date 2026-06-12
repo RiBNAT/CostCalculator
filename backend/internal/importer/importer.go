@@ -64,6 +64,11 @@ func (im *Importer) Run(ctx context.Context, userID string, r io.Reader) (*Repor
 		accByName[accounts[i].Name] = &accounts[i]
 	}
 
+	// monthly template format (downloaded from the website) — one period per file
+	if isTemplate(f) {
+		return im.importTemplate(ctx, userID, f, catByName, accByName)
+	}
+
 	report := &Report{}
 	var imported []*domain.Period
 

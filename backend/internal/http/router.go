@@ -94,6 +94,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 		p.DELETE("/reminders/:id", wh.deleteReminder)
 
 		p.POST("/import/excel", ioh.importExcel)
+		p.GET("/template/excel", ioh.downloadTemplate)
 	}
 	return r
 }
