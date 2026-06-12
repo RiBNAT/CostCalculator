@@ -1,0 +1,34 @@
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping: 1}).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: ribnat  # legacy database name kept after the Cost Calculator rename
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8081}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}  # set to enable Sign in with Google
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "8081:80"
+
+volumes:
+  mongo-data:
