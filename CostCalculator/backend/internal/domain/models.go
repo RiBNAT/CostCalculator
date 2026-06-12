@@ -61,6 +61,7 @@ type Account struct {
 	Kind        AccountKind `bson:"kind" json:"kind"`
 	VirtualRole VirtualRole `bson:"virtualRole,omitempty" json:"virtualRole,omitempty"`
 	Active      bool        `bson:"active" json:"active"`
+	Goal        int64       `bson:"goal,omitempty" json:"goal,omitempty"` // savings target in paisa, 0 = none
 }
 
 // Liquid reports whether the account counts toward the in-hand total.

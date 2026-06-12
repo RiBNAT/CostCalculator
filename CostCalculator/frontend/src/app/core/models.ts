@@ -35,6 +35,7 @@ export interface Account {
   kind: AccountKind;
   virtualRole?: 'external' | 'lendGiven' | 'lendTaken';
   active: boolean;
+  goal?: number; // savings target in paisa, 0/absent = none
 }
 
 export interface AccountAmount {

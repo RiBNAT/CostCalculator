@@ -60,10 +60,10 @@ export class ApiService {
   listAccounts(): Observable<Account[]> {
     return this.http.get<Account[]>(`${base}/accounts`);
   }
-  createAccount(body: { name: string; kind: string }) {
+  createAccount(body: { name: string; kind: string; goal?: number }) {
     return this.http.post<Account>(`${base}/accounts`, body);
   }
-  updateAccount(id: string, body: { name: string; kind: string; active?: boolean }) {
+  updateAccount(id: string, body: { name: string; kind: string; active?: boolean; goal?: number }) {
     return this.http.put<void>(`${base}/accounts/${id}`, body);
   }
 
