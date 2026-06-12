@@ -65,6 +65,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 		p.POST("/periods/:id/reopen", ph.reopen)
 		p.GET("/periods/:id/status", ph.status)
 		p.GET("/periods/:id/summary", ph.getSummary)
+		p.GET("/periods/:id/trends", ph.trends)
 		p.GET("/periods/:id/export", ioh.exportCSV)
 
 		p.GET("/periods/:id/expenses", eh.listExpenses)
