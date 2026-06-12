@@ -103,6 +103,7 @@ type TrendPoint struct {
 	StartDate  time.Time `json:"startDate"`
 	TotalSpend int64     `json:"totalSpend"`
 	TotalSaved int64     `json:"totalSaved"`
+	NetWorth   int64     `json:"netWorth"` // closing in-hand + savings
 }
 
 type CategoryComparison struct {
@@ -143,13 +144,18 @@ func (s *Summary) Trends(ctx context.Context, userID, periodID string) (*PeriodT
 		start = 0
 	}
 
+	accounts, err := repo.FindAll[domain.Account](ctx, s.DB.Accounts, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+
 	out := &PeriodTrends{}
 	for i := start; i <= sel; i++ {
 		spend, err := s.periodSpend(ctx, userID, periods[i].ID)
 		if err != nil {
 			return nil, err
 		}
-		_, savings, err := s.Periods.ClosingBalances(ctx, &periods[i])
+		balances, savings, err := s.Periods.ClosingBalances(ctx, &periods[i])
 		if err != nil {
 			return nil, err
 		}
@@ -160,6 +166,7 @@ func (s *Summary) Trends(ctx context.Context, userID, periodID string) (*PeriodT
 		out.Series = append(out.Series, TrendPoint{
 			PeriodID: periods[i].ID, PeriodName: periods[i].Name,
 			StartDate: periods[i].StartDate, TotalSpend: spend, TotalSaved: saved,
+			NetWorth: domain.InHand(balances, accounts) + saved,
 		})
 	}
 

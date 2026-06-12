@@ -105,6 +105,7 @@ func TestPeriodTrends(t *testing.T) {
 		Series []struct {
 			PeriodName string `json:"periodName"`
 			TotalSpend int64  `json:"totalSpend"`
+			NetWorth   int64  `json:"netWorth"`
 		} `json:"series"`
 		PreviousPeriodName string `json:"previousPeriodName"`
 		Comparison         []struct {
@@ -128,6 +129,14 @@ func TestPeriodTrends(t *testing.T) {
 	}
 	if out.Series[1].TotalSpend != 25000 {
 		t.Errorf("June spend = %d paisa, want 25000", out.Series[1].TotalSpend)
+	}
+	// net worth = closing in-hand + savings. No income here, so cash goes
+	// negative: May spends 100 (−10000), June opens at −10000 then spends 250.
+	if out.Series[0].NetWorth != -10000 {
+		t.Errorf("May net worth = %d paisa, want -10000", out.Series[0].NetWorth)
+	}
+	if out.Series[1].NetWorth != -35000 {
+		t.Errorf("June net worth = %d paisa, want -35000", out.Series[1].NetWorth)
 	}
 	if out.PreviousPeriodName != "May 26" {
 		t.Errorf("previousPeriodName = %q, want \"May 26\"", out.PreviousPeriodName)

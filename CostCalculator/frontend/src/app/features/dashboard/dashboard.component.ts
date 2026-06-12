@@ -419,7 +419,7 @@ export class DashboardComponent {
           borderRadius: 4,
           order: 2,
         },
-        // overlaid savings line — typed loosely as Chart.js mixes bar+line per dataset
+        // overlaid lines — typed loosely as Chart.js mixes bar+line per dataset
         {
           label: 'Savings',
           type: 'line',
@@ -429,6 +429,17 @@ export class DashboardComponent {
           tension: 0.3,
           pointRadius: 3,
           order: 1,
+        } as any,
+        {
+          label: 'Net worth',
+          type: 'line',
+          data: series.map((p) => p.netWorth / 100),
+          borderColor: '#8e24aa',
+          backgroundColor: 'transparent',
+          borderDash: [5, 4],
+          tension: 0.3,
+          pointRadius: 3,
+          order: 0,
         } as any,
       ],
     };

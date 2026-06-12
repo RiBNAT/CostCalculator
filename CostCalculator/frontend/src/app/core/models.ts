@@ -66,6 +66,7 @@ export interface TrendPoint {
   startDate: string;
   totalSpend: number;
   totalSaved: number;
+  netWorth: number;
 }
 
 export interface CategoryComparison {
