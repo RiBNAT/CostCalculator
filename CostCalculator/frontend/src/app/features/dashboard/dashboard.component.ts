@@ -14,6 +14,7 @@ import { PeriodStateService } from '../../core/period-state.service';
 import { AccountStatus, PeriodSummary, PeriodTrends } from '../../core/models';
 import { MoneyPipe } from '../../core/money.pipe';
 import { formatTaka } from '../../core/amount-expr';
+import { daysLeftInclusive, safeToSpendPerDay } from '../../core/runway';
 import { DetailDialogComponent, DetailDialogData, DetailRow } from './detail-dialog.component';
 
 @Component({
@@ -38,6 +39,21 @@ import { DetailDialogComponent, DetailDialogData, DetailRow } from './detail-dia
             <div class="label"><mat-icon>account_balance_wallet</mat-icon> In hand</div>
             <div class="value">{{ s.inHand | money }}</div>
             <div class="foot">cash, bank & mobile <span class="more">details <mat-icon>chevron_right</mat-icon></span></div>
+          </div>
+          <div class="card hero-card runway">
+            <div class="label"><mat-icon>speed</mat-icon> Safe to spend</div>
+            @if (runway(); as r) {
+              @if (r.days > 0) {
+                <div class="value">{{ r.perDay | money }}<span class="per">/day</span></div>
+                <div class="foot">
+                  {{ r.days }} day{{ r.days === 1 ? '' : 's' }} left ·
+                  {{ r.remaining < 0 ? 'over budget' : (r.basis === 'budget' ? 'to stay on budget' : 'of cash in hand') }}
+                </div>
+              } @else {
+                <div class="value">—</div>
+                <div class="foot">period ended</div>
+              }
+            }
           </div>
           <div class="card hero-card clickable" matRipple (click)="openSpent()">
             <div class="label"><mat-icon>shopping_cart</mat-icon> Spent</div>
@@ -143,6 +159,7 @@ import { DetailDialogComponent, DetailDialogData, DetailRow } from './detail-dia
                   <div class="burn-fill" [style.width.%]="burnPct(c)" [class.over]="c.actual > c.budget"></div>
                 </div>
                 <span class="burn-nums" [class.neg]="c.actual > c.budget">
+                  @if (c.actual > c.budget) { <mat-icon class="warn" aria-label="over budget">warning</mat-icon> }
                   {{ c.actual | money }} / {{ c.budget | money }}
                 </span>
               </div>
@@ -206,6 +223,10 @@ import { DetailDialogComponent, DetailDialogData, DetailRow } from './detail-dia
       .hero-card .foot { color: var(--ink-soft); font-size: 12px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
       .hero-card.inhand { background: linear-gradient(135deg, #3949ab, #1e88e5); color: #fff; }
       .hero-card.inhand .label, .hero-card.inhand .foot { color: rgba(255, 255, 255, 0.88); }
+      .hero-card.runway { background: linear-gradient(135deg, #00897b, #26a69a); color: #fff; }
+      .hero-card.runway .label, .hero-card.runway .foot { color: rgba(255, 255, 255, 0.9); }
+      .hero-card.runway .per { font-size: 14px; font-weight: 600; opacity: 0.85; margin-left: 2px; }
+      .burn-nums .warn { font-size: 15px; width: 15px; height: 15px; vertical-align: -3px; color: var(--bad); margin-right: 2px; }
 
       .accounts { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
       .acc-card { padding: 14px 16px; }
@@ -315,6 +336,16 @@ export class DashboardComponent {
   readonly liquidAccounts = computed(() =>
     (this.summary()?.accounts ?? []).filter((a) => ['cash', 'bank', 'mobile'].includes(a.account.kind)),
   );
+
+  /** Forward-looking daily allowance: remaining (budget if set, else cash) ÷ days left. */
+  readonly runway = computed(() => {
+    const s = this.summary();
+    if (!s) return null;
+    const days = daysLeftInclusive(new Date(s.period.startDate), new Date(s.period.endDate), new Date());
+    const hasBudget = s.budget.totals.budget > 0;
+    const remaining = hasBudget ? s.budget.totals.remaining : s.inHand;
+    return { days, perDay: safeToSpendPerDay(remaining, days), basis: hasBudget ? 'budget' : 'cash', remaining };
+  });
 
   readonly savingsTotal = computed(() => (this.summary()?.savings ?? []).reduce((t, s) => t + s.current, 0));
   readonly budgetCats = computed(() => this.summary()?.budget.categories ?? []);
