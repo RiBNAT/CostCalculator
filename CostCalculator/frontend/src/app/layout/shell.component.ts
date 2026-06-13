@@ -195,7 +195,7 @@ import { ExpenseDialogComponent, ExpenseDialogData } from '../features/expenses/
         .content { padding-bottom: 64px; }
         .quick-add-fab { right: 16px; bottom: 76px; }
         .bottom-nav {
-          display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+          display: flex; flex-direction: row; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
           background: var(--surface); border-top: 1px solid #e7eaf3;
           padding: 4px 2px calc(4px + env(safe-area-inset-bottom, 0px));
           justify-content: space-around;
