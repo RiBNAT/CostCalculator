@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(curl -s http://localhost:*)",
+      "Bash(pdftotext *)",
+      "Bash(go build *)",
+      "Bash(go test *)",
+      "Bash(npx ng build *)",
+      "Bash(npx ng test *)",
+      "PowerShell(dotnet build *)",
+      "PowerShell(Get-ChildItem *)",
+      "mcp__Claude_Preview__preview_screenshot"
+    ]
+  }
+}

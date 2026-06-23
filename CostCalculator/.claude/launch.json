@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ng", "serve", "--port", "4200"],
+      "cwd": "frontend",
+      "port": 4200
+    },
+    {
+      "name": "carbon-mockup",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "-l", "4321", "."],
+      "cwd": "docs/mockups/carbon",
+      "port": 4321
+    }
+  ]
+}

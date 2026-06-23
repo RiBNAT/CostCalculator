@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cost Calculator — Orbitax / Carbon mockup</title>
+
+  <!-- Font Awesome 7 Pro Kit (per foundations/iconography.md — Kit 03b886e490, localhost only) -->
+  <script src="https://kit.fontawesome.com/03b886e490.js" crossorigin="anonymous"></script>
+  <!-- Fallback for non-localhost rendering: FA Free (covers most glyphs used here) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <!-- Inter is the documented substitution face for Paralucent (brand) AND Geist (UI). Geist + Lora loaded too. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Inter:wght@400;500;600&family=Lora:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+  /* ===========================================================================
+   * Orbitax Design Tokens — copied verbatim from
+   * orbitax-carbon/src/tokens/tokens.css (theme-aware neutrals + brand + category)
+   * =========================================================================== */
+  :root {
+    /* Neutral palette — light mode */
+    --standard-0:#101214; --standard-100:#161A1D; --standard-200:#1D2125;
+    --standard-250:#22272B; --standard-300:#282E33; --standard-350:#2C333A;
+    --standard-400:#38414A; --standard-500:#454F59; --standard-600:#596773;
+    --standard-700:#738496; --standard-800:#8C9BAB; --standard-900:#9FADBC;
+    --standard-1000:#DEE4EA; --standard-1100:#EAEEF3; --standard-1200:#DEE4EA;
+    --standard-1250:#F0F4F9; --standard-1300:#F6F8FC; --standard-1400:#FFFFFF;
+
+    /* Brand */
+    --blue-0:#175CFF;
+
+    /* Semantic — danger (provisional; design-system gap flagged in colours.md) */
+    --danger-0:#D32F2F;
+
+    /* Avatar */
+    --avatar-coral-bg:#FFAFA5; --avatar-coral-fg:#892055;
+
+    /* Category colours — paired text + bg */
+    --green-text:#176448;  --green-bg:#CBF5E5;
+    --purple-text:#5C2693; --purple-bg:#D5C5FF;
+    --orange-text:#6E330C; --orange-bg:#FFDAC2;
+    --red-text:#9B1942;    --red-bg:#FFC8D7;
+    --coral-text:#8A2E15;  --coral-bg:#FFD1C2;
+
+    /* Marketing palette */
+    --marketing-pink:#FF3B95; --marketing-orange:#FFB800; --marketing-green:#00C237;
+    --marketing-blue:#175CFF; --marketing-purple:#8B3DFF; --marketing-yellow:#FFD600;
+
+    /* Type */
+    --font-family-brand:"Paralucent","Inter",system-ui,-apple-system,sans-serif;
+    --font-family-ui:"Geist","Inter",system-ui,-apple-system,sans-serif;
+    --font-family-editorial:"Lora",Georgia,"Times New Roman",serif;
+    --font-weight-regular:400; --font-weight-medium:500; --font-weight-semibold:600; --font-weight-demibold:600;
+    --type-size-12:12px; --type-size-14:14px; --type-size-15:15px; --type-size-16:16px; --type-size-18:18px; --type-size-28:28px;
+    --line-height-tight:20px; --line-height-normal:normal;
+
+    /* Spacing */
+    --spacing-4:4px; --spacing-8:8px; --spacing-10:10px; --spacing-12:12px;
+    --spacing-16:16px; --spacing-20:20px; --spacing-24:24px; --spacing-30:30px; --spacing-40:40px;
+
+    /* Radii */
+    --radius-card:8px; --radius-pill:100px; --radius-circle:50%;
+
+    /* Layout */
+    --header-height:64px; --sidebar-width:400px; --content-margin:16px;
+    --breadcrumb-bar-height:70px; --secondary-bar-height:75px;
+  }
+  [data-theme="dark"] {
+    --standard-0:#FFFFFF; --standard-100:#F6F8FC; --standard-200:#DEE4EA;
+    --standard-250:#C7D1DB; --standard-300:#C7D1DB; --standard-350:#B6C2CF;
+    --standard-400:#8C9BAB; --standard-500:#738496; --standard-600:#596773;
+    --standard-700:#454F59; --standard-800:#38414A; --standard-900:#2C333A;
+    --standard-1000:#282E33; --standard-1100:#22272B; --standard-1200:#1D2125;
+    --standard-1250:#1A1D21; --standard-1300:#161A1D; --standard-1400:#161A1D;
+  }
+
+  /* ===========================================================================
+   * Reset & shell  (per projects/itp/skills/structure.md — immutable skeleton)
+   * =========================================================================== */
+  * { box-sizing:border-box; }
+  html, body { height:100%; margin:0; overflow:hidden; }   /* no page scroll — content scrolls inside */
+  body {
+    font-family:var(--font-family-ui);
+    font-size:var(--type-size-14);
+    color:var(--standard-0);
+    background:var(--standard-1300);
+    -webkit-font-smoothing:antialiased;
+  }
+  a { text-decoration:none; color:inherit; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  .itp-shell { height:100vh; display:flex; flex-direction:column; background:var(--standard-1300); }
+
+  /* ---- Region 1: Header (64px, transparent, flush) ---- */
+  .itp-header {
+    height:var(--header-height); flex-shrink:0; position:relative;
+    display:flex; align-items:center;
+    padding:0 var(--spacing-20);
+    background:transparent;
+  }
+  .itp-header__left { display:flex; align-items:center; gap:var(--spacing-10); }
+  .applauncher {
+    width:34px; height:34px; display:grid; place-items:center;
+    color:var(--standard-0); background:none; border:none; cursor:pointer; font-size:var(--type-size-18);
+    border-radius:var(--radius-circle);
+  }
+  .applauncher:hover { background:var(--standard-1100); }
+  .brandmark {
+    width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:var(--blue-0); color:#fff; font-family:var(--font-family-brand); font-weight:600; font-size:18px;
+    margin-right:2px;
+  }
+  .wordmark { font-family:var(--font-family-brand); font-size:var(--type-size-16); white-space:nowrap; }
+  .wordmark b   { font-weight:var(--font-weight-demibold); color:var(--standard-0); }
+  .wordmark span{ font-weight:var(--font-weight-medium);  color:var(--blue-0); }
+
+  /* Centre nav — absolutely centred in viewport */
+  .itp-header__nav {
+    position:absolute; left:50%; transform:translateX(-50%);
+    display:flex; gap:var(--spacing-30);
+  }
+  .navtab {
+    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium);
+    font-size:var(--type-size-14); color:var(--standard-600);
+    background:none; border:none; cursor:pointer; padding:4px 0;
+  }
+  .navtab:hover { color:var(--standard-0); }
+  .navtab.active { color:var(--standard-0); }
+
+  .itp-header__right { margin-left:auto; display:flex; align-items:center; }
+  .toolicon {
+    width:36px; height:36px; display:grid; place-items:center; border:none; background:none; cursor:pointer;
+    color:var(--standard-300); font-size:var(--type-size-18); border-radius:var(--radius-circle);
+  }
+  .toolicon:hover { color:var(--standard-0); background:var(--standard-1100); }
+  .period-pill {
+    display:flex; align-items:center; gap:var(--spacing-8);
+    height:36px; padding:0 16px; margin-left:var(--spacing-10);
+    background:var(--standard-1100); border:none; border-radius:var(--radius-pill); cursor:pointer;
+    font-family:var(--font-family-ui); font-weight:var(--font-weight-medium); font-size:var(--type-size-14);
+    color:var(--standard-0); white-space:nowrap;
+  }
+  .period-pill .muted { color:var(--standard-600); }
+  .period-pill .fa-angle-down { color:var(--standard-600); font-size:12px; }
+  .avatar {
+    width:36px; height:36px; border-radius:var(--radius-circle); margin-left:var(--spacing-16);
+    background:var(--avatar-coral-bg); color:var(--avatar-coral-fg);
+    display:grid; place-items:center; font-family:var(--font-family-brand); font-weight:500; font-size:var(--type-size-15);
+  }
+
+  /* ---- Region 2: Body ---- */
+  .itp-body { flex:1; display:flex; gap:var(--content-margin); padding:0 var(--content-margin) var(--content-margin); min-height:0; }
+
+  .itp-content {
+    flex:1; min-width:0; display:flex; flex-direction:column;
+    background:var(--standard-1400); border-radius:var(--radius-card); overflow:hidden;
+  }
+  /* one screen visible at a time; the visible screen fills the panel */
+  .screen { display:none; flex-direction:column; height:100%; min-height:0; }
+  .screen.active { display:flex; }
+
+  .breadcrumb-bar {
+    height:var(--breadcrumb-bar-height); flex-shrink:0;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 var(--spacing-20); border-bottom:1px solid var(--standard-1000);
+  }
+  .breadcrumb { display:flex; align-items:center; gap:var(--spacing-12);
+    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-16); }
+  .breadcrumb .crumb-link { color:var(--blue-0); }
+  .breadcrumb .crumb-cur  { color:var(--standard-0); }
+  .breadcrumb .fa-chevron-right, .breadcrumb .fa-folder { color:var(--standard-600); font-size:13px; }
+  .bc-actions { display:flex; align-items:center; gap:var(--spacing-10); }
+
+  .secondary-bar {
+    height:var(--secondary-bar-height); flex-shrink:0;
+    display:flex; align-items:center; gap:var(--spacing-16);
+    padding:0 var(--spacing-30); border-bottom:1px solid var(--standard-1000);
+  }
+  .page {
+    flex:1; overflow-y:auto; padding:var(--spacing-20);
+  }
+
+  /* ---- Region 3: Sidebar (Details) ---- */
+  .itp-sidebar {
+    width:var(--sidebar-width); flex-shrink:0; display:flex; flex-direction:column;
+    background:var(--standard-1400); border-radius:var(--radius-card); overflow:hidden;
+  }
+  .itp-sidebar[data-state="closed"] { display:none; }
+  .sidebar__header { display:flex; align-items:center; justify-content:space-between; padding:var(--spacing-20); }
+  .sidebar__header h2 { margin:0; font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); }
+  .sidebar__header .close { border:none; background:none; cursor:pointer; color:var(--standard-0); font-size:16px; }
+  .sidebar__content { flex:1; overflow-y:auto; padding:0 var(--spacing-20) var(--spacing-20); }
+
+  /* ===========================================================================
+   * Components
+   * =========================================================================== */
+
+  /* Buttons (per skills/button.md: 38px pill, Geist SemiBold 14px) */
+  .ob-btn {
+    height:38px; padding:10px 18px; border-radius:var(--radius-pill);
+    font-family:var(--font-family-ui); font-weight:var(--font-weight-semibold); font-size:var(--type-size-14);
+    line-height:20px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; border:1px solid transparent;
+    white-space:nowrap;
+  }
+  .ob-btn i { font-size:12px; }
+  .ob-btn--primary   { background:var(--blue-0); color:#fff; }
+  .ob-btn--primary:hover { background:#1450e6; }
+  .ob-btn--secondary { background:transparent; color:var(--standard-0); border-color:var(--standard-0); }
+  .ob-btn--secondary:hover { background:var(--standard-1300); }
+  .ob-btn--ghost     { background:transparent; color:var(--standard-600); border-color:var(--standard-1000); }
+  .ob-btn--ghost:hover { color:var(--standard-0); background:var(--standard-1300); border-color:var(--standard-900); }
+  .ob-btn--text      { background:none; border:none; color:var(--blue-0); padding:0; height:auto; font-weight:var(--font-weight-medium); }
+  .ob-btn--text:hover{ text-decoration:underline; }
+
+  /* Badges (per skills/badge.md: 28px pill, Paralucent Medium 14px) */
+  .ob-badge {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    height:28px; padding:6px 12px; border-radius:var(--radius-pill);
+    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-14);
+    line-height:1; white-space:nowrap;
+  }
+  .ob-badge i { font-size:11px; }
+  .ob-badge--green   { background:var(--green-bg);  color:var(--green-text); }
+  .ob-badge--purple  { background:var(--purple-bg); color:var(--purple-text); }
+  .ob-badge--orange  { background:var(--orange-bg); color:var(--orange-text); }
+  .ob-badge--red     { background:var(--red-bg);    color:var(--red-text); }
+  .ob-badge--coral   { background:var(--coral-bg);  color:var(--coral-text); }
+  .ob-badge--neutral { background:var(--standard-1250); color:var(--standard-0); }
+  .ob-badge--sm { height:22px; padding:3px 10px; font-size:12px; }
+
+  /* Detail card / KPI tile.
+     DESIGN SYSTEM GAP: skills/card.md and skills/table.md are empty stubs.
+     Built from structure.md (itp-detail-card pattern) + tokens. No shadow per elevation rules. */
+  .ob-card {
+    border:1px solid var(--standard-1000); border-radius:var(--radius-card);
+    background:var(--standard-1400); padding:var(--spacing-20);
+  }
+  .ob-card__title-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-16); }
+  .ob-card__title { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); margin:0; }
+
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--spacing-16); margin-bottom:var(--spacing-16); }
+  .kpi { border:1px solid var(--standard-1000); border-radius:var(--radius-card); padding:var(--spacing-16) var(--spacing-20); display:flex; flex-direction:column; gap:8px; }
+  .kpi__label { font-family:var(--font-family-ui); font-size:var(--type-size-12); font-weight:var(--font-weight-semibold);
+    text-transform:uppercase; letter-spacing:.05em; color:var(--standard-600); display:flex; align-items:center; gap:6px; }
+  .kpi__value { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-28);
+    color:var(--standard-0); line-height:1.1; }
+  .kpi__sub { font-size:var(--type-size-12); color:var(--standard-600); }
+  .delta { display:inline-flex; align-items:center; gap:4px; font-size:var(--type-size-12); font-weight:var(--font-weight-semibold); }
+  .delta--up   { color:var(--green-text); }
+  .delta--down { color:var(--red-text); }
+
+  /* layout grids */
+  .row { display:grid; gap:var(--spacing-16); margin-bottom:var(--spacing-16); }
+  .row--6040 { grid-template-columns:1.5fr 1fr; }
+  .row--2 { grid-template-columns:1fr 1fr; }
+
+  /* Table.
+     DESIGN SYSTEM GAP: skills/table.md is an empty stub. Built from tokens (density-first). */
+  .ob-table { width:100%; border-collapse:collapse; font-family:var(--font-family-ui); font-size:var(--type-size-14); }
+  .ob-table th {
+    text-align:left; padding:12px var(--spacing-12); border-bottom:1px solid var(--standard-1000);
+    font-size:var(--type-size-12); font-weight:var(--font-weight-semibold); text-transform:uppercase; letter-spacing:.04em;
+    color:var(--standard-600); white-space:nowrap;
+  }
+  .ob-table td { padding:12px var(--spacing-12); border-bottom:1px solid var(--standard-1100); color:var(--standard-0); }
+  .ob-table tbody tr:hover td { background:var(--standard-1300); }
+  .ob-table .num { text-align:right; }
+  .ob-table tfoot td { font-weight:var(--font-weight-semibold); border-top:1px solid var(--standard-1000); border-bottom:none; }
+  .cat-dot { display:inline-block; width:8px; height:8px; border-radius:var(--radius-circle); margin-right:8px; vertical-align:middle; }
+  .acct { display:inline-flex; align-items:center; gap:6px; color:var(--standard-500); }
+  .acct i { font-size:12px; }
+  .muted { color:var(--standard-600); }
+
+  /* progress bar */
+  .prog { height:8px; border-radius:var(--radius-pill); background:var(--standard-1100); overflow:hidden; }
+  .prog__fill { height:100%; border-radius:var(--radius-pill); background:var(--blue-0); }
+  .prog__fill--over { background:var(--danger-0); }
+  .prog__fill--good { background:var(--marketing-green); }
+
+  /* donut + legend */
+  .donut-wrap { display:flex; align-items:center; gap:var(--spacing-30); }
+  .donut { width:168px; height:168px; border-radius:var(--radius-circle); position:relative; flex-shrink:0; }
+  .donut::after { content:""; position:absolute; inset:30px; border-radius:var(--radius-circle); background:var(--standard-1400); }
+  .donut__center { position:absolute; inset:0; display:grid; place-items:center; text-align:center; z-index:1; }
+  .donut__center .amt { font-family:var(--font-family-brand); font-weight:500; font-size:22px; }
+  .donut__center .lab { font-size:var(--type-size-12); color:var(--standard-600); }
+  .legend { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; }
+  .legend__item { display:flex; align-items:center; gap:8px; font-size:var(--type-size-14); }
+  .legend__item .nm { flex:1; }
+  .legend__item .vl { color:var(--standard-600); }
+
+  /* mini trend bars */
+  .trend { display:flex; align-items:flex-end; gap:6px; height:120px; padding-top:8px; }
+  .trend__bar { flex:1; background:var(--standard-1100); border-radius:4px 4px 0 0; position:relative; }
+  .trend__bar.is-last { background:var(--blue-0); }
+  .trend__labels { display:flex; gap:6px; margin-top:6px; }
+  .trend__labels span { flex:1; text-align:center; font-size:11px; color:var(--standard-600); }
+
+  /* runway gauge */
+  .runway-num { font-family:var(--font-family-brand); font-weight:500; font-size:36px; line-height:1; }
+  .runway-row { display:flex; justify-content:space-between; font-size:var(--type-size-12); color:var(--standard-600); margin-top:6px; }
+
+  /* sidebar key/value */
+  .kv { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--standard-1100); font-size:var(--type-size-14); }
+  .kv:last-child { border-bottom:none; }
+  .kv .k { color:var(--standard-600); }
+  .kv .v { font-weight:var(--font-weight-medium); }
+  .sidebar-section-title { font-family:var(--font-family-ui); font-size:var(--type-size-12); font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--standard-600); margin:var(--spacing-20) 0 4px; }
+
+  /* filter/tab bits in secondary bar */
+  .field { display:flex; align-items:center; gap:8px; height:38px; padding:0 14px; border:1px solid var(--standard-1000); border-radius:var(--radius-pill); color:var(--standard-600); font-size:var(--type-size-14); background:var(--standard-1400); cursor:pointer; }
+  .field i { font-size:12px; }
+  .field--search { width:260px; color:var(--standard-700); }
+  .subtabs { display:flex; gap:var(--spacing-24); height:100%; align-items:flex-end; }
+  .subtab { display:flex; align-items:center; height:100%; padding-bottom:14px; font-family:var(--font-family-brand); font-weight:500; font-size:var(--type-size-14); color:var(--standard-600); border-bottom:2px solid transparent; cursor:pointer; }
+  .subtab.active { color:var(--standard-0); border-bottom-color:var(--blue-0); }
+
+  .section-h { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); margin:0 0 var(--spacing-12); }
+
+  /* goal cards */
+  .goal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--spacing-16); }
+  .goal__top { display:flex; align-items:center; gap:10px; margin-bottom:var(--spacing-16); }
+  .goal__icon { width:36px; height:36px; border-radius:8px; display:grid; place-items:center; font-size:15px; }
+  .goal__name { font-weight:var(--font-weight-medium); }
+  .goal__pct { font-family:var(--font-family-brand); font-size:22px; font-weight:500; }
+  .goal__nums { display:flex; justify-content:space-between; font-size:var(--type-size-12); color:var(--standard-600); margin-top:8px; }
+
+  /* mockup chrome (outside the design system — a thin control strip) */
+  .mock-fab { position:fixed; right:18px; bottom:18px; z-index:200; display:flex; gap:10px; }
+  .mock-fab button { height:40px; padding:0 16px; border-radius:var(--radius-pill); border:1px solid var(--standard-1000);
+    background:var(--standard-1400); color:var(--standard-0); font-family:var(--font-family-ui); font-weight:600; font-size:13px; cursor:pointer;
+    display:flex; align-items:center; gap:8px; box-shadow:0 4px 16px rgba(16,18,20,.14); }
+  </style>
+</head>
+<body>
+  <div class="itp-shell">
+
+    <!-- ============ HEADER ============ -->
+    <header class="itp-header">
+      <div class="itp-header__left">
+        <button class="applauncher" aria-label="App launcher"><i class="fa-solid fa-grid-2"></i></button>
+        <span class="brandmark">৳</span>
+        <span class="wordmark"><b>Ribnat</b> <span>Cost</span></span>
+      </div>
+
+      <nav class="itp-header__nav" aria-label="Main navigation">
+        <button class="navtab active" data-screen="dashboard">Dashboard</button>
+        <button class="navtab" data-screen="expenses">Expenses</button>
+        <button class="navtab" data-screen="budget">Budget</button>
+        <button class="navtab" data-screen="lends">Lends</button>
+        <button class="navtab" data-screen="savings">Savings</button>
+        <button class="navtab" data-screen="dashboard" style="opacity:.5;cursor:default">Planner</button>
+      </nav>
+
+      <div class="itp-header__right">
+        <button class="toolicon" aria-label="Ask Xat AI"><i class="fa-regular fa-sparkles"></i></button>
+        <button class="toolicon" id="detailsBtn" aria-label="Details"><i class="fa-regular fa-circle-info"></i></button>
+        <button class="toolicon" aria-label="Activity"><i class="fa-regular fa-wave-pulse"></i></button>
+        <button class="toolicon" aria-label="Alerts"><i class="fa-regular fa-bell"></i></button>
+        <button class="period-pill" aria-label="Select period">
+          <i class="fa-regular fa-calendar"></i>
+          <span>Jun 2026</span><span class="muted">· Open</span>
+          <i class="fa-solid fa-angle-down"></i>
+        </button>
+        <span class="avatar">T</span>
+      </div>
+    </header>
+
+    <!-- ============ BODY ============ -->
+    <div class="itp-body">
+
+      <main class="itp-content">
+
+        <!-- ========================= DASHBOARD ========================= -->
+        <section class="screen active" id="screen-dashboard">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <i class="fa-regular fa-folder"></i>
+              <span class="crumb-cur">Dashboard</span>
+            </nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button>
+              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> Add expense</button>
+            </div>
+          </div>
+
+          <div class="page">
+            <!-- KPI row -->
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="kpi__label"><i class="fa-regular fa-wallet"></i> In&nbsp;hand</div>
+                <div class="kpi__value num">৳84,250</div>
+                <div class="kpi__sub">across 4 accounts</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label"><i class="fa-regular fa-receipt"></i> Spent this period</div>
+                <div class="kpi__value num">৳57,300</div>
+                <div class="delta delta--up"><i class="fa-solid fa-arrow-down"></i> 6% vs last period</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label"><i class="fa-regular fa-gauge-high"></i> Safe to spend / day</div>
+                <div class="kpi__value num">৳1,540</div>
+                <div class="kpi__sub">18 days left in cycle</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label"><i class="fa-regular fa-chart-line"></i> Net worth</div>
+                <div class="kpi__value num">৳8,42,500</div>
+                <div class="delta delta--up"><i class="fa-solid fa-arrow-up"></i> ৳22,400 this period</div>
+              </div>
+            </div>
+
+            <!-- distribution + runway -->
+            <div class="row row--6040">
+              <div class="ob-card">
+                <div class="ob-card__title-bar">
+                  <h3 class="ob-card__title">Where the money went</h3>
+                  <button class="ob-btn ob-btn--ghost"><i class="fa-solid fa-calendar"></i> This period</button>
+                </div>
+                <div class="donut-wrap">
+                  <!-- DESIGN SYSTEM GAP: no categorical chart palette of >4 hues. Mixed category + marketing tokens used. -->
+                  <div class="donut" style="background:conic-gradient(
+                      var(--blue-0) 0 31%,
+                      var(--green-text) 31% 53%,
+                      var(--purple-text) 53% 64%,
+                      var(--orange-text) 64% 73%,
+                      var(--marketing-pink) 73% 81%,
+                      var(--marketing-orange) 81% 87%,
+                      var(--coral-text) 87% 93%,
+                      var(--standard-700) 93% 100%);">
+                    <div class="donut__center"><div><div class="amt num">৳57,300</div><div class="lab">total spent</div></div></div>
+                  </div>
+                  <div class="legend">
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--blue-0)"></span><span class="nm">Rent</span><span class="vl num">৳18,000</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--green-text)"></span><span class="nm">Bazar</span><span class="vl num">৳12,400</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--purple-text)"></span><span class="nm">Utilities</span><span class="vl num">৳6,200</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--orange-text)"></span><span class="nm">Transport</span><span class="vl num">৳5,400</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--marketing-pink)"></span><span class="nm">Eating out</span><span class="vl num">৳4,800</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--marketing-orange)"></span><span class="nm">Mobile / net</span><span class="vl num">৳3,300</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--coral-text)"></span><span class="nm">Health</span><span class="vl num">৳3,200</span></div>
+                    <div class="legend__item"><span class="cat-dot" style="background:var(--standard-700)"></span><span class="nm">Misc</span><span class="vl num">৳4,000</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ob-card">
+                <div class="ob-card__title-bar"><h3 class="ob-card__title">Safe to spend</h3></div>
+                <div class="runway-num num">৳1,540<span style="font-size:15px;color:var(--standard-600)"> /day</span></div>
+                <div class="runway-row"><span>Remaining ৳27,720</span><span>÷ 18 days</span></div>
+                <div class="prog" style="margin:18px 0 8px"><div class="prog__fill" style="width:68%"></div></div>
+                <div class="runway-row"><span>68% of cycle budget used</span><span>Day 12 / 30</span></div>
+                <div style="margin-top:18px; padding-top:16px; border-top:1px solid var(--standard-1100); font-size:13px; color:var(--standard-500); font-family:var(--font-family-editorial)">
+                  At this pace you’ll close the cycle with about <b style="color:var(--standard-0)">৳56,500</b> in hand — comfortably above your ৳40,000 floor.
+                </div>
+              </div>
+            </div>
+
+            <!-- recent + trend -->
+            <div class="row row--6040" style="margin-bottom:0">
+              <div class="ob-card" style="padding:0">
+                <div class="ob-card__title-bar" style="padding:var(--spacing-16) var(--spacing-20) 0">
+                  <h3 class="ob-card__title">Recent expenses</h3>
+                  <button class="ob-btn ob-btn--text" data-screen="expenses">View all</button>
+                </div>
+                <table class="ob-table">
+                  <thead><tr><th>Date</th><th>Category</th><th>Account</th><th class="num">Amount</th></tr></thead>
+                  <tbody>
+                    <tr><td class="num">24 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar · Vegetables</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="num">৳1,180</td></tr>
+                    <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile · Recharge</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="num">৳349</td></tr>
+                    <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="num">৳920</td></tr>
+                    <tr><td class="num">22 Jun</td><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities · DESCO</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="num">৳2,140</td></tr>
+                    <tr><td class="num">21 Jun</td><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport · Uber</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="num">৳560</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="ob-card">
+                <div class="ob-card__title-bar"><h3 class="ob-card__title">Net worth · 12 cycles</h3></div>
+                <div class="trend">
+                  <div class="trend__bar" style="height:42%"></div>
+                  <div class="trend__bar" style="height:48%"></div>
+                  <div class="trend__bar" style="height:46%"></div>
+                  <div class="trend__bar" style="height:55%"></div>
+                  <div class="trend__bar" style="height:60%"></div>
+                  <div class="trend__bar" style="height:58%"></div>
+                  <div class="trend__bar" style="height:67%"></div>
+                  <div class="trend__bar" style="height:72%"></div>
+                  <div class="trend__bar" style="height:78%"></div>
+                  <div class="trend__bar" style="height:83%"></div>
+                  <div class="trend__bar" style="height:90%"></div>
+                  <div class="trend__bar is-last" style="height:100%"></div>
+                </div>
+                <div class="trend__labels"><span>Jul</span><span></span><span>Sep</span><span></span><span>Nov</span><span></span><span>Jan</span><span></span><span>Mar</span><span></span><span>May</span><span>Jun</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================= EXPENSES ========================= -->
+        <section class="screen" id="screen-expenses">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <i class="fa-regular fa-folder"></i>
+              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
+              <i class="fa-solid fa-chevron-right"></i>
+              <span class="crumb-cur">Expenses</span>
+            </nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export CSV</button>
+              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> Add expense</button>
+            </div>
+          </div>
+          <div class="secondary-bar">
+            <div class="field field--search"><i class="fa-regular fa-magnifying-glass"></i> Search remarks…</div>
+            <div class="field">All categories <i class="fa-solid fa-angle-down"></i></div>
+            <div class="field">All accounts <i class="fa-solid fa-angle-down"></i></div>
+            <div class="field"><i class="fa-regular fa-calendar"></i> 25 May – 24 Jun</div>
+            <span style="margin-left:auto" class="muted num">42 expenses · ৳57,300</span>
+          </div>
+          <div class="page">
+            <table class="ob-table">
+              <thead><tr><th>Date</th><th>Category</th><th>Subcategory</th><th>Account</th><th>Remarks</th><th class="num">Amount</th></tr></thead>
+              <tbody>
+                <tr><td class="num">24 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar</td><td>Vegetables</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Karwan Bazar — 360+20+330+470</td><td class="num">৳1,180</td></tr>
+                <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile</td><td>Recharge</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">GP 30-day pack</td><td class="num">৳349</td></tr>
+                <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td>Dinner</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="muted">Sultan’s Dine — family</td><td class="num">৳920</td></tr>
+                <tr><td class="num">22 Jun</td><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities</td><td>Electricity</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="muted">DESCO prepaid</td><td class="num">৳2,140</td></tr>
+                <tr><td class="num">21 Jun</td><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport</td><td>Ride</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">Uber — office</td><td class="num">৳560</td></tr>
+                <tr><td class="num">20 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar</td><td>Groceries</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Shwapno — monthly</td><td class="num">৳4,260</td></tr>
+                <tr><td class="num">19 Jun</td><td><span class="cat-dot" style="background:var(--coral-text)"></span>Health</td><td>Pharmacy</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">Lazz Pharma</td><td class="num">৳780</td></tr>
+                <tr><td class="num">18 Jun</td><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rent</td><td>House rent</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="muted">June — landlord</td><td class="num">৳18,000</td></tr>
+                <tr><td class="num">17 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Internet</td><td>Broadband</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="muted">Link3 — 20 Mbps</td><td class="num">৳1,200</td></tr>
+                <tr><td class="num">16 Jun</td><td><span class="cat-dot" style="background:var(--standard-700)"></span>Misc</td><td>Gift</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Eid salami</td><td class="num">৳2,000</td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="5">Showing 10 of 42</td><td class="num">৳31,389</td></tr></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- ========================= BUDGET ========================= -->
+        <section class="screen" id="screen-budget">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <i class="fa-regular fa-folder"></i>
+              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
+              <i class="fa-solid fa-chevron-right"></i>
+              <span class="crumb-cur">Budget</span>
+            </nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-copy"></i> Copy previous</button>
+              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-pen"></i> Edit budget</button>
+            </div>
+          </div>
+          <div class="secondary-bar">
+            <div class="subtabs">
+              <div class="subtab active">This period</div>
+              <div class="subtab">Rollover</div>
+              <div class="subtab">History</div>
+            </div>
+            <span style="margin-left:auto" class="muted num">Budgeted ৳72,000 · Spent ৳57,300 · Left ৳14,700</span>
+          </div>
+          <div class="page">
+            <table class="ob-table">
+              <thead><tr><th>Category</th><th class="num">Budgeted</th><th class="num">Spent</th><th class="num">Remaining</th><th style="width:220px">Progress</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rent</td><td class="num">৳18,000</td><td class="num">৳18,000</td><td class="num">৳0</td><td><div class="prog"><div class="prog__fill" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">On budget</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar <span class="ob-badge ob-badge--green ob-badge--sm" style="margin-left:6px"><i class="fa-solid fa-rotate"></i> +৳2,000 rollover</span></td><td class="num">৳16,000</td><td class="num">৳12,400</td><td class="num">৳3,600</td><td><div class="prog"><div class="prog__fill prog__fill--good" style="width:78%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities</td><td class="num">৳6,000</td><td class="num">৳6,200</td><td class="num neg" style="color:var(--red-text)">−৳200</td><td><div class="prog"><div class="prog__fill prog__fill--over" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--red ob-badge--sm"><i class="fa-solid fa-triangle-exclamation"></i> Over</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport</td><td class="num">৳7,000</td><td class="num">৳5,400</td><td class="num">৳1,600</td><td><div class="prog"><div class="prog__fill" style="width:77%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td class="num">৳4,000</td><td class="num">৳4,800</td><td class="num" style="color:var(--red-text)">−৳800</td><td><div class="prog"><div class="prog__fill prog__fill--over" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--red ob-badge--sm"><i class="fa-solid fa-triangle-exclamation"></i> Over</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile / Internet</td><td class="num">৳5,000</td><td class="num">৳3,300</td><td class="num">৳1,700</td><td><div class="prog"><div class="prog__fill" style="width:66%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--coral-text)"></span>Health</td><td class="num">৳6,000</td><td class="num">৳3,200</td><td class="num">৳2,800</td><td><div class="prog"><div class="prog__fill" style="width:53%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--standard-700)"></span>Misc</td><td class="num">৳10,000</td><td class="num">৳4,000</td><td class="num">৳6,000</td><td><div class="prog"><div class="prog__fill" style="width:40%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
+              </tbody>
+              <tfoot><tr><td>Total</td><td class="num">৳72,000</td><td class="num">৳57,300</td><td class="num">৳14,700</td><td><div class="prog"><div class="prog__fill" style="width:80%"></div></div></td><td></td></tr></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- ========================= LENDS ========================= -->
+        <section class="screen" id="screen-lends">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <i class="fa-regular fa-folder"></i>
+              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
+              <i class="fa-solid fa-chevron-right"></i>
+              <span class="crumb-cur">Lends</span>
+            </nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-hand-holding-dollar"></i> Record settlement</button>
+              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> New lend</button>
+            </div>
+          </div>
+          <div class="secondary-bar">
+            <div class="subtabs">
+              <div class="subtab active">All</div>
+              <div class="subtab">Given</div>
+              <div class="subtab">Taken</div>
+            </div>
+            <span style="margin-left:auto" class="muted num">Receivable ৳23,500 · Payable ৳5,000</span>
+          </div>
+          <div class="page">
+            <table class="ob-table">
+              <thead><tr><th>Person</th><th>Type</th><th class="num">Principal</th><th class="num">Settled</th><th class="num">Outstanding</th><th>Since</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rahim Uddin</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳15,000</td><td class="num">৳5,000</td><td class="num">৳10,000</td><td class="muted num">12 Apr</td><td><span class="ob-badge ob-badge--orange ob-badge--sm">Partial</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Salma Akter</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳8,000</td><td class="num">৳0</td><td class="num">৳8,000</td><td class="muted num">02 Jun</td><td><span class="ob-badge ob-badge--red ob-badge--sm">Open</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--marketing-purple)"></span>Karim Mia</td><td><span class="ob-badge ob-badge--purple ob-badge--sm">Taken</span></td><td class="num">৳5,000</td><td class="num">৳0</td><td class="num">৳5,000</td><td class="muted num">28 May</td><td><span class="ob-badge ob-badge--red ob-badge--sm">Open</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Office fund</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳12,000</td><td class="num">৳6,500</td><td class="num">৳5,500</td><td class="muted num">18 Mar</td><td><span class="ob-badge ob-badge--orange ob-badge--sm">Partial</span></td></tr>
+                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Nadia (cousin)</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳6,000</td><td class="num">৳6,000</td><td class="num">৳0</td><td class="muted num">10 Jan</td><td><span class="ob-badge ob-badge--green ob-badge--sm"><i class="fa-solid fa-check"></i> Settled</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ========================= SAVINGS ========================= -->
+        <section class="screen" id="screen-savings">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <i class="fa-regular fa-folder"></i>
+              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
+              <i class="fa-solid fa-chevron-right"></i>
+              <span class="crumb-cur">Savings</span>
+            </nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-right-left"></i> Move money</button>
+              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> New goal</button>
+            </div>
+          </div>
+          <div class="page">
+            <h3 class="section-h">Savings goals</h3>
+            <div class="goal-grid" style="margin-bottom:var(--spacing-24)">
+              <div class="ob-card">
+                <div class="goal__top">
+                  <span class="goal__icon" style="background:var(--green-bg);color:var(--green-text)"><i class="fa-solid fa-shield-heart"></i></span>
+                  <div><div class="goal__name">Emergency fund</div><div class="muted" style="font-size:12px">DBBL savings</div></div>
+                </div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">62%</span><span class="muted num" style="font-size:12px">৳3,00,000 target</span></div>
+                <div class="prog" style="margin-top:10px"><div class="prog__fill prog__fill--good" style="width:62%"></div></div>
+                <div class="goal__nums"><span class="num">৳1,85,000 saved</span><span class="num">৳1,15,000 to go</span></div>
+              </div>
+              <div class="ob-card">
+                <div class="goal__top">
+                  <span class="goal__icon" style="background:var(--purple-bg);color:var(--purple-text)"><i class="fa-solid fa-kaaba"></i></span>
+                  <div><div class="goal__name">Hajj fund</div><div class="muted" style="font-size:12px">Islami Bank</div></div>
+                </div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">28%</span><span class="muted num" style="font-size:12px">৳7,00,000 target</span></div>
+                <div class="prog" style="margin-top:10px"><div class="prog__fill" style="width:28%"></div></div>
+                <div class="goal__nums"><span class="num">৳1,96,000 saved</span><span class="num">৳5,04,000 to go</span></div>
+              </div>
+              <div class="ob-card">
+                <div class="goal__top">
+                  <span class="goal__icon" style="background:var(--orange-bg);color:var(--orange-text)"><i class="fa-solid fa-laptop"></i></span>
+                  <div><div class="goal__name">New laptop</div><div class="muted" style="font-size:12px">bKash savings</div></div>
+                </div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">90%</span><span class="muted num" style="font-size:12px">৳1,40,000 target</span></div>
+                <div class="prog" style="margin-top:10px"><div class="prog__fill prog__fill--good" style="width:90%"></div></div>
+                <div class="goal__nums"><span class="num">৳1,26,000 saved</span><span class="num">৳14,000 to go</span></div>
+              </div>
+            </div>
+
+            <h3 class="section-h">Account balances</h3>
+            <div class="ob-card" style="padding:0">
+              <table class="ob-table">
+                <thead><tr><th>Account</th><th>Type</th><th class="num">Balance</th><th class="num">Δ this period</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i></span> Cash</td><td class="muted">Cash</td><td class="num">৳12,400</td><td class="num" style="color:var(--red-text)">−৳3,200</td></tr>
+                  <tr><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i></span> bKash</td><td class="muted">Mobile money</td><td class="num">৳18,650</td><td class="num" style="color:var(--green-text)">+৳1,100</td></tr>
+                  <tr><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i></span> Nagad</td><td class="muted">Mobile money</td><td class="num">৳9,200</td><td class="num" style="color:var(--green-text)">+৳400</td></tr>
+                  <tr><td><span class="acct"><i class="fa-solid fa-building-columns"></i></span> DBBL</td><td class="muted">Bank</td><td class="num">৳44,000</td><td class="num" style="color:var(--green-text)">+৳24,100</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2">Total in hand</td><td class="num">৳84,250</td><td class="num" style="color:var(--green-text)">+৳22,400</td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ============ SIDEBAR (Details) ============ -->
+      <aside class="itp-sidebar" data-state="open" id="sidebar">
+        <div class="sidebar__header">
+          <h2>Details</h2>
+          <button class="close" id="sidebarClose" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sidebar__content">
+          <div class="sidebar-section-title">Period · Jun 2026</div>
+          <div class="kv"><span class="k">Cycle</span><span class="v num">25 May – 24 Jun</span></div>
+          <div class="kv"><span class="k">Status</span><span class="v"><span class="ob-badge ob-badge--green ob-badge--sm">Open</span></span></div>
+          <div class="kv"><span class="k">Opening balance</span><span class="v num">৳61,850</span></div>
+          <div class="kv"><span class="k">Income</span><span class="v num">৳1,20,000</span></div>
+          <div class="kv"><span class="k">Spent</span><span class="v num">৳57,300</span></div>
+          <div class="kv"><span class="k">Projected close</span><span class="v num">৳84,250</span></div>
+
+          <div class="sidebar-section-title">Accounts</div>
+          <div class="kv"><span class="k"><i class="fa-solid fa-money-bill-wave muted"></i> Cash</span><span class="v num">৳12,400</span></div>
+          <div class="kv"><span class="k"><i class="fa-solid fa-mobile-screen muted"></i> bKash</span><span class="v num">৳18,650</span></div>
+          <div class="kv"><span class="k"><i class="fa-solid fa-mobile-screen muted"></i> Nagad</span><span class="v num">৳9,200</span></div>
+          <div class="kv"><span class="k"><i class="fa-solid fa-building-columns muted"></i> DBBL</span><span class="v num">৳44,000</span></div>
+
+          <div class="sidebar-section-title">Upcoming</div>
+          <div class="kv"><span class="k">Rent · 1 Jul</span><span class="v num">৳18,000</span></div>
+          <div class="kv"><span class="k">Internet · 5 Jul</span><span class="v num">৳1,200</span></div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- mockup controls (not part of the design system) -->
+  <div class="mock-fab">
+    <button id="themeToggle"><i class="fa-solid fa-moon"></i> Dark</button>
+  </div>
+
+  <script>
+    // screen switcher
+    document.querySelectorAll('[data-screen]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.getAttribute('data-screen');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-' + id).classList.add('active');
+        document.querySelectorAll('.navtab').forEach(t =>
+          t.classList.toggle('active', t.getAttribute('data-screen') === id && !t.style.opacity));
+        document.querySelector('.itp-content').scrollTop = 0;
+      });
+    });
+
+    // theme toggle
+    const root = document.documentElement, tBtn = document.getElementById('themeToggle');
+    tBtn.addEventListener('click', () => {
+      const dark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', dark ? 'light' : 'dark');
+      tBtn.innerHTML = dark ? '<i class="fa-solid fa-moon"></i> Dark' : '<i class="fa-solid fa-sun"></i> Light';
+    });
+
+    // sidebar toggle
+    const sb = document.getElementById('sidebar');
+    const toggleSb = () => sb.setAttribute('data-state', sb.getAttribute('data-state') === 'open' ? 'closed' : 'open');
+    document.getElementById('detailsBtn').addEventListener('click', toggleSb);
+    document.getElementById('sidebarClose').addEventListener('click', toggleSb);
+  </script>
+</body>
+</html>
