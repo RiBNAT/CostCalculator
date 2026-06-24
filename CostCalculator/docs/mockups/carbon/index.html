@@ -3,494 +3,487 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cost Calculator — Orbitax / Carbon mockup</title>
+  <title>Cost Calculator — Orbitax / Carbon (interactive)</title>
 
-  <!-- Font Awesome 7 Pro Kit (per foundations/iconography.md — Kit 03b886e490, localhost only) -->
-  <script src="https://kit.fontawesome.com/03b886e490.js" crossorigin="anonymous"></script>
-  <!-- Fallback for non-localhost rendering: FA Free (covers most glyphs used here) -->
+  <!-- Icons: Font Awesome 6 Free (solid). The Orbitax Pro Kit (foundations/iconography.md) only
+       resolves on localhost, so this mockup uses Free-solid glyphs only.
+       DESIGN SYSTEM GAP: Pro 'regular' weights are unavailable here; solid is used throughout. -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-  <!-- Inter is the documented substitution face for Paralucent (brand) AND Geist (UI). Geist + Lora loaded too. -->
+  <!-- Inter = documented substitute for Paralucent (brand) AND Geist (UI). Geist + Lora also loaded. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Inter:wght@400;500;600&family=Lora:ital@0;1&display=swap" rel="stylesheet" />
 
   <style>
-  /* ===========================================================================
-   * Orbitax Design Tokens — copied verbatim from
-   * orbitax-carbon/src/tokens/tokens.css (theme-aware neutrals + brand + category)
-   * =========================================================================== */
-  :root {
-    /* Neutral palette — light mode */
-    --standard-0:#101214; --standard-100:#161A1D; --standard-200:#1D2125;
-    --standard-250:#22272B; --standard-300:#282E33; --standard-350:#2C333A;
-    --standard-400:#38414A; --standard-500:#454F59; --standard-600:#596773;
-    --standard-700:#738496; --standard-800:#8C9BAB; --standard-900:#9FADBC;
-    --standard-1000:#DEE4EA; --standard-1100:#EAEEF3; --standard-1200:#DEE4EA;
-    --standard-1250:#F0F4F9; --standard-1300:#F6F8FC; --standard-1400:#FFFFFF;
-
-    /* Brand */
-    --blue-0:#175CFF;
-
-    /* Semantic — danger (provisional; design-system gap flagged in colours.md) */
-    --danger-0:#D32F2F;
-
-    /* Avatar */
-    --avatar-coral-bg:#FFAFA5; --avatar-coral-fg:#892055;
-
-    /* Category colours — paired text + bg */
-    --green-text:#176448;  --green-bg:#CBF5E5;
-    --purple-text:#5C2693; --purple-bg:#D5C5FF;
-    --orange-text:#6E330C; --orange-bg:#FFDAC2;
-    --red-text:#9B1942;    --red-bg:#FFC8D7;
-    --coral-text:#8A2E15;  --coral-bg:#FFD1C2;
-
-    /* Marketing palette */
-    --marketing-pink:#FF3B95; --marketing-orange:#FFB800; --marketing-green:#00C237;
-    --marketing-blue:#175CFF; --marketing-purple:#8B3DFF; --marketing-yellow:#FFD600;
-
-    /* Type */
+  /* ===== Orbitax tokens (verbatim from src/tokens/tokens.css) ===== */
+  :root{
+    --standard-0:#101214;--standard-100:#161A1D;--standard-200:#1D2125;--standard-250:#22272B;
+    --standard-300:#282E33;--standard-350:#2C333A;--standard-400:#38414A;--standard-500:#454F59;
+    --standard-600:#596773;--standard-700:#738496;--standard-800:#8C9BAB;--standard-900:#9FADBC;
+    --standard-1000:#DEE4EA;--standard-1100:#EAEEF3;--standard-1200:#DEE4EA;--standard-1250:#F0F4F9;
+    --standard-1300:#F6F8FC;--standard-1400:#FFFFFF;
+    --blue-0:#175CFF;--danger-0:#D32F2F;
+    --avatar-coral-bg:#FFAFA5;--avatar-coral-fg:#892055;
+    --green-text:#176448;--green-bg:#CBF5E5;--purple-text:#5C2693;--purple-bg:#D5C5FF;
+    --orange-text:#6E330C;--orange-bg:#FFDAC2;--red-text:#9B1942;--red-bg:#FFC8D7;
+    --coral-text:#8A2E15;--coral-bg:#FFD1C2;
+    --marketing-pink:#FF3B95;--marketing-orange:#FFB800;--marketing-green:#00C237;
+    --marketing-blue:#175CFF;--marketing-purple:#8B3DFF;--marketing-yellow:#FFD600;
     --font-family-brand:"Paralucent","Inter",system-ui,-apple-system,sans-serif;
     --font-family-ui:"Geist","Inter",system-ui,-apple-system,sans-serif;
     --font-family-editorial:"Lora",Georgia,"Times New Roman",serif;
-    --font-weight-regular:400; --font-weight-medium:500; --font-weight-semibold:600; --font-weight-demibold:600;
-    --type-size-12:12px; --type-size-14:14px; --type-size-15:15px; --type-size-16:16px; --type-size-18:18px; --type-size-28:28px;
-    --line-height-tight:20px; --line-height-normal:normal;
-
-    /* Spacing */
-    --spacing-4:4px; --spacing-8:8px; --spacing-10:10px; --spacing-12:12px;
-    --spacing-16:16px; --spacing-20:20px; --spacing-24:24px; --spacing-30:30px; --spacing-40:40px;
-
-    /* Radii */
-    --radius-card:8px; --radius-pill:100px; --radius-circle:50%;
-
-    /* Layout */
-    --header-height:64px; --sidebar-width:400px; --content-margin:16px;
-    --breadcrumb-bar-height:70px; --secondary-bar-height:75px;
+    --font-weight-regular:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-demibold:600;
+    --type-size-12:12px;--type-size-14:14px;--type-size-15:15px;--type-size-16:16px;--type-size-18:18px;--type-size-28:28px;
+    --line-height-tight:20px;
+    --spacing-4:4px;--spacing-8:8px;--spacing-10:10px;--spacing-12:12px;--spacing-16:16px;
+    --spacing-20:20px;--spacing-24:24px;--spacing-30:30px;--spacing-40:40px;
+    --radius-card:8px;--radius-pill:100px;--radius-circle:50%;
+    --header-height:64px;--sidebar-width:400px;--content-margin:16px;
+    --breadcrumb-bar-height:70px;--secondary-bar-height:75px;
   }
-  [data-theme="dark"] {
-    --standard-0:#FFFFFF; --standard-100:#F6F8FC; --standard-200:#DEE4EA;
-    --standard-250:#C7D1DB; --standard-300:#C7D1DB; --standard-350:#B6C2CF;
-    --standard-400:#8C9BAB; --standard-500:#738496; --standard-600:#596773;
-    --standard-700:#454F59; --standard-800:#38414A; --standard-900:#2C333A;
-    --standard-1000:#282E33; --standard-1100:#22272B; --standard-1200:#1D2125;
-    --standard-1250:#1A1D21; --standard-1300:#161A1D; --standard-1400:#161A1D;
+  [data-theme="dark"]{
+    --standard-0:#FFFFFF;--standard-100:#F6F8FC;--standard-200:#DEE4EA;--standard-250:#C7D1DB;
+    --standard-300:#C7D1DB;--standard-350:#B6C2CF;--standard-400:#8C9BAB;--standard-500:#738496;
+    --standard-600:#596773;--standard-700:#454F59;--standard-800:#38414A;--standard-900:#2C333A;
+    --standard-1000:#282E33;--standard-1100:#22272B;--standard-1200:#1D2125;--standard-1250:#1A1D21;
+    --standard-1300:#161A1D;--standard-1400:#161A1D;
   }
 
-  /* ===========================================================================
-   * Reset & shell  (per projects/itp/skills/structure.md — immutable skeleton)
-   * =========================================================================== */
-  * { box-sizing:border-box; }
-  html, body { height:100%; margin:0; overflow:hidden; }   /* no page scroll — content scrolls inside */
-  body {
-    font-family:var(--font-family-ui);
-    font-size:var(--type-size-14);
-    color:var(--standard-0);
-    background:var(--standard-1300);
-    -webkit-font-smoothing:antialiased;
-  }
-  a { text-decoration:none; color:inherit; }
-  .num { font-variant-numeric:tabular-nums; }
+  /* ===== shell (structure.md) ===== */
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;overflow:hidden;}
+  body{font-family:var(--font-family-ui);font-size:var(--type-size-14);color:var(--standard-0);background:var(--standard-1300);-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;cursor:pointer;}
+  .num{font-variant-numeric:tabular-nums;}
+  .muted{color:var(--standard-600);}
+  .neg{color:var(--red-text);}
+  .pos{color:var(--green-text);}
 
-  .itp-shell { height:100vh; display:flex; flex-direction:column; background:var(--standard-1300); }
+  .itp-shell{height:100vh;display:flex;flex-direction:column;background:var(--standard-1300);}
+  .itp-header{height:var(--header-height);flex-shrink:0;position:relative;display:flex;align-items:center;padding:0 var(--spacing-20);background:transparent;}
+  .itp-header__left{display:flex;align-items:center;gap:var(--spacing-10);}
+  .applauncher{width:34px;height:34px;display:grid;place-items:center;color:var(--standard-0);background:none;border:none;cursor:pointer;font-size:var(--type-size-18);border-radius:var(--radius-circle);}
+  .applauncher:hover{background:var(--standard-1100);}
+  .brandmark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--blue-0);color:#fff;font-family:var(--font-family-brand);font-weight:600;font-size:18px;}
+  .wordmark{font-family:var(--font-family-brand);font-size:var(--type-size-16);white-space:nowrap;}
+  .wordmark b{font-weight:var(--font-weight-demibold);color:var(--standard-0);}
+  .wordmark span{font-weight:var(--font-weight-medium);color:var(--blue-0);}
+  .itp-header__nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:var(--spacing-30);}
+  .navtab{font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-14);color:var(--standard-600);background:none;border:none;cursor:pointer;padding:4px 0;}
+  .navtab:hover{color:var(--standard-0);}
+  .navtab.active{color:var(--standard-0);}
+  .itp-header__right{margin-left:auto;display:flex;align-items:center;}
+  .toolicon{position:relative;width:36px;height:36px;display:grid;place-items:center;border:none;background:none;cursor:pointer;color:var(--standard-300);font-size:var(--type-size-18);border-radius:var(--radius-circle);}
+  .toolicon:hover{color:var(--standard-0);background:var(--standard-1100);}
+  .toolicon .dot{position:absolute;top:5px;right:5px;min-width:15px;height:15px;padding:0 3px;border-radius:var(--radius-pill);background:var(--marketing-pink);color:#fff;font-family:var(--font-family-ui);font-size:9px;font-weight:600;display:grid;place-items:center;}
+  .period-pill{display:flex;align-items:center;gap:var(--spacing-8);height:36px;padding:0 16px;margin-left:var(--spacing-10);background:var(--standard-1100);border:none;border-radius:var(--radius-pill);cursor:pointer;font-family:var(--font-family-ui);font-weight:var(--font-weight-medium);font-size:var(--type-size-14);color:var(--standard-0);white-space:nowrap;}
+  .period-pill .muted{color:var(--standard-600);}
+  .period-pill .fa-angle-down{color:var(--standard-600);font-size:12px;}
+  .avatar{width:36px;height:36px;border-radius:var(--radius-circle);margin-left:var(--spacing-16);background:var(--avatar-coral-bg);color:var(--avatar-coral-fg);display:grid;place-items:center;font-family:var(--font-family-brand);font-weight:500;font-size:var(--type-size-15);border:none;cursor:pointer;}
 
-  /* ---- Region 1: Header (64px, transparent, flush) ---- */
-  .itp-header {
-    height:var(--header-height); flex-shrink:0; position:relative;
-    display:flex; align-items:center;
-    padding:0 var(--spacing-20);
-    background:transparent;
-  }
-  .itp-header__left { display:flex; align-items:center; gap:var(--spacing-10); }
-  .applauncher {
-    width:34px; height:34px; display:grid; place-items:center;
-    color:var(--standard-0); background:none; border:none; cursor:pointer; font-size:var(--type-size-18);
-    border-radius:var(--radius-circle);
-  }
-  .applauncher:hover { background:var(--standard-1100); }
-  .brandmark {
-    width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
-    background:var(--blue-0); color:#fff; font-family:var(--font-family-brand); font-weight:600; font-size:18px;
-    margin-right:2px;
-  }
-  .wordmark { font-family:var(--font-family-brand); font-size:var(--type-size-16); white-space:nowrap; }
-  .wordmark b   { font-weight:var(--font-weight-demibold); color:var(--standard-0); }
-  .wordmark span{ font-weight:var(--font-weight-medium);  color:var(--blue-0); }
+  .itp-body{flex:1;display:flex;gap:var(--content-margin);padding:0 var(--content-margin) var(--content-margin);min-height:0;}
+  .itp-content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--standard-1400);border-radius:var(--radius-card);overflow:hidden;}
+  .screen{display:none;flex-direction:column;height:100%;min-height:0;}
+  .screen.active{display:flex;}
+  .breadcrumb-bar{height:var(--breadcrumb-bar-height);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 var(--spacing-20);border-bottom:1px solid var(--standard-1000);}
+  .breadcrumb{display:flex;align-items:center;gap:var(--spacing-12);font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-16);}
+  .breadcrumb .crumb-link{color:var(--blue-0);}
+  .breadcrumb .crumb-cur{color:var(--standard-0);}
+  .breadcrumb .fa-chevron-right,.breadcrumb .fa-folder{color:var(--standard-600);font-size:13px;}
+  .bc-actions{display:flex;align-items:center;gap:var(--spacing-10);}
+  .secondary-bar{height:var(--secondary-bar-height);flex-shrink:0;display:flex;align-items:center;gap:var(--spacing-16);padding:0 var(--spacing-30);border-bottom:1px solid var(--standard-1000);}
+  .page{flex:1;overflow-y:auto;padding:var(--spacing-20);}
 
-  /* Centre nav — absolutely centred in viewport */
-  .itp-header__nav {
-    position:absolute; left:50%; transform:translateX(-50%);
-    display:flex; gap:var(--spacing-30);
-  }
-  .navtab {
-    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium);
-    font-size:var(--type-size-14); color:var(--standard-600);
-    background:none; border:none; cursor:pointer; padding:4px 0;
-  }
-  .navtab:hover { color:var(--standard-0); }
-  .navtab.active { color:var(--standard-0); }
+  .itp-sidebar{width:var(--sidebar-width);flex-shrink:0;display:flex;flex-direction:column;background:var(--standard-1400);border-radius:var(--radius-card);overflow:hidden;}
+  .itp-sidebar[data-state="closed"]{display:none;}
+  .sidebar__header{display:flex;align-items:center;justify-content:space-between;padding:var(--spacing-20);}
+  .sidebar__header h2{margin:0;font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-18);}
+  .sidebar__header .close{border:none;background:none;cursor:pointer;color:var(--standard-0);font-size:16px;}
+  .sidebar__content{flex:1;overflow-y:auto;padding:0 var(--spacing-20) var(--spacing-20);}
 
-  .itp-header__right { margin-left:auto; display:flex; align-items:center; }
-  .toolicon {
-    width:36px; height:36px; display:grid; place-items:center; border:none; background:none; cursor:pointer;
-    color:var(--standard-300); font-size:var(--type-size-18); border-radius:var(--radius-circle);
-  }
-  .toolicon:hover { color:var(--standard-0); background:var(--standard-1100); }
-  .period-pill {
-    display:flex; align-items:center; gap:var(--spacing-8);
-    height:36px; padding:0 16px; margin-left:var(--spacing-10);
-    background:var(--standard-1100); border:none; border-radius:var(--radius-pill); cursor:pointer;
-    font-family:var(--font-family-ui); font-weight:var(--font-weight-medium); font-size:var(--type-size-14);
-    color:var(--standard-0); white-space:nowrap;
-  }
-  .period-pill .muted { color:var(--standard-600); }
-  .period-pill .fa-angle-down { color:var(--standard-600); font-size:12px; }
-  .avatar {
-    width:36px; height:36px; border-radius:var(--radius-circle); margin-left:var(--spacing-16);
-    background:var(--avatar-coral-bg); color:var(--avatar-coral-fg);
-    display:grid; place-items:center; font-family:var(--font-family-brand); font-weight:500; font-size:var(--type-size-15);
-  }
+  /* ===== buttons (button.md) ===== */
+  .ob-btn{height:38px;padding:10px 18px;border-radius:var(--radius-pill);font-family:var(--font-family-ui);font-weight:var(--font-weight-semibold);font-size:var(--type-size-14);line-height:20px;display:inline-flex;align-items:center;gap:10px;cursor:pointer;border:1px solid transparent;white-space:nowrap;}
+  .ob-btn i{font-size:12px;}
+  .ob-btn--primary{background:var(--blue-0);color:#fff;}
+  .ob-btn--primary:hover{background:#1450e6;}
+  .ob-btn--secondary{background:transparent;color:var(--standard-0);border-color:var(--standard-0);}
+  .ob-btn--secondary:hover{background:var(--standard-1300);}
+  .ob-btn--ghost{background:transparent;color:var(--standard-600);border-color:var(--standard-1000);}
+  .ob-btn--ghost:hover{color:var(--standard-0);background:var(--standard-1300);border-color:var(--standard-900);}
+  .ob-btn--danger{background:var(--danger-0);color:#fff;}
+  .ob-btn--text{background:none;border:none;color:var(--blue-0);padding:0;height:auto;font-weight:var(--font-weight-medium);}
+  .ob-btn--text:hover{text-decoration:underline;}
+  .ob-btn:disabled{opacity:.45;cursor:not-allowed;}
 
-  /* ---- Region 2: Body ---- */
-  .itp-body { flex:1; display:flex; gap:var(--content-margin); padding:0 var(--content-margin) var(--content-margin); min-height:0; }
+  /* ===== badges (badge.md) ===== */
+  .ob-badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;padding:6px 12px;border-radius:var(--radius-pill);font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-14);line-height:1;white-space:nowrap;}
+  .ob-badge i{font-size:11px;}
+  .ob-badge--green{background:var(--green-bg);color:var(--green-text);}
+  .ob-badge--purple{background:var(--purple-bg);color:var(--purple-text);}
+  .ob-badge--orange{background:var(--orange-bg);color:var(--orange-text);}
+  .ob-badge--red{background:var(--red-bg);color:var(--red-text);}
+  .ob-badge--coral{background:var(--coral-bg);color:var(--coral-text);}
+  .ob-badge--neutral{background:var(--standard-1250);color:var(--standard-0);}
+  .ob-badge--sm{height:22px;padding:3px 10px;font-size:12px;}
 
-  .itp-content {
-    flex:1; min-width:0; display:flex; flex-direction:column;
-    background:var(--standard-1400); border-radius:var(--radius-card); overflow:hidden;
-  }
-  /* one screen visible at a time; the visible screen fills the panel */
-  .screen { display:none; flex-direction:column; height:100%; min-height:0; }
-  .screen.active { display:flex; }
+  /* ===== cards / kpi (DESIGN SYSTEM GAP: card.md empty — built from itp-detail-card + tokens; no shadow) ===== */
+  .ob-card{border:1px solid var(--standard-1000);border-radius:var(--radius-card);background:var(--standard-1400);padding:var(--spacing-20);}
+  .ob-card__title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-16);}
+  .ob-card__title{font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-18);margin:0;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-16);margin-bottom:var(--spacing-16);}
+  .kpi{border:1px solid var(--standard-1000);border-radius:var(--radius-card);padding:var(--spacing-16) var(--spacing-20);display:flex;flex-direction:column;gap:8px;}
+  .kpi__label{font-family:var(--font-family-ui);font-size:var(--type-size-12);font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:.05em;color:var(--standard-600);display:flex;align-items:center;gap:6px;}
+  .kpi__value{font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-28);color:var(--standard-0);line-height:1.1;}
+  .kpi__sub{font-size:var(--type-size-12);color:var(--standard-600);}
 
-  .breadcrumb-bar {
-    height:var(--breadcrumb-bar-height); flex-shrink:0;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:0 var(--spacing-20); border-bottom:1px solid var(--standard-1000);
-  }
-  .breadcrumb { display:flex; align-items:center; gap:var(--spacing-12);
-    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-16); }
-  .breadcrumb .crumb-link { color:var(--blue-0); }
-  .breadcrumb .crumb-cur  { color:var(--standard-0); }
-  .breadcrumb .fa-chevron-right, .breadcrumb .fa-folder { color:var(--standard-600); font-size:13px; }
-  .bc-actions { display:flex; align-items:center; gap:var(--spacing-10); }
+  .row{display:grid;gap:var(--spacing-16);margin-bottom:var(--spacing-16);}
+  .row--6040{grid-template-columns:1.5fr 1fr;}
 
-  .secondary-bar {
-    height:var(--secondary-bar-height); flex-shrink:0;
-    display:flex; align-items:center; gap:var(--spacing-16);
-    padding:0 var(--spacing-30); border-bottom:1px solid var(--standard-1000);
-  }
-  .page {
-    flex:1; overflow-y:auto; padding:var(--spacing-20);
-  }
+  /* ===== table (DESIGN SYSTEM GAP: table.md empty — built from tokens, density-first) ===== */
+  .ob-table{width:100%;border-collapse:collapse;font-family:var(--font-family-ui);font-size:var(--type-size-14);}
+  .ob-table th{text-align:left;padding:12px var(--spacing-12);border-bottom:1px solid var(--standard-1000);font-size:var(--type-size-12);font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:.04em;color:var(--standard-600);white-space:nowrap;}
+  .ob-table td{padding:12px var(--spacing-12);border-bottom:1px solid var(--standard-1100);color:var(--standard-0);}
+  .ob-table tbody tr:hover td{background:var(--standard-1300);}
+  .ob-table .num{text-align:right;}
+  .ob-table tfoot td{font-weight:var(--font-weight-semibold);border-top:1px solid var(--standard-1000);border-bottom:none;}
+  .cat-dot{display:inline-block;width:8px;height:8px;border-radius:var(--radius-circle);margin-right:8px;vertical-align:middle;}
+  .acct{display:inline-flex;align-items:center;gap:6px;color:var(--standard-500);}
+  .acct i{font-size:12px;}
+  .rowact{border:none;background:none;color:var(--standard-600);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;}
+  .rowact:hover{color:var(--blue-0);background:var(--standard-1300);}
 
-  /* ---- Region 3: Sidebar (Details) ---- */
-  .itp-sidebar {
-    width:var(--sidebar-width); flex-shrink:0; display:flex; flex-direction:column;
-    background:var(--standard-1400); border-radius:var(--radius-card); overflow:hidden;
-  }
-  .itp-sidebar[data-state="closed"] { display:none; }
-  .sidebar__header { display:flex; align-items:center; justify-content:space-between; padding:var(--spacing-20); }
-  .sidebar__header h2 { margin:0; font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); }
-  .sidebar__header .close { border:none; background:none; cursor:pointer; color:var(--standard-0); font-size:16px; }
-  .sidebar__content { flex:1; overflow-y:auto; padding:0 var(--spacing-20) var(--spacing-20); }
+  /* ===== progress ===== */
+  .prog{height:8px;border-radius:var(--radius-pill);background:var(--standard-1100);overflow:hidden;}
+  .prog__fill{height:100%;border-radius:var(--radius-pill);background:var(--blue-0);}
+  .prog__fill--over{background:var(--danger-0);}
+  .prog__fill--good{background:var(--marketing-green);}
+  .prog--mini{height:6px;}
+  .ob-table tbody tr.subrow td{background:var(--standard-1300);font-size:13px;}
+  .ob-table tbody tr.subrow td:first-child{color:var(--standard-500);}
+  .cat-caret{font-size:10px;color:var(--standard-600);width:12px;margin-right:6px;display:inline-block;}
+  .ob-input.budinput{height:34px;width:120px;text-align:right;padding:0 10px;display:inline-block;}
+  .ob-input.budinput:focus{padding:0 9px;}
 
-  /* ===========================================================================
-   * Components
-   * =========================================================================== */
+  /* ===== donut + legend ===== */
+  .donut-wrap{display:flex;align-items:center;gap:var(--spacing-30);}
+  .donut{width:168px;height:168px;border-radius:var(--radius-circle);position:relative;flex-shrink:0;}
+  .donut::after{content:"";position:absolute;inset:30px;border-radius:var(--radius-circle);background:var(--standard-1400);}
+  .donut__center{position:absolute;inset:0;display:grid;place-items:center;text-align:center;z-index:1;}
+  .donut__center .amt{font-family:var(--font-family-brand);font-weight:500;font-size:22px;}
+  .donut__center .lab{font-size:var(--type-size-12);color:var(--standard-600);}
+  .legend{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;}
+  .legend__item{display:flex;align-items:center;gap:8px;font-size:var(--type-size-14);}
+  .legend__item .nm{flex:1;}
+  .legend__item .vl{color:var(--standard-600);}
 
-  /* Buttons (per skills/button.md: 38px pill, Geist SemiBold 14px) */
-  .ob-btn {
-    height:38px; padding:10px 18px; border-radius:var(--radius-pill);
-    font-family:var(--font-family-ui); font-weight:var(--font-weight-semibold); font-size:var(--type-size-14);
-    line-height:20px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; border:1px solid transparent;
-    white-space:nowrap;
-  }
-  .ob-btn i { font-size:12px; }
-  .ob-btn--primary   { background:var(--blue-0); color:#fff; }
-  .ob-btn--primary:hover { background:#1450e6; }
-  .ob-btn--secondary { background:transparent; color:var(--standard-0); border-color:var(--standard-0); }
-  .ob-btn--secondary:hover { background:var(--standard-1300); }
-  .ob-btn--ghost     { background:transparent; color:var(--standard-600); border-color:var(--standard-1000); }
-  .ob-btn--ghost:hover { color:var(--standard-0); background:var(--standard-1300); border-color:var(--standard-900); }
-  .ob-btn--text      { background:none; border:none; color:var(--blue-0); padding:0; height:auto; font-weight:var(--font-weight-medium); }
-  .ob-btn--text:hover{ text-decoration:underline; }
+  .trend{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px;}
+  .trend__bar{flex:1;background:var(--standard-1100);border-radius:4px 4px 0 0;}
+  .trend__bar.is-last{background:var(--blue-0);}
+  .trend__labels{display:flex;gap:6px;margin-top:6px;}
+  .trend__labels span{flex:1;text-align:center;font-size:11px;color:var(--standard-600);}
+  .runway-num{font-family:var(--font-family-brand);font-weight:500;font-size:36px;line-height:1;}
+  .runway-row{display:flex;justify-content:space-between;font-size:var(--type-size-12);color:var(--standard-600);margin-top:6px;}
 
-  /* Badges (per skills/badge.md: 28px pill, Paralucent Medium 14px) */
-  .ob-badge {
-    display:inline-flex; align-items:center; justify-content:center; gap:6px;
-    height:28px; padding:6px 12px; border-radius:var(--radius-pill);
-    font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-14);
-    line-height:1; white-space:nowrap;
-  }
-  .ob-badge i { font-size:11px; }
-  .ob-badge--green   { background:var(--green-bg);  color:var(--green-text); }
-  .ob-badge--purple  { background:var(--purple-bg); color:var(--purple-text); }
-  .ob-badge--orange  { background:var(--orange-bg); color:var(--orange-text); }
-  .ob-badge--red     { background:var(--red-bg);    color:var(--red-text); }
-  .ob-badge--coral   { background:var(--coral-bg);  color:var(--coral-text); }
-  .ob-badge--neutral { background:var(--standard-1250); color:var(--standard-0); }
-  .ob-badge--sm { height:22px; padding:3px 10px; font-size:12px; }
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--standard-1100);font-size:var(--type-size-14);}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--standard-600);}
+  .kv .v{font-weight:var(--font-weight-medium);}
+  .sidebar-section-title{font-family:var(--font-family-ui);font-size:var(--type-size-12);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--standard-600);margin:var(--spacing-20) 0 4px;}
 
-  /* Detail card / KPI tile.
-     DESIGN SYSTEM GAP: skills/card.md and skills/table.md are empty stubs.
-     Built from structure.md (itp-detail-card pattern) + tokens. No shadow per elevation rules. */
-  .ob-card {
-    border:1px solid var(--standard-1000); border-radius:var(--radius-card);
-    background:var(--standard-1400); padding:var(--spacing-20);
-  }
-  .ob-card__title-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-16); }
-  .ob-card__title { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); margin:0; }
-
-  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--spacing-16); margin-bottom:var(--spacing-16); }
-  .kpi { border:1px solid var(--standard-1000); border-radius:var(--radius-card); padding:var(--spacing-16) var(--spacing-20); display:flex; flex-direction:column; gap:8px; }
-  .kpi__label { font-family:var(--font-family-ui); font-size:var(--type-size-12); font-weight:var(--font-weight-semibold);
-    text-transform:uppercase; letter-spacing:.05em; color:var(--standard-600); display:flex; align-items:center; gap:6px; }
-  .kpi__value { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-28);
-    color:var(--standard-0); line-height:1.1; }
-  .kpi__sub { font-size:var(--type-size-12); color:var(--standard-600); }
-  .delta { display:inline-flex; align-items:center; gap:4px; font-size:var(--type-size-12); font-weight:var(--font-weight-semibold); }
-  .delta--up   { color:var(--green-text); }
-  .delta--down { color:var(--red-text); }
-
-  /* layout grids */
-  .row { display:grid; gap:var(--spacing-16); margin-bottom:var(--spacing-16); }
-  .row--6040 { grid-template-columns:1.5fr 1fr; }
-  .row--2 { grid-template-columns:1fr 1fr; }
-
-  /* Table.
-     DESIGN SYSTEM GAP: skills/table.md is an empty stub. Built from tokens (density-first). */
-  .ob-table { width:100%; border-collapse:collapse; font-family:var(--font-family-ui); font-size:var(--type-size-14); }
-  .ob-table th {
-    text-align:left; padding:12px var(--spacing-12); border-bottom:1px solid var(--standard-1000);
-    font-size:var(--type-size-12); font-weight:var(--font-weight-semibold); text-transform:uppercase; letter-spacing:.04em;
-    color:var(--standard-600); white-space:nowrap;
-  }
-  .ob-table td { padding:12px var(--spacing-12); border-bottom:1px solid var(--standard-1100); color:var(--standard-0); }
-  .ob-table tbody tr:hover td { background:var(--standard-1300); }
-  .ob-table .num { text-align:right; }
-  .ob-table tfoot td { font-weight:var(--font-weight-semibold); border-top:1px solid var(--standard-1000); border-bottom:none; }
-  .cat-dot { display:inline-block; width:8px; height:8px; border-radius:var(--radius-circle); margin-right:8px; vertical-align:middle; }
-  .acct { display:inline-flex; align-items:center; gap:6px; color:var(--standard-500); }
-  .acct i { font-size:12px; }
-  .muted { color:var(--standard-600); }
-
-  /* progress bar */
-  .prog { height:8px; border-radius:var(--radius-pill); background:var(--standard-1100); overflow:hidden; }
-  .prog__fill { height:100%; border-radius:var(--radius-pill); background:var(--blue-0); }
-  .prog__fill--over { background:var(--danger-0); }
-  .prog__fill--good { background:var(--marketing-green); }
-
-  /* donut + legend */
-  .donut-wrap { display:flex; align-items:center; gap:var(--spacing-30); }
-  .donut { width:168px; height:168px; border-radius:var(--radius-circle); position:relative; flex-shrink:0; }
-  .donut::after { content:""; position:absolute; inset:30px; border-radius:var(--radius-circle); background:var(--standard-1400); }
-  .donut__center { position:absolute; inset:0; display:grid; place-items:center; text-align:center; z-index:1; }
-  .donut__center .amt { font-family:var(--font-family-brand); font-weight:500; font-size:22px; }
-  .donut__center .lab { font-size:var(--type-size-12); color:var(--standard-600); }
-  .legend { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; }
-  .legend__item { display:flex; align-items:center; gap:8px; font-size:var(--type-size-14); }
-  .legend__item .nm { flex:1; }
-  .legend__item .vl { color:var(--standard-600); }
-
-  /* mini trend bars */
-  .trend { display:flex; align-items:flex-end; gap:6px; height:120px; padding-top:8px; }
-  .trend__bar { flex:1; background:var(--standard-1100); border-radius:4px 4px 0 0; position:relative; }
-  .trend__bar.is-last { background:var(--blue-0); }
-  .trend__labels { display:flex; gap:6px; margin-top:6px; }
-  .trend__labels span { flex:1; text-align:center; font-size:11px; color:var(--standard-600); }
-
-  /* runway gauge */
-  .runway-num { font-family:var(--font-family-brand); font-weight:500; font-size:36px; line-height:1; }
-  .runway-row { display:flex; justify-content:space-between; font-size:var(--type-size-12); color:var(--standard-600); margin-top:6px; }
-
-  /* sidebar key/value */
-  .kv { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--standard-1100); font-size:var(--type-size-14); }
-  .kv:last-child { border-bottom:none; }
-  .kv .k { color:var(--standard-600); }
-  .kv .v { font-weight:var(--font-weight-medium); }
-  .sidebar-section-title { font-family:var(--font-family-ui); font-size:var(--type-size-12); font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--standard-600); margin:var(--spacing-20) 0 4px; }
-
-  /* filter/tab bits in secondary bar */
-  .field { display:flex; align-items:center; gap:8px; height:38px; padding:0 14px; border:1px solid var(--standard-1000); border-radius:var(--radius-pill); color:var(--standard-600); font-size:var(--type-size-14); background:var(--standard-1400); cursor:pointer; }
-  .field i { font-size:12px; }
-  .field--search { width:260px; color:var(--standard-700); }
-  .subtabs { display:flex; gap:var(--spacing-24); height:100%; align-items:flex-end; }
-  .subtab { display:flex; align-items:center; height:100%; padding-bottom:14px; font-family:var(--font-family-brand); font-weight:500; font-size:var(--type-size-14); color:var(--standard-600); border-bottom:2px solid transparent; cursor:pointer; }
-  .subtab.active { color:var(--standard-0); border-bottom-color:var(--blue-0); }
-
-  .section-h { font-family:var(--font-family-brand); font-weight:var(--font-weight-medium); font-size:var(--type-size-18); margin:0 0 var(--spacing-12); }
+  /* secondary-bar controls */
+  .field{display:flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--standard-1000);border-radius:var(--radius-pill);color:var(--standard-600);font-size:var(--type-size-14);background:var(--standard-1400);}
+  .field i{font-size:12px;}
+  .field--search{width:260px;}
+  .field--search input{border:none;background:none;outline:none;color:var(--standard-0);font-family:var(--font-family-ui);font-size:var(--type-size-14);width:100%;}
+  .field--search input::placeholder{color:var(--standard-700);}
+  .subtabs{display:flex;gap:var(--spacing-24);height:100%;align-items:flex-end;}
+  .subtab{display:flex;align-items:center;height:100%;padding-bottom:14px;font-family:var(--font-family-brand);font-weight:500;font-size:var(--type-size-14);color:var(--standard-600);border-bottom:2px solid transparent;cursor:pointer;}
+  .subtab:hover{color:var(--standard-0);}
+  .subtab.active{color:var(--blue-0);font-weight:600;border-bottom-color:var(--blue-0);}
+  .section-h{font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-18);margin:0 0 var(--spacing-12);}
 
   /* goal cards */
-  .goal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--spacing-16); }
-  .goal__top { display:flex; align-items:center; gap:10px; margin-bottom:var(--spacing-16); }
-  .goal__icon { width:36px; height:36px; border-radius:8px; display:grid; place-items:center; font-size:15px; }
-  .goal__name { font-weight:var(--font-weight-medium); }
-  .goal__pct { font-family:var(--font-family-brand); font-size:22px; font-weight:500; }
-  .goal__nums { display:flex; justify-content:space-between; font-size:var(--type-size-12); color:var(--standard-600); margin-top:8px; }
+  .goal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-16);}
+  .goal__top{display:flex;align-items:center;gap:10px;margin-bottom:var(--spacing-16);}
+  .goal__icon{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-size:15px;}
+  .goal__name{font-weight:var(--font-weight-medium);}
+  .goal__pct{font-family:var(--font-family-brand);font-size:22px;font-weight:500;}
+  .goal__nums{display:flex;justify-content:space-between;font-size:var(--type-size-12);color:var(--standard-600);margin-top:8px;}
 
-  /* mockup chrome (outside the design system — a thin control strip) */
-  .mock-fab { position:fixed; right:18px; bottom:18px; z-index:200; display:flex; gap:10px; }
-  .mock-fab button { height:40px; padding:0 16px; border-radius:var(--radius-pill); border:1px solid var(--standard-1000);
-    background:var(--standard-1400); color:var(--standard-0); font-family:var(--font-family-ui); font-weight:600; font-size:13px; cursor:pointer;
-    display:flex; align-items:center; gap:8px; box-shadow:0 4px 16px rgba(16,18,20,.14); }
+  /* planner */
+  .plan-item{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--standard-1000);border-radius:var(--radius-card);margin-bottom:12px;}
+  .plan-item .picon{width:40px;height:40px;border-radius:8px;display:grid;place-items:center;background:var(--standard-1250);color:var(--standard-0);font-size:15px;flex-shrink:0;}
+  .plan-item .pmeta{flex:1;}
+  .plan-item .pname{font-weight:var(--font-weight-medium);}
+  .plan-item.paid{opacity:.55;}
+
+  /* ===== form controls (input.md / select.md) ===== */
+  .ob-form{display:flex;flex-direction:column;gap:16px;}
+  .ob-form .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .ff{display:flex;flex-direction:column;gap:4px;}
+  .ff>label{font-family:var(--font-family-ui);font-weight:var(--font-weight-medium);font-size:13px;color:var(--standard-0);}
+  .ff .hint{color:var(--standard-600);font-weight:400;}
+  .ob-input{height:45px;padding:0 15px;border:1px solid var(--standard-1000);border-radius:8px;background:var(--standard-1300);color:var(--standard-0);font-family:var(--font-family-ui);font-size:var(--type-size-14);outline:none;width:100%;}
+  .ob-input:hover:not(:focus){border-color:var(--standard-700);}
+  .ob-input:focus{border:2px solid var(--blue-0);padding:0 14px;}
+  .ob-input.err{border-color:var(--danger-0);}
+  .ff .amt-preview{font-size:12px;color:var(--standard-600);}
+  .ff .amt-preview b{color:var(--standard-0);}
+
+  .ob-sel{position:relative;}
+  .ob-sel__trigger{width:100%;height:45px;display:flex;align-items:center;gap:8px;padding:0 12px 0 16px;background:var(--standard-1400);border:1px solid var(--standard-1000);border-radius:8px;font-family:var(--font-family-ui);font-size:var(--type-size-14);font-weight:var(--font-weight-medium);color:var(--standard-0);cursor:pointer;}
+  .ob-sel__trigger:hover{border-color:var(--standard-600);}
+  .ob-sel__label{flex:1;text-align:left;}
+  .ob-sel__trigger .fa-angle-down{color:var(--standard-600);font-size:10px;transition:transform .15s;}
+  .ob-sel.open .ob-sel__trigger{border-color:var(--standard-600);}
+  .ob-sel.open .fa-angle-down{transform:rotate(180deg);}
+  .ob-sel__menu{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:var(--standard-1400);border:1px solid var(--standard-1000);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);padding:4px 0;max-height:240px;overflow:auto;}
+  .ob-sel.open .ob-sel__menu{display:block;}
+  .ob-sel__opt{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-weight:var(--font-weight-medium);}
+  .ob-sel__opt:hover{background:var(--standard-1100);}
+  .ob-sel--pill .ob-sel__trigger{height:38px;border-radius:var(--radius-pill);background:var(--standard-1400);}
+  /* inline subcategory add / delete inside a dropdown */
+  .opt-del{margin-left:auto;color:var(--standard-600);font-size:14px;width:20px;height:20px;display:none;align-items:center;justify-content:center;border-radius:4px;}
+  .ob-sel__opt:hover .opt-del{display:inline-flex;}
+  .opt-del:hover{background:var(--standard-1100);color:var(--danger-0);}
+  .sub-add-row{display:flex;gap:6px;padding:8px 10px;margin-top:4px;border-top:1px solid var(--standard-1100);}
+  .sub-add-input{flex:1;height:32px;border:1px solid var(--standard-1000);border-radius:6px;padding:0 8px;font-family:var(--font-family-ui);font-size:13px;background:var(--standard-1300);color:var(--standard-0);outline:none;}
+  .sub-add-btn{border:none;background:var(--blue-0);color:#fff;border-radius:6px;padding:0 12px;font-family:var(--font-family-ui);font-weight:600;font-size:13px;cursor:pointer;}
+  /* categories & subcategories manager */
+  .ms-cat{padding:14px 0;border-bottom:1px solid var(--standard-1100);}
+  .ms-cat:last-child{border-bottom:none;}
+  .ms-cat__name{display:flex;align-items:center;font-weight:var(--font-weight-medium);margin-bottom:10px;}
+  .ms-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .ms-chip{display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 4px 0 12px;border:1px solid var(--standard-1000);border-radius:var(--radius-pill);font-size:13px;}
+  .ms-chip__x{border:none;background:none;color:var(--standard-600);cursor:pointer;font-size:15px;width:20px;height:20px;border-radius:50%;}
+  .ms-chip__x:hover{background:var(--standard-1100);color:var(--danger-0);}
+  .ms-add{display:inline-flex;gap:6px;align-items:center;}
+  .ms-add__in{height:30px;width:130px;border:1px dashed var(--standard-1000);border-radius:var(--radius-pill);padding:0 12px;font-family:var(--font-family-ui);font-size:13px;background:var(--standard-1300);color:var(--standard-0);outline:none;}
+  .ms-add__btn{width:30px;height:30px;border:none;border-radius:50%;background:var(--standard-1100);color:var(--standard-0);cursor:pointer;font-size:16px;}
+  .ms-add__btn:hover{background:var(--blue-0);color:#fff;}
+
+  /* ===== dialog (dialog.md) ===== */
+  .ob-modal-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;animation:ovfade .2s ease;}
+  @keyframes ovfade{from{opacity:0}to{opacity:1}}
+  .ob-modal{width:100%;max-width:520px;max-height:calc(100vh - 160px);background:var(--standard-1400);border-radius:8px;box-shadow:0 16px 40px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;animation:modalin .2s ease;}
+  @keyframes modalin{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+  .ob-modal__head{height:70px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 var(--spacing-30);border-bottom:1px solid var(--standard-1000);}
+  .ob-modal__head h2{margin:0;font-family:var(--font-family-brand);font-weight:var(--font-weight-medium);font-size:var(--type-size-18);}
+  .ob-modal__close{width:32px;height:32px;border:none;background:none;border-radius:var(--radius-circle);color:var(--standard-0);cursor:pointer;font-size:14px;}
+  .ob-modal__close:hover{background:var(--standard-1100);}
+  .ob-modal__body{padding:var(--spacing-30);overflow-y:auto;}
+  .ob-modal__foot{min-height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:var(--spacing-10);padding:0 var(--spacing-30);border-top:1px solid var(--standard-1000);}
+
+  /* ===== popover / menu (menu.md). DESIGN SYSTEM GAP: app-launcher.md & toast.md empty — built from tokens ===== */
+  .ob-pop{position:fixed;z-index:1200;background:var(--standard-1400);border-radius:10px;box-shadow:0 0 10px 0 var(--standard-1200),0 8px 24px rgba(0,0,0,.12);padding:6px 0;overflow:hidden;}
+  .ob-menu__item{width:100%;display:flex;align-items:center;gap:12px;height:40px;padding:0 20px;border:none;background:none;cursor:pointer;font-family:var(--font-family-ui);font-weight:var(--font-weight-medium);font-size:15px;color:var(--standard-0);text-align:left;}
+  .ob-menu__item i{width:18px;font-size:16px;color:var(--standard-0);}
+  .ob-menu__item:hover{background:var(--standard-1300);}
+  .ob-menu__item small{margin-left:auto;color:var(--standard-600);font-weight:400;font-size:12px;}
+  .ob-menu__divider{height:1px;background:var(--standard-1100);margin:6px 0;}
+  .ob-pop__head{padding:14px 20px 8px;font-family:var(--font-family-brand);font-weight:500;font-size:15px;}
+  .ob-note{padding:10px 20px;font-size:13px;color:var(--standard-600);}
+  .ai-chip{display:block;width:calc(100% - 24px);margin:6px 12px;text-align:left;padding:10px 12px;border:1px solid var(--standard-1000);border-radius:8px;background:none;cursor:pointer;font-family:var(--font-family-ui);font-size:13px;color:var(--standard-0);}
+  .ai-chip:hover{border-color:var(--blue-0);}
+  .ai-answer{padding:10px 20px 14px;font-family:var(--font-family-editorial);font-size:13.5px;line-height:1.55;color:var(--standard-0);border-top:1px solid var(--standard-1100);margin-top:6px;}
+
+  /* app launcher overlay */
+  .launcher-ov{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.4);display:flex;align-items:flex-start;justify-content:center;padding-top:80px;animation:ovfade .2s ease;}
+  .launcher{width:520px;max-width:92vw;background:var(--standard-1400);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:24px;}
+  .launcher h3{font-family:var(--font-family-brand);font-weight:500;margin:0 0 16px;}
+  .launcher-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .app-tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border:1px solid var(--standard-1000);border-radius:10px;cursor:pointer;background:none;color:var(--standard-0);font-family:var(--font-family-ui);font-size:13px;font-weight:500;}
+  .app-tile:hover{border-color:var(--blue-0);background:var(--standard-1300);}
+  .app-tile i{font-size:22px;color:var(--blue-0);}
+
+  /* toast */
+  .ob-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1300;background:var(--standard-0);color:var(--standard-1400);padding:12px 18px;border-radius:var(--radius-pill);font-family:var(--font-family-ui);font-size:14px;font-weight:500;display:flex;align-items:center;gap:16px;opacity:0;transition:opacity .25s,transform .25s;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .ob-toast.show{opacity:1;transform:translate(-50%,0);}
+  .ob-toast__action{background:none;border:none;color:var(--marketing-yellow);font-family:var(--font-family-ui);font-weight:600;font-size:14px;cursor:pointer;}
+
+  .mock-fab{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;gap:10px;}
+  .mock-fab button{height:40px;padding:0 16px;border-radius:var(--radius-pill);border:1px solid var(--standard-1000);background:var(--standard-1400);color:var(--standard-0);font-family:var(--font-family-ui);font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(16,18,20,.14);}
+
+  /* horizontal-scroll wrapper for wide tables on small screens */
+  .tscroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+  /* mobile bottom navigation (Ribnat is phone-first) — hidden on desktop */
+  .bottom-nav{display:none;}
+
+  /* ===== insights ===== */
+  .insight-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-16);margin-bottom:var(--spacing-16);}
+  .sankey-card svg{width:100%;height:auto;display:block;}
+  .mom-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--standard-1100);font-size:var(--type-size-14);}
+  .mom-row:last-child{border-bottom:none;}
+  .mom-row .nm{flex:1;}
+  .mom-row .vl{width:90px;text-align:right;}
+  .mom-delta{width:78px;text-align:right;font-weight:var(--font-weight-semibold);font-size:13px;}
+  .mom-delta.up{color:var(--red-text);}    /* spending up = bad (red) */
+  .mom-delta.down{color:var(--green-text);} /* spending down = good (green) */
+  .topsub{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:var(--type-size-14);}
+  .topsub .nm{width:150px;}
+  .topsub .bar{flex:1;}
+  .topsub .vl{width:90px;text-align:right;color:var(--standard-600);}
+
+  /* ===== settings ===== */
+  .set-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-16);align-items:start;}
+  .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--standard-1100);}
+  .set-row:last-child{border-bottom:none;}
+  .set-row .lbl{font-weight:var(--font-weight-medium);}
+  .set-row .sub{font-size:12px;color:var(--standard-600);}
+  .set-profile{display:flex;align-items:center;gap:14px;}
+  .set-profile .av{width:52px;height:52px;border-radius:var(--radius-circle);background:var(--avatar-coral-bg);color:var(--avatar-coral-fg);display:grid;place-items:center;font-family:var(--font-family-brand);font-size:20px;font-weight:500;}
+  /* toggle (toggle.md) */
+  .ob-toggle{width:42px;height:24px;border-radius:var(--radius-pill);border:none;background:var(--standard-1000);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;}
+  .ob-toggle::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:var(--radius-circle);background:#fff;transition:transform .15s;}
+  .ob-toggle.on{background:var(--blue-0);}
+  .ob-toggle.on::after{transform:translateX(18px);}
+
+  /* ===================== RESPONSIVE =====================
+     The base Orbitax/ITP shell is desktop-only; Ribnat is a phone-first
+     consumer app, so this mockup adds responsive behaviour on top. */
+
+  /* tablet & below: drop the right Details sidebar, stack the 2-up rows */
+  @media (max-width:1024px){
+    .itp-sidebar{display:none;}
+    #btnDetails{display:none;}
+    .itp-body{padding:0 12px 12px;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .insight-cards{grid-template-columns:repeat(2,1fr);}
+    .set-grid{grid-template-columns:1fr;}
+    .row--6040{grid-template-columns:1fr;}
+    .goal-grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* phones / small tablets: swap top nav for a bottom nav, compress header */
+  @media (max-width:860px){
+    .itp-shell{height:100dvh;}
+    .itp-header__nav{display:none;}
+    .itp-header{padding:0 12px;}
+    .wordmark{display:none;}
+    #btnActivity{display:none;}
+    .toolicon{width:34px;font-size:16px;}
+    .period-pill{padding:0 10px;margin-left:4px;font-size:13px;}
+    .avatar{margin-left:8px;}
+    .breadcrumb-bar{padding:0 12px;}
+    .breadcrumb{font-size:14px;gap:8px;}
+    .bc-actions{gap:8px;}
+    .bc-actions .ob-btn{padding:9px 12px;}
+    .secondary-bar{padding:0 12px;gap:10px;overflow-x:auto;}
+    .secondary-bar>.muted{display:none;}
+    .field--search{width:150px;}
+    .tscroll .ob-table{min-width:560px;}
+    .mock-fab{bottom:72px;}
+    .bottom-nav{
+      display:flex;flex-shrink:0;background:var(--standard-1400);
+      border-top:1px solid var(--standard-1000);justify-content:space-around;
+      padding:4px 0 calc(4px + env(safe-area-inset-bottom,0px));
+    }
+    .bnav-link{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;
+      color:var(--standard-600);font-family:var(--font-family-ui);font-size:10px;font-weight:600;cursor:pointer;}
+    .bnav-link i{font-size:20px;}
+    .bnav-link.active{color:var(--blue-0);}
+  }
+
+  /* small phones */
+  @media (max-width:560px){
+    #btnAI{display:none;}
+    .period-pill .muted{display:none;}
+    .page{padding:14px;}
+    .kpi-grid{grid-template-columns:1fr 1fr;}
+    .goal-grid{grid-template-columns:1fr;}
+    .donut-wrap{flex-direction:column;align-items:flex-start;gap:18px;}
+    .legend{grid-template-columns:1fr 1fr;}
+    .breadcrumb .crumb-link,.breadcrumb .fa-chevron-right{display:none;}
+    .bc-actions .ob-btn{font-size:0;gap:0;padding:9px 11px;}   /* icon-only on tiny screens (text kept for a11y) */
+    .bc-actions .ob-btn i{font-size:14px;}
+    .ob-modal-ov{padding:12px;}
+    .ob-form .grid2{grid-template-columns:1fr;}
+  }
   </style>
 </head>
 <body>
   <div class="itp-shell">
-
-    <!-- ============ HEADER ============ -->
     <header class="itp-header">
       <div class="itp-header__left">
-        <button class="applauncher" aria-label="App launcher"><i class="fa-solid fa-grid-2"></i></button>
+        <button class="applauncher" id="btnLauncher" aria-label="App launcher"><i class="fa-solid fa-table-cells-large"></i></button>
         <span class="brandmark">৳</span>
         <span class="wordmark"><b>Ribnat</b> <span>Cost</span></span>
       </div>
-
       <nav class="itp-header__nav" aria-label="Main navigation">
         <button class="navtab active" data-screen="dashboard">Dashboard</button>
         <button class="navtab" data-screen="expenses">Expenses</button>
         <button class="navtab" data-screen="budget">Budget</button>
+        <button class="navtab" data-screen="insights">Insights</button>
         <button class="navtab" data-screen="lends">Lends</button>
         <button class="navtab" data-screen="savings">Savings</button>
-        <button class="navtab" data-screen="dashboard" style="opacity:.5;cursor:default">Planner</button>
+        <button class="navtab" data-screen="planner">Planner</button>
       </nav>
-
       <div class="itp-header__right">
-        <button class="toolicon" aria-label="Ask Xat AI"><i class="fa-regular fa-sparkles"></i></button>
-        <button class="toolicon" id="detailsBtn" aria-label="Details"><i class="fa-regular fa-circle-info"></i></button>
-        <button class="toolicon" aria-label="Activity"><i class="fa-regular fa-wave-pulse"></i></button>
-        <button class="toolicon" aria-label="Alerts"><i class="fa-regular fa-bell"></i></button>
-        <button class="period-pill" aria-label="Select period">
-          <i class="fa-regular fa-calendar"></i>
-          <span>Jun 2026</span><span class="muted">· Open</span>
+        <button class="toolicon" id="btnAI" aria-label="Ask Xat AI"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        <button class="toolicon" id="btnDetails" aria-label="Details"><i class="fa-solid fa-circle-info"></i></button>
+        <button class="toolicon" id="btnActivity" aria-label="Activity"><i class="fa-solid fa-chart-line"></i></button>
+        <button class="toolicon" id="btnBell" aria-label="Alerts"><i class="fa-solid fa-bell"></i><span class="dot" id="bellDot">0</span></button>
+        <button class="period-pill" id="btnPeriod" aria-label="Select period">
+          <i class="fa-solid fa-calendar"></i>
+          <span id="periodName">Jun 2026</span><span class="muted" id="periodStatus">· Open</span>
           <i class="fa-solid fa-angle-down"></i>
         </button>
-        <span class="avatar">T</span>
+        <button class="avatar" id="btnAvatar">T</button>
       </div>
     </header>
 
-    <!-- ============ BODY ============ -->
     <div class="itp-body">
-
       <main class="itp-content">
 
-        <!-- ========================= DASHBOARD ========================= -->
+        <!-- DASHBOARD -->
         <section class="screen active" id="screen-dashboard">
           <div class="breadcrumb-bar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <i class="fa-regular fa-folder"></i>
-              <span class="crumb-cur">Dashboard</span>
-            </nav>
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><span class="crumb-cur">Dashboard</span></nav>
             <div class="bc-actions">
-              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button>
-              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> Add expense</button>
+              <button class="ob-btn ob-btn--secondary" data-act="export"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button>
+              <button class="ob-btn ob-btn--primary" data-act="add-expense"><i class="fa-solid fa-plus"></i> Add expense</button>
             </div>
           </div>
-
           <div class="page">
-            <!-- KPI row -->
             <div class="kpi-grid">
-              <div class="kpi">
-                <div class="kpi__label"><i class="fa-regular fa-wallet"></i> In&nbsp;hand</div>
-                <div class="kpi__value num">৳84,250</div>
-                <div class="kpi__sub">across 4 accounts</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi__label"><i class="fa-regular fa-receipt"></i> Spent this period</div>
-                <div class="kpi__value num">৳57,300</div>
-                <div class="delta delta--up"><i class="fa-solid fa-arrow-down"></i> 6% vs last period</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi__label"><i class="fa-regular fa-gauge-high"></i> Safe to spend / day</div>
-                <div class="kpi__value num">৳1,540</div>
-                <div class="kpi__sub">18 days left in cycle</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi__label"><i class="fa-regular fa-chart-line"></i> Net worth</div>
-                <div class="kpi__value num">৳8,42,500</div>
-                <div class="delta delta--up"><i class="fa-solid fa-arrow-up"></i> ৳22,400 this period</div>
-              </div>
+              <div class="kpi"><div class="kpi__label"><i class="fa-solid fa-wallet"></i> In&nbsp;hand</div><div class="kpi__value num" id="kpiInHand">৳0</div><div class="kpi__sub" id="kpiInHandSub">across 4 accounts</div></div>
+              <div class="kpi"><div class="kpi__label"><i class="fa-solid fa-receipt"></i> Spent this period</div><div class="kpi__value num" id="kpiSpent">৳0</div><div class="kpi__sub" id="kpiSpentSub"></div></div>
+              <div class="kpi"><div class="kpi__label"><i class="fa-solid fa-gauge-high"></i> Safe to spend / day</div><div class="kpi__value num" id="kpiSafe">৳0</div><div class="kpi__sub" id="kpiSafeSub">18 days left in cycle</div></div>
+              <div class="kpi"><div class="kpi__label"><i class="fa-solid fa-chart-line"></i> Net worth</div><div class="kpi__value num" id="kpiNet">৳0</div><div class="kpi__sub">assets − owed + receivable</div></div>
             </div>
 
-            <!-- distribution + runway -->
             <div class="row row--6040">
               <div class="ob-card">
-                <div class="ob-card__title-bar">
-                  <h3 class="ob-card__title">Where the money went</h3>
-                  <button class="ob-btn ob-btn--ghost"><i class="fa-solid fa-calendar"></i> This period</button>
-                </div>
+                <div class="ob-card__title-bar"><h3 class="ob-card__title">Where the money went</h3><button class="ob-btn ob-btn--ghost" data-screen="expenses"><i class="fa-solid fa-list"></i> All expenses</button></div>
                 <div class="donut-wrap">
-                  <!-- DESIGN SYSTEM GAP: no categorical chart palette of >4 hues. Mixed category + marketing tokens used. -->
-                  <div class="donut" style="background:conic-gradient(
-                      var(--blue-0) 0 31%,
-                      var(--green-text) 31% 53%,
-                      var(--purple-text) 53% 64%,
-                      var(--orange-text) 64% 73%,
-                      var(--marketing-pink) 73% 81%,
-                      var(--marketing-orange) 81% 87%,
-                      var(--coral-text) 87% 93%,
-                      var(--standard-700) 93% 100%);">
-                    <div class="donut__center"><div><div class="amt num">৳57,300</div><div class="lab">total spent</div></div></div>
-                  </div>
-                  <div class="legend">
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--blue-0)"></span><span class="nm">Rent</span><span class="vl num">৳18,000</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--green-text)"></span><span class="nm">Bazar</span><span class="vl num">৳12,400</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--purple-text)"></span><span class="nm">Utilities</span><span class="vl num">৳6,200</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--orange-text)"></span><span class="nm">Transport</span><span class="vl num">৳5,400</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--marketing-pink)"></span><span class="nm">Eating out</span><span class="vl num">৳4,800</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--marketing-orange)"></span><span class="nm">Mobile / net</span><span class="vl num">৳3,300</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--coral-text)"></span><span class="nm">Health</span><span class="vl num">৳3,200</span></div>
-                    <div class="legend__item"><span class="cat-dot" style="background:var(--standard-700)"></span><span class="nm">Misc</span><span class="vl num">৳4,000</span></div>
-                  </div>
+                  <div class="donut" id="donut"><div class="donut__center"><div><div class="amt num" id="donutTotal">৳0</div><div class="lab">total spent</div></div></div></div>
+                  <div class="legend" id="donutLegend"></div>
                 </div>
               </div>
-
               <div class="ob-card">
                 <div class="ob-card__title-bar"><h3 class="ob-card__title">Safe to spend</h3></div>
-                <div class="runway-num num">৳1,540<span style="font-size:15px;color:var(--standard-600)"> /day</span></div>
-                <div class="runway-row"><span>Remaining ৳27,720</span><span>÷ 18 days</span></div>
-                <div class="prog" style="margin:18px 0 8px"><div class="prog__fill" style="width:68%"></div></div>
-                <div class="runway-row"><span>68% of cycle budget used</span><span>Day 12 / 30</span></div>
-                <div style="margin-top:18px; padding-top:16px; border-top:1px solid var(--standard-1100); font-size:13px; color:var(--standard-500); font-family:var(--font-family-editorial)">
-                  At this pace you’ll close the cycle with about <b style="color:var(--standard-0)">৳56,500</b> in hand — comfortably above your ৳40,000 floor.
-                </div>
+                <div class="runway-num num"><span id="safeBig">৳0</span><span style="font-size:15px;color:var(--standard-600)"> /day</span></div>
+                <div class="runway-row"><span id="safeRemain">Remaining ৳0</span><span>÷ 18 days</span></div>
+                <div class="prog" style="margin:18px 0 8px"><div class="prog__fill" id="safeBar" style="width:0%"></div></div>
+                <div class="runway-row"><span id="safeUsed">0% used</span><span>Day 12 / 30</span></div>
+                <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--standard-1100);font-size:13px;color:var(--standard-500);font-family:var(--font-family-editorial)" id="safeNote"></div>
               </div>
             </div>
 
-            <!-- recent + trend -->
             <div class="row row--6040" style="margin-bottom:0">
               <div class="ob-card" style="padding:0">
-                <div class="ob-card__title-bar" style="padding:var(--spacing-16) var(--spacing-20) 0">
-                  <h3 class="ob-card__title">Recent expenses</h3>
-                  <button class="ob-btn ob-btn--text" data-screen="expenses">View all</button>
-                </div>
-                <table class="ob-table">
-                  <thead><tr><th>Date</th><th>Category</th><th>Account</th><th class="num">Amount</th></tr></thead>
-                  <tbody>
-                    <tr><td class="num">24 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar · Vegetables</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="num">৳1,180</td></tr>
-                    <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile · Recharge</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="num">৳349</td></tr>
-                    <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="num">৳920</td></tr>
-                    <tr><td class="num">22 Jun</td><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities · DESCO</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="num">৳2,140</td></tr>
-                    <tr><td class="num">21 Jun</td><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport · Uber</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="num">৳560</td></tr>
-                  </tbody>
-                </table>
+                <div class="ob-card__title-bar" style="padding:16px 20px 0"><h3 class="ob-card__title">Recent expenses</h3><button class="ob-btn ob-btn--text" data-screen="expenses">View all</button></div>
+                <table class="ob-table"><thead><tr><th>Date</th><th>Category</th><th>Account</th><th class="num">Amount</th></tr></thead><tbody id="recentBody"></tbody></table>
               </div>
-
               <div class="ob-card">
                 <div class="ob-card__title-bar"><h3 class="ob-card__title">Net worth · 12 cycles</h3></div>
                 <div class="trend">
-                  <div class="trend__bar" style="height:42%"></div>
-                  <div class="trend__bar" style="height:48%"></div>
-                  <div class="trend__bar" style="height:46%"></div>
-                  <div class="trend__bar" style="height:55%"></div>
-                  <div class="trend__bar" style="height:60%"></div>
-                  <div class="trend__bar" style="height:58%"></div>
-                  <div class="trend__bar" style="height:67%"></div>
-                  <div class="trend__bar" style="height:72%"></div>
-                  <div class="trend__bar" style="height:78%"></div>
-                  <div class="trend__bar" style="height:83%"></div>
-                  <div class="trend__bar" style="height:90%"></div>
-                  <div class="trend__bar is-last" style="height:100%"></div>
+                  <div class="trend__bar" style="height:42%"></div><div class="trend__bar" style="height:48%"></div><div class="trend__bar" style="height:46%"></div>
+                  <div class="trend__bar" style="height:55%"></div><div class="trend__bar" style="height:60%"></div><div class="trend__bar" style="height:58%"></div>
+                  <div class="trend__bar" style="height:67%"></div><div class="trend__bar" style="height:72%"></div><div class="trend__bar" style="height:78%"></div>
+                  <div class="trend__bar" style="height:83%"></div><div class="trend__bar" style="height:90%"></div><div class="trend__bar is-last" style="height:100%"></div>
                 </div>
                 <div class="trend__labels"><span>Jul</span><span></span><span>Sep</span><span></span><span>Nov</span><span></span><span>Jan</span><span></span><span>Mar</span><span></span><span>May</span><span>Jun</span></div>
               </div>
@@ -498,248 +491,781 @@
           </div>
         </section>
 
-        <!-- ========================= EXPENSES ========================= -->
+        <!-- EXPENSES -->
         <section class="screen" id="screen-expenses">
           <div class="breadcrumb-bar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <i class="fa-regular fa-folder"></i>
-              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
-              <i class="fa-solid fa-chevron-right"></i>
-              <span class="crumb-cur">Expenses</span>
-            </nav>
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Expenses</span></nav>
             <div class="bc-actions">
-              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export CSV</button>
-              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> Add expense</button>
+              <button class="ob-btn ob-btn--secondary" data-act="export"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export CSV</button>
+              <button class="ob-btn ob-btn--primary" data-act="add-expense"><i class="fa-solid fa-plus"></i> Add expense</button>
             </div>
           </div>
           <div class="secondary-bar">
-            <div class="field field--search"><i class="fa-regular fa-magnifying-glass"></i> Search remarks…</div>
-            <div class="field">All categories <i class="fa-solid fa-angle-down"></i></div>
-            <div class="field">All accounts <i class="fa-solid fa-angle-down"></i></div>
-            <div class="field"><i class="fa-regular fa-calendar"></i> 25 May – 24 Jun</div>
-            <span style="margin-left:auto" class="muted num">42 expenses · ৳57,300</span>
+            <div class="field field--search"><i class="fa-solid fa-magnifying-glass"></i><input id="expSearch" placeholder="Search remarks…"></div>
+            <div id="expCatSel" style="width:180px"></div>
+            <div id="expAcctSel" style="width:160px"></div>
+            <div class="field"><i class="fa-solid fa-calendar"></i> 25 May – 24 Jun</div>
+            <span style="margin-left:auto" class="muted num" id="expCount"></span>
           </div>
           <div class="page">
             <table class="ob-table">
-              <thead><tr><th>Date</th><th>Category</th><th>Subcategory</th><th>Account</th><th>Remarks</th><th class="num">Amount</th></tr></thead>
-              <tbody>
-                <tr><td class="num">24 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar</td><td>Vegetables</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Karwan Bazar — 360+20+330+470</td><td class="num">৳1,180</td></tr>
-                <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile</td><td>Recharge</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">GP 30-day pack</td><td class="num">৳349</td></tr>
-                <tr><td class="num">23 Jun</td><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td>Dinner</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="muted">Sultan’s Dine — family</td><td class="num">৳920</td></tr>
-                <tr><td class="num">22 Jun</td><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities</td><td>Electricity</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="muted">DESCO prepaid</td><td class="num">৳2,140</td></tr>
-                <tr><td class="num">21 Jun</td><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport</td><td>Ride</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">Uber — office</td><td class="num">৳560</td></tr>
-                <tr><td class="num">20 Jun</td><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar</td><td>Groceries</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Shwapno — monthly</td><td class="num">৳4,260</td></tr>
-                <tr><td class="num">19 Jun</td><td><span class="cat-dot" style="background:var(--coral-text)"></span>Health</td><td>Pharmacy</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>bKash</span></td><td class="muted">Lazz Pharma</td><td class="num">৳780</td></tr>
-                <tr><td class="num">18 Jun</td><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rent</td><td>House rent</td><td><span class="acct"><i class="fa-solid fa-building-columns"></i>Bank</span></td><td class="muted">June — landlord</td><td class="num">৳18,000</td></tr>
-                <tr><td class="num">17 Jun</td><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Internet</td><td>Broadband</td><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i>Nagad</span></td><td class="muted">Link3 — 20 Mbps</td><td class="num">৳1,200</td></tr>
-                <tr><td class="num">16 Jun</td><td><span class="cat-dot" style="background:var(--standard-700)"></span>Misc</td><td>Gift</td><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i>Cash</span></td><td class="muted">Eid salami</td><td class="num">৳2,000</td></tr>
-              </tbody>
-              <tfoot><tr><td colspan="5">Showing 10 of 42</td><td class="num">৳31,389</td></tr></tfoot>
+              <thead><tr><th>Date</th><th>Category</th><th>Subcategory</th><th>Account</th><th>Remarks</th><th class="num">Amount</th><th></th></tr></thead>
+              <tbody id="expBody"></tbody>
+              <tfoot><tr><td colspan="5" id="expFootLabel"></td><td class="num" id="expFootTotal"></td><td></td></tr></tfoot>
             </table>
           </div>
         </section>
 
-        <!-- ========================= BUDGET ========================= -->
+        <!-- BUDGET -->
         <section class="screen" id="screen-budget">
           <div class="breadcrumb-bar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <i class="fa-regular fa-folder"></i>
-              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
-              <i class="fa-solid fa-chevron-right"></i>
-              <span class="crumb-cur">Budget</span>
-            </nav>
-            <div class="bc-actions">
-              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-copy"></i> Copy previous</button>
-              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-pen"></i> Edit budget</button>
-            </div>
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Budget</span></nav>
+            <div class="bc-actions" id="budgetActions"></div>
           </div>
           <div class="secondary-bar">
-            <div class="subtabs">
-              <div class="subtab active">This period</div>
-              <div class="subtab">Rollover</div>
-              <div class="subtab">History</div>
+            <div class="subtabs" id="budgetTabs">
+              <div class="subtab active" data-view="period">This period</div>
+              <div class="subtab" data-view="rollover">Rollover</div>
+              <div class="subtab" data-view="history">History</div>
             </div>
-            <span style="margin-left:auto" class="muted num">Budgeted ৳72,000 · Spent ৳57,300 · Left ৳14,700</span>
+            <span style="margin-left:auto" class="muted num" id="budgetSummary"></span>
           </div>
-          <div class="page">
-            <table class="ob-table">
-              <thead><tr><th>Category</th><th class="num">Budgeted</th><th class="num">Spent</th><th class="num">Remaining</th><th style="width:220px">Progress</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rent</td><td class="num">৳18,000</td><td class="num">৳18,000</td><td class="num">৳0</td><td><div class="prog"><div class="prog__fill" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">On budget</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--green-text)"></span>Bazar <span class="ob-badge ob-badge--green ob-badge--sm" style="margin-left:6px"><i class="fa-solid fa-rotate"></i> +৳2,000 rollover</span></td><td class="num">৳16,000</td><td class="num">৳12,400</td><td class="num">৳3,600</td><td><div class="prog"><div class="prog__fill prog__fill--good" style="width:78%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--purple-text)"></span>Utilities</td><td class="num">৳6,000</td><td class="num">৳6,200</td><td class="num neg" style="color:var(--red-text)">−৳200</td><td><div class="prog"><div class="prog__fill prog__fill--over" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--red ob-badge--sm"><i class="fa-solid fa-triangle-exclamation"></i> Over</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--orange-text)"></span>Transport</td><td class="num">৳7,000</td><td class="num">৳5,400</td><td class="num">৳1,600</td><td><div class="prog"><div class="prog__fill" style="width:77%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--marketing-pink)"></span>Eating out</td><td class="num">৳4,000</td><td class="num">৳4,800</td><td class="num" style="color:var(--red-text)">−৳800</td><td><div class="prog"><div class="prog__fill prog__fill--over" style="width:100%"></div></div></td><td><span class="ob-badge ob-badge--red ob-badge--sm"><i class="fa-solid fa-triangle-exclamation"></i> Over</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--marketing-orange)"></span>Mobile / Internet</td><td class="num">৳5,000</td><td class="num">৳3,300</td><td class="num">৳1,700</td><td><div class="prog"><div class="prog__fill" style="width:66%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--coral-text)"></span>Health</td><td class="num">৳6,000</td><td class="num">৳3,200</td><td class="num">৳2,800</td><td><div class="prog"><div class="prog__fill" style="width:53%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--standard-700)"></span>Misc</td><td class="num">৳10,000</td><td class="num">৳4,000</td><td class="num">৳6,000</td><td><div class="prog"><div class="prog__fill" style="width:40%"></div></div></td><td><span class="ob-badge ob-badge--green ob-badge--sm">Under</span></td></tr>
-              </tbody>
-              <tfoot><tr><td>Total</td><td class="num">৳72,000</td><td class="num">৳57,300</td><td class="num">৳14,700</td><td><div class="prog"><div class="prog__fill" style="width:80%"></div></div></td><td></td></tr></tfoot>
-            </table>
-          </div>
+          <div class="page" id="budgetPage"></div>
         </section>
 
-        <!-- ========================= LENDS ========================= -->
+        <!-- LENDS -->
         <section class="screen" id="screen-lends">
           <div class="breadcrumb-bar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <i class="fa-regular fa-folder"></i>
-              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
-              <i class="fa-solid fa-chevron-right"></i>
-              <span class="crumb-cur">Lends</span>
-            </nav>
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Lends</span></nav>
             <div class="bc-actions">
-              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-hand-holding-dollar"></i> Record settlement</button>
-              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> New lend</button>
+              <button class="ob-btn ob-btn--secondary" data-act="settle"><i class="fa-solid fa-hand-holding-dollar"></i> Record settlement</button>
+              <button class="ob-btn ob-btn--primary" data-act="new-lend"><i class="fa-solid fa-plus"></i> New lend</button>
             </div>
           </div>
           <div class="secondary-bar">
-            <div class="subtabs">
-              <div class="subtab active">All</div>
-              <div class="subtab">Given</div>
-              <div class="subtab">Taken</div>
+            <div class="subtabs" id="lendsTabs">
+              <div class="subtab active" data-view="all">All</div>
+              <div class="subtab" data-view="given">Given</div>
+              <div class="subtab" data-view="taken">Taken</div>
             </div>
-            <span style="margin-left:auto" class="muted num">Receivable ৳23,500 · Payable ৳5,000</span>
+            <span style="margin-left:auto" class="muted num" id="lendsSummary"></span>
           </div>
           <div class="page">
             <table class="ob-table">
-              <thead><tr><th>Person</th><th>Type</th><th class="num">Principal</th><th class="num">Settled</th><th class="num">Outstanding</th><th>Since</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Rahim Uddin</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳15,000</td><td class="num">৳5,000</td><td class="num">৳10,000</td><td class="muted num">12 Apr</td><td><span class="ob-badge ob-badge--orange ob-badge--sm">Partial</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Salma Akter</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳8,000</td><td class="num">৳0</td><td class="num">৳8,000</td><td class="muted num">02 Jun</td><td><span class="ob-badge ob-badge--red ob-badge--sm">Open</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--marketing-purple)"></span>Karim Mia</td><td><span class="ob-badge ob-badge--purple ob-badge--sm">Taken</span></td><td class="num">৳5,000</td><td class="num">৳0</td><td class="num">৳5,000</td><td class="muted num">28 May</td><td><span class="ob-badge ob-badge--red ob-badge--sm">Open</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Office fund</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳12,000</td><td class="num">৳6,500</td><td class="num">৳5,500</td><td class="muted num">18 Mar</td><td><span class="ob-badge ob-badge--orange ob-badge--sm">Partial</span></td></tr>
-                <tr><td><span class="cat-dot" style="background:var(--blue-0)"></span>Nadia (cousin)</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span></td><td class="num">৳6,000</td><td class="num">৳6,000</td><td class="num">৳0</td><td class="muted num">10 Jan</td><td><span class="ob-badge ob-badge--green ob-badge--sm"><i class="fa-solid fa-check"></i> Settled</span></td></tr>
-              </tbody>
+              <thead><tr><th>Person</th><th>Type</th><th class="num">Principal</th><th class="num">Settled</th><th class="num">Outstanding</th><th>Since</th><th>Status</th><th></th></tr></thead>
+              <tbody id="lendsBody"></tbody>
             </table>
           </div>
         </section>
 
-        <!-- ========================= SAVINGS ========================= -->
+        <!-- SAVINGS -->
         <section class="screen" id="screen-savings">
           <div class="breadcrumb-bar">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
-              <i class="fa-regular fa-folder"></i>
-              <a class="crumb-link" data-screen="dashboard">Dashboard</a>
-              <i class="fa-solid fa-chevron-right"></i>
-              <span class="crumb-cur">Savings</span>
-            </nav>
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Savings</span></nav>
             <div class="bc-actions">
-              <button class="ob-btn ob-btn--secondary"><i class="fa-solid fa-right-left"></i> Move money</button>
-              <button class="ob-btn ob-btn--primary"><i class="fa-solid fa-plus"></i> New goal</button>
+              <button class="ob-btn ob-btn--secondary" data-act="move-money"><i class="fa-solid fa-right-left"></i> Move money</button>
+              <button class="ob-btn ob-btn--primary" data-act="new-goal"><i class="fa-solid fa-plus"></i> New goal</button>
             </div>
           </div>
           <div class="page">
             <h3 class="section-h">Savings goals</h3>
-            <div class="goal-grid" style="margin-bottom:var(--spacing-24)">
-              <div class="ob-card">
-                <div class="goal__top">
-                  <span class="goal__icon" style="background:var(--green-bg);color:var(--green-text)"><i class="fa-solid fa-shield-heart"></i></span>
-                  <div><div class="goal__name">Emergency fund</div><div class="muted" style="font-size:12px">DBBL savings</div></div>
-                </div>
-                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">62%</span><span class="muted num" style="font-size:12px">৳3,00,000 target</span></div>
-                <div class="prog" style="margin-top:10px"><div class="prog__fill prog__fill--good" style="width:62%"></div></div>
-                <div class="goal__nums"><span class="num">৳1,85,000 saved</span><span class="num">৳1,15,000 to go</span></div>
-              </div>
-              <div class="ob-card">
-                <div class="goal__top">
-                  <span class="goal__icon" style="background:var(--purple-bg);color:var(--purple-text)"><i class="fa-solid fa-kaaba"></i></span>
-                  <div><div class="goal__name">Hajj fund</div><div class="muted" style="font-size:12px">Islami Bank</div></div>
-                </div>
-                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">28%</span><span class="muted num" style="font-size:12px">৳7,00,000 target</span></div>
-                <div class="prog" style="margin-top:10px"><div class="prog__fill" style="width:28%"></div></div>
-                <div class="goal__nums"><span class="num">৳1,96,000 saved</span><span class="num">৳5,04,000 to go</span></div>
-              </div>
-              <div class="ob-card">
-                <div class="goal__top">
-                  <span class="goal__icon" style="background:var(--orange-bg);color:var(--orange-text)"><i class="fa-solid fa-laptop"></i></span>
-                  <div><div class="goal__name">New laptop</div><div class="muted" style="font-size:12px">bKash savings</div></div>
-                </div>
-                <div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">90%</span><span class="muted num" style="font-size:12px">৳1,40,000 target</span></div>
-                <div class="prog" style="margin-top:10px"><div class="prog__fill prog__fill--good" style="width:90%"></div></div>
-                <div class="goal__nums"><span class="num">৳1,26,000 saved</span><span class="num">৳14,000 to go</span></div>
-              </div>
-            </div>
-
+            <div class="goal-grid" id="goalsGrid" style="margin-bottom:var(--spacing-24)"></div>
             <h3 class="section-h">Account balances</h3>
             <div class="ob-card" style="padding:0">
-              <table class="ob-table">
-                <thead><tr><th>Account</th><th>Type</th><th class="num">Balance</th><th class="num">Δ this period</th></tr></thead>
-                <tbody>
-                  <tr><td><span class="acct"><i class="fa-solid fa-money-bill-wave"></i></span> Cash</td><td class="muted">Cash</td><td class="num">৳12,400</td><td class="num" style="color:var(--red-text)">−৳3,200</td></tr>
-                  <tr><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i></span> bKash</td><td class="muted">Mobile money</td><td class="num">৳18,650</td><td class="num" style="color:var(--green-text)">+৳1,100</td></tr>
-                  <tr><td><span class="acct"><i class="fa-solid fa-mobile-screen"></i></span> Nagad</td><td class="muted">Mobile money</td><td class="num">৳9,200</td><td class="num" style="color:var(--green-text)">+৳400</td></tr>
-                  <tr><td><span class="acct"><i class="fa-solid fa-building-columns"></i></span> DBBL</td><td class="muted">Bank</td><td class="num">৳44,000</td><td class="num" style="color:var(--green-text)">+৳24,100</td></tr>
-                </tbody>
-                <tfoot><tr><td colspan="2">Total in hand</td><td class="num">৳84,250</td><td class="num" style="color:var(--green-text)">+৳22,400</td></tr></tfoot>
+              <table class="ob-table"><thead><tr><th>Account</th><th>Type</th><th class="num">Balance</th><th class="num">Δ this period</th></tr></thead><tbody id="acctBody"></tbody>
+                <tfoot><tr><td colspan="2">Total in hand</td><td class="num" id="acctTotal"></td><td class="num pos" id="acctDelta"></td></tr></tfoot>
               </table>
             </div>
           </div>
         </section>
 
+        <!-- PLANNER -->
+        <section class="screen" id="screen-planner">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Planner</span></nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--primary" data-act="new-reminder"><i class="fa-solid fa-plus"></i> Add reminder</button>
+            </div>
+          </div>
+          <div class="page">
+            <h3 class="section-h">Upcoming payments</h3>
+            <div id="plannerList"></div>
+          </div>
+        </section>
+
+        <!-- INSIGHTS -->
+        <section class="screen" id="screen-insights">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Insights</span></nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--secondary" data-act="export"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button>
+            </div>
+          </div>
+          <div class="page" id="insightsPage"></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="screen" id="screen-settings">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Settings</span></nav>
+          </div>
+          <div class="page" id="settingsPage"></div>
+        </section>
+
       </main>
 
-      <!-- ============ SIDEBAR (Details) ============ -->
       <aside class="itp-sidebar" data-state="open" id="sidebar">
-        <div class="sidebar__header">
-          <h2>Details</h2>
-          <button class="close" id="sidebarClose" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="sidebar__content">
-          <div class="sidebar-section-title">Period · Jun 2026</div>
-          <div class="kv"><span class="k">Cycle</span><span class="v num">25 May – 24 Jun</span></div>
-          <div class="kv"><span class="k">Status</span><span class="v"><span class="ob-badge ob-badge--green ob-badge--sm">Open</span></span></div>
-          <div class="kv"><span class="k">Opening balance</span><span class="v num">৳61,850</span></div>
-          <div class="kv"><span class="k">Income</span><span class="v num">৳1,20,000</span></div>
-          <div class="kv"><span class="k">Spent</span><span class="v num">৳57,300</span></div>
-          <div class="kv"><span class="k">Projected close</span><span class="v num">৳84,250</span></div>
-
-          <div class="sidebar-section-title">Accounts</div>
-          <div class="kv"><span class="k"><i class="fa-solid fa-money-bill-wave muted"></i> Cash</span><span class="v num">৳12,400</span></div>
-          <div class="kv"><span class="k"><i class="fa-solid fa-mobile-screen muted"></i> bKash</span><span class="v num">৳18,650</span></div>
-          <div class="kv"><span class="k"><i class="fa-solid fa-mobile-screen muted"></i> Nagad</span><span class="v num">৳9,200</span></div>
-          <div class="kv"><span class="k"><i class="fa-solid fa-building-columns muted"></i> DBBL</span><span class="v num">৳44,000</span></div>
-
-          <div class="sidebar-section-title">Upcoming</div>
-          <div class="kv"><span class="k">Rent · 1 Jul</span><span class="v num">৳18,000</span></div>
-          <div class="kv"><span class="k">Internet · 5 Jul</span><span class="v num">৳1,200</span></div>
-        </div>
+        <div class="sidebar__header"><h2>Details</h2><button class="close" id="sidebarClose" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sidebar__content" id="sidebarContent"></div>
       </aside>
-
     </div>
+
+    <!-- mobile-only bottom navigation -->
+    <nav class="bottom-nav" aria-label="Primary">
+      <a class="bnav-link active" data-screen="dashboard"><i class="fa-solid fa-gauge"></i><span>Home</span></a>
+      <a class="bnav-link" data-screen="expenses"><i class="fa-solid fa-receipt"></i><span>Expenses</span></a>
+      <a class="bnav-link" data-screen="budget"><i class="fa-solid fa-chart-pie"></i><span>Budget</span></a>
+      <a class="bnav-link" data-screen="insights"><i class="fa-solid fa-chart-simple"></i><span>Insights</span></a>
+      <a class="bnav-link" data-screen="savings"><i class="fa-solid fa-piggy-bank"></i><span>Savings</span></a>
+      <a class="bnav-link" data-screen="planner"><i class="fa-solid fa-calendar-check"></i><span>Planner</span></a>
+    </nav>
   </div>
 
-  <!-- mockup controls (not part of the design system) -->
-  <div class="mock-fab">
-    <button id="themeToggle"><i class="fa-solid fa-moon"></i> Dark</button>
-  </div>
+  <div class="mock-fab"><button id="themeToggle"><i class="fa-solid fa-moon"></i> Dark</button></div>
 
   <script>
-    // screen switcher
-    document.querySelectorAll('[data-screen]').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.getAttribute('data-screen');
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-' + id).classList.add('active');
-        document.querySelectorAll('.navtab').forEach(t =>
-          t.classList.toggle('active', t.getAttribute('data-screen') === id && !t.style.opacity));
-        document.querySelector('.itp-content').scrollTop = 0;
-      });
-    });
+  /* ============================ DATA ============================ */
+  function seed(){return{
+    periods:[{id:'jun',name:'Jun 2026',cycle:'25 May – 24 Jun',status:'open',income:120000},
+             {id:'may',name:'May 2026',cycle:'25 Apr – 24 May',status:'closed',income:120000},
+             {id:'apr',name:'Apr 2026',cycle:'25 Mar – 24 Apr',status:'closed',income:115000}],
+    // last period's spend per category (for month-over-month insight deltas)
+    lastSpent:{rent:18000,bazar:11200,utilities:5800,transport:6100,eating:3600,mobile:3300,health:4200,misc:9000},
+    current:'jun',
+    accounts:[{id:'cash',name:'Cash',type:'Cash',icon:'fa-money-bill-wave',balance:12400,delta:-3200},
+              {id:'bkash',name:'bKash',type:'Mobile money',icon:'fa-mobile-screen',balance:18650,delta:1100},
+              {id:'nagad',name:'Nagad',type:'Mobile money',icon:'fa-mobile-screen',balance:9200,delta:400},
+              {id:'dbbl',name:'DBBL',type:'Bank',icon:'fa-building-columns',balance:44000,delta:24100}],
+    categories:[{id:'rent',name:'Rent',color:'var(--blue-0)',subs:['House rent','Advance','Service charge']},
+                {id:'bazar',name:'Bazar',color:'var(--green-text)',subs:['Vegetables','Groceries','Fish & meat','Rice & staples','Fruits']},
+                {id:'utilities',name:'Utilities',color:'var(--purple-text)',subs:['Electricity','Gas','Water','Service charge']},
+                {id:'transport',name:'Transport',color:'var(--orange-text)',subs:['Ride','Fuel','CNG','Bus','Rickshaw']},
+                {id:'eating',name:'Eating out',color:'var(--marketing-pink)',subs:['Dinner','Lunch','Cafe','Snacks']},
+                {id:'mobile',name:'Mobile / Internet',color:'var(--marketing-orange)',subs:['Recharge','Broadband','Data']},
+                {id:'health',name:'Health',color:'var(--coral-text)',subs:['Pharmacy','Doctor','Tests']},
+                {id:'misc',name:'Misc',color:'var(--standard-700)',subs:['Gift','Donation','Stationery','Other']}],
+    // budget is allocated per SUBCATEGORY; the category total auto-sums from these
+    budgets:[{catId:'rent',rollover:0,subs:{'House rent':18000,'Advance':0,'Service charge':0}},
+             {catId:'bazar',rollover:2000,subs:{'Vegetables':3000,'Groceries':5000,'Fish & meat':3500,'Rice & staples':2000,'Fruits':500}},
+             {catId:'utilities',rollover:0,subs:{'Electricity':2500,'Gas':1200,'Water':1500,'Service charge':800}},
+             {catId:'transport',rollover:0,subs:{'Ride':2500,'Fuel':3000,'CNG':800,'Bus':400,'Rickshaw':300}},
+             {catId:'eating',rollover:0,subs:{'Dinner':1500,'Lunch':1500,'Cafe':500,'Snacks':500}},
+             {catId:'mobile',rollover:0,subs:{'Recharge':1800,'Broadband':1500,'Data':1700}},
+             {catId:'health',rollover:0,subs:{'Pharmacy':2000,'Doctor':2500,'Tests':1500}},
+             {catId:'misc',rollover:0,subs:{'Gift':3000,'Donation':2000,'Stationery':2000,'Other':3000}}],
+    expenses:[
+      {date:'24 Jun',catId:'bazar',sub:'Vegetables',acctId:'cash',remarks:'Karwan Bazar — 360+20+330+470',amount:1180},
+      {date:'23 Jun',catId:'eating',sub:'Dinner',acctId:'nagad',remarks:"Sultan's Dine — family",amount:920},
+      {date:'23 Jun',catId:'mobile',sub:'Recharge',acctId:'bkash',remarks:'GP 30-day pack',amount:349},
+      {date:'22 Jun',catId:'utilities',sub:'Electricity',acctId:'dbbl',remarks:'DESCO prepaid',amount:2140},
+      {date:'21 Jun',catId:'transport',sub:'Ride',acctId:'bkash',remarks:'Uber — office',amount:560},
+      {date:'20 Jun',catId:'bazar',sub:'Groceries',acctId:'cash',remarks:'Shwapno — monthly',amount:4260},
+      {date:'19 Jun',catId:'health',sub:'Pharmacy',acctId:'bkash',remarks:'Lazz Pharma',amount:780},
+      {date:'19 Jun',catId:'transport',sub:'Fuel',acctId:'dbbl',remarks:'bike petrol',amount:3000},
+      {date:'18 Jun',catId:'rent',sub:'House rent',acctId:'dbbl',remarks:'June — landlord',amount:18000},
+      {date:'17 Jun',catId:'mobile',sub:'Broadband',acctId:'nagad',remarks:'Link3 — 20 Mbps',amount:1200},
+      {date:'17 Jun',catId:'eating',sub:'Lunch',acctId:'bkash',remarks:'office canteen',amount:1200},
+      {date:'16 Jun',catId:'misc',sub:'Gift',acctId:'cash',remarks:'Eid salami',amount:2000},
+      {date:'15 Jun',catId:'utilities',sub:'Gas',acctId:'bkash',remarks:'Titas',amount:1100},
+      {date:'14 Jun',catId:'bazar',sub:'Fish & meat',acctId:'cash',remarks:'Kachabazar',amount:3200},
+      {date:'13 Jun',catId:'health',sub:'Doctor',acctId:'dbbl',remarks:'consultation',amount:1500},
+      {date:'13 Jun',catId:'mobile',sub:'Data',acctId:'bkash',remarks:'Robi',amount:351},
+      {date:'12 Jun',catId:'transport',sub:'Ride',acctId:'nagad',remarks:'Pathao',amount:900},
+      {date:'11 Jun',catId:'eating',sub:'Cafe',acctId:'cash',remarks:'with friends',amount:680},
+      {date:'10 Jun',catId:'utilities',sub:'Service charge',acctId:'cash',remarks:'building',amount:1200},
+      {date:'10 Jun',catId:'misc',sub:'Donation',acctId:'bkash',remarks:'mosque',amount:1000},
+      {date:'9 Jun',catId:'bazar',sub:'Vegetables',acctId:'bkash',remarks:'weekly',amount:1500},
+      {date:'8 Jun',catId:'mobile',sub:'Recharge',acctId:'cash',remarks:'family numbers',amount:1400},
+      {date:'7 Jun',catId:'transport',sub:'CNG',acctId:'cash',remarks:'to Mohakhali',amount:540},
+      {date:'6 Jun',catId:'eating',sub:'Snacks',acctId:'cash',remarks:'iftar items',amount:2000},
+      {date:'5 Jun',catId:'utilities',sub:'Water',acctId:'nagad',remarks:'WASA',amount:1760},
+      {date:'4 Jun',catId:'health',sub:'Tests',acctId:'cash',remarks:'diagnostic',amount:920},
+      {date:'3 Jun',catId:'transport',sub:'Bus',acctId:'cash',remarks:'weekly pass',amount:400},
+      {date:'2 Jun',catId:'bazar',sub:'Rice & staples',acctId:'cash',remarks:'25kg + oil',amount:2260},
+      {date:'1 Jun',catId:'misc',sub:'Stationery',acctId:'cash',remarks:'kids school',amount:1000}],
+    lends:[{person:'Rahim Uddin',type:'given',principal:15000,settled:5000,since:'12 Apr'},
+           {person:'Salma Akter',type:'given',principal:8000,settled:0,since:'02 Jun'},
+           {person:'Karim Mia',type:'taken',principal:5000,settled:0,since:'28 May'},
+           {person:'Office fund',type:'given',principal:12000,settled:6500,since:'18 Mar'},
+           {person:'Nadia (cousin)',type:'given',principal:6000,settled:6000,since:'10 Jan'}],
+    goals:[{name:'Emergency fund',acct:'DBBL savings',icon:'fa-shield-heart',hue:'green',target:300000,saved:185000},
+           {name:'Hajj fund',acct:'Islami Bank',icon:'fa-kaaba',hue:'purple',target:700000,saved:196000},
+           {name:'New laptop',acct:'bKash savings',icon:'fa-laptop',hue:'orange',target:140000,saved:126000}],
+    planner:[{label:'House rent',due:'1 Jul',amount:18000,catId:'rent',acctId:'dbbl',paid:false},
+             {label:'Broadband (Link3)',due:'5 Jul',amount:1200,catId:'mobile',acctId:'nagad',paid:false},
+             {label:'Electricity (DESCO)',due:'8 Jul',amount:2000,catId:'utilities',acctId:'dbbl',paid:false},
+             {label:'bKash cash-out fee',due:'25 Jun',amount:185,catId:'misc',acctId:'bkash',paid:false}],
+    activity:[]
+  };}
+  let DB = seed();
+  const DAYS_LEFT=18, CYCLE_DAYS=30, DAY_NOW=12;
 
-    // theme toggle
-    const root = document.documentElement, tBtn = document.getElementById('themeToggle');
-    tBtn.addEventListener('click', () => {
-      const dark = root.getAttribute('data-theme') === 'dark';
-      root.setAttribute('data-theme', dark ? 'light' : 'dark');
-      tBtn.innerHTML = dark ? '<i class="fa-solid fa-moon"></i> Dark' : '<i class="fa-solid fa-sun"></i> Light';
-    });
+  /* ============================ helpers ============================ */
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  function grp(n){n=Math.round(n);const s=String(Math.abs(n));let r;if(s.length<=3)r=s;else{const l3=s.slice(-3);let rest=s.slice(0,-3).replace(/\B(?=(\d{2})+(?!\d))/g,',');r=rest+','+l3;}return (n<0?'-':'')+r;}
+  const taka=n=>'৳'+grp(n);
+  const cat=id=>DB.categories.find(c=>c.id===id)||{name:'?',color:'var(--standard-700)'};
+  const acct=id=>DB.accounts.find(a=>a.id===id)||{name:'?',icon:'fa-wallet'};
+  const catSpent=id=>DB.expenses.filter(e=>e.catId===id).reduce((s,e)=>s+e.amount,0);
+  const totalSpent=()=>DB.expenses.reduce((s,e)=>s+e.amount,0);
+  const budgetEntry=catId=>DB.budgets.find(b=>b.catId===catId)||{rollover:0,subs:{}};
+  const subBudget=(catId,sub)=>{const e=budgetEntry(catId);return (e.subs&&e.subs[sub])||0;};
+  const catRollover=catId=>budgetEntry(catId).rollover||0;
+  const catBase=catId=>{const e=budgetEntry(catId);return (cat(catId).subs||[]).reduce((s,sub)=>s+((e.subs&&e.subs[sub])||0),0);}; // auto-sum of subcategory budgets
+  const subSpent=(catId,sub)=>DB.expenses.filter(e=>e.catId===catId&&e.sub===sub).reduce((s,e)=>s+e.amount,0);
+  const budgetTotal=()=>DB.budgets.reduce((s,b)=>s+catBase(b.catId)+(b.rollover||0),0);
+  const inHand=()=>DB.accounts.reduce((s,a)=>s+a.balance,0);
+  const receivable=()=>DB.lends.filter(l=>l.type==='given').reduce((s,l)=>s+(l.principal-l.settled),0);
+  const payable=()=>DB.lends.filter(l=>l.type==='taken').reduce((s,l)=>s+(l.principal-l.settled),0);
+  const savingsTotal=()=>DB.goals.reduce((s,g)=>s+g.saved,0);
+  const netWorth=()=>inHand()+savingsTotal()+receivable()-payable();
+  function evalAmount(str){str=String(str).trim();if(!str||!/^[-+*/(). 0-9]+$/.test(str))return NaN;try{const v=Function('"use strict";return ('+str+')')();return (typeof v==='number'&&isFinite(v))?v:NaN;}catch(e){return NaN;}}
+  function logAct(text){DB.activity.unshift({text,t:'Just now'});}
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-    // sidebar toggle
-    const sb = document.getElementById('sidebar');
-    const toggleSb = () => sb.setAttribute('data-state', sb.getAttribute('data-state') === 'open' ? 'closed' : 'open');
-    document.getElementById('detailsBtn').addEventListener('click', toggleSb);
-    document.getElementById('sidebarClose').addEventListener('click', toggleSb);
+  /* ============================ render ============================ */
+  function wrapTables(){document.querySelectorAll('.ob-table').forEach(function(t){if(!t.parentElement.classList.contains('tscroll')){var w=document.createElement('div');w.className='tscroll';t.parentNode.insertBefore(w,t);w.appendChild(t);}});}
+  function renderAll(){renderDashboard();renderExpenses();renderBudget();renderLends();renderSavings();renderPlanner();renderInsights();renderSettings();renderSidebar();renderAlertsBadge();wrapTables();}
+  const periodIncome=()=>{const p=DB.periods.find(x=>x.id===DB.current);return (p&&p.income)||0;};
+  let appSettings={twoFA:false,lakh:true};
+  let quickDefaults={acct:'cash',cat:'bazar'};
+
+  function renderDashboard(){
+    $('#kpiInHand').textContent=taka(inHand());
+    $('#kpiInHandSub').textContent='across '+DB.accounts.length+' accounts';
+    const spent=totalSpent(),bt=budgetTotal(),remaining=bt-spent;
+    $('#kpiSpent').textContent=taka(spent);
+    $('#kpiSpentSub').textContent='of '+taka(bt)+' budget';
+    const safe=Math.max(0,Math.round(remaining/DAYS_LEFT));
+    $('#kpiSafe').textContent=taka(safe);
+    $('#kpiNet').textContent=taka(netWorth());
+    $('#safeBig').textContent=taka(safe);
+    $('#safeRemain').textContent='Remaining '+taka(remaining);
+    const used=Math.min(100,Math.round(spent/bt*100));
+    $('#safeBar').style.width=used+'%';
+    $('#safeUsed').textContent=used+'% of cycle budget used';
+    $('#safeNote').innerHTML='Keep daily spend near <b style="color:var(--standard-0)">'+taka(safe)+'</b> and you’ll close the cycle on budget — watch the red categories under Budget.';
+    let total=spent,accD=0,stops=[],legend='';
+    DB.categories.forEach(c=>{const v=catSpent(c.id);if(v<=0)return;const a=accD/total*100;accD+=v;const b=accD/total*100;stops.push(c.color+' '+a.toFixed(2)+'% '+b.toFixed(2)+'%');legend+='<div class="legend__item"><span class="cat-dot" style="background:'+c.color+'"></span><span class="nm">'+c.name+'</span><span class="vl num">'+taka(v)+'</span></div>';});
+    $('#donut').style.background= total>0 ? 'conic-gradient('+stops.join(',')+')' : 'var(--standard-1100)';
+    $('#donutTotal').textContent=taka(total);
+    $('#donutLegend').innerHTML=legend;
+    $('#recentBody').innerHTML=DB.expenses.slice(0,5).map(e=>{const c=cat(e.catId),a=acct(e.acctId);return '<tr><td class="num">'+e.date+'</td><td><span class="cat-dot" style="background:'+c.color+'"></span>'+c.name+' · '+esc(e.sub)+'</td><td><span class="acct"><i class="fa-solid '+a.icon+'"></i>'+a.name+'</span></td><td class="num">'+taka(e.amount)+'</td></tr>';}).join('');
+  }
+
+  let expFilter={q:'',cat:'',acct:''};
+  function renderExpenses(){
+    const rows=DB.expenses.filter(e=>{
+      if(expFilter.cat&&e.catId!==expFilter.cat)return false;
+      if(expFilter.acct&&e.acctId!==expFilter.acct)return false;
+      if(expFilter.q){const hay=(e.remarks+' '+cat(e.catId).name+' '+e.sub).toLowerCase();if(!hay.includes(expFilter.q))return false;}
+      return true;});
+    $('#expBody').innerHTML=rows.map(e=>{const c=cat(e.catId),a=acct(e.acctId);const idx=DB.expenses.indexOf(e);return '<tr><td class="num">'+e.date+'</td><td><span class="cat-dot" style="background:'+c.color+'"></span>'+c.name+'</td><td>'+esc(e.sub)+'</td><td><span class="acct"><i class="fa-solid '+a.icon+'"></i>'+a.name+'</span></td><td class="muted">'+esc(e.remarks)+'</td><td class="num">'+taka(e.amount)+'</td><td><button class="rowact" title="Delete" data-del-exp="'+idx+'"><i class="fa-solid fa-trash-can"></i></button></td></tr>';}).join('')
+      ||'<tr><td colspan="7" class="muted" style="text-align:center;padding:32px">No expenses match these filters.</td></tr>';
+    const sum=rows.reduce((s,e)=>s+e.amount,0);
+    $('#expCount').textContent=DB.expenses.length+' expenses · '+taka(totalSpent());
+    $('#expFootLabel').textContent='Showing '+rows.length+' of '+DB.expenses.length;
+    $('#expFootTotal').textContent=taka(sum);
+  }
+
+  let budgetView='period',budgetEdit=false,expandedCats=new Set();
+  function subRowsHTML(catId,showRoll){
+    const c=cat(catId),subs=(c.subs||[]).filter(s=>subBudget(catId,s)>0||subSpent(catId,s)>0);
+    const span=showRoll?7:6;
+    if(!subs.length)return '<tr class="subrow"><td colspan="'+span+'" style="padding-left:34px" class="muted">No budget or spending in subcategories yet.</td></tr>';
+    return subs.map(sub=>{const bud=subBudget(catId,sub),spent=subSpent(catId,sub),rem=bud-spent,over=rem<0;
+      const pct=bud?Math.min(100,Math.round(spent/bud*100)):(spent>0?100:0);
+      return '<tr class="subrow"><td style="padding-left:34px"><span class="cat-dot" style="background:'+c.color+';opacity:.45"></span>'+esc(sub)+'</td>'+(showRoll?'<td></td>':'')+
+        '<td class="num">'+(bud?taka(bud):'<span class="muted">—</span>')+'</td><td class="num">'+taka(spent)+'</td>'+
+        '<td class="num'+(over?' neg':'')+'">'+((bud||spent)?(over?'−'+taka(-rem):taka(rem)):'')+'</td>'+
+        '<td><div class="prog prog--mini"><div class="prog__fill" style="width:'+pct+'%;background:'+(over?'var(--danger-0)':c.color)+'"></div></div></td><td></td></tr>';}).join('');
+  }
+  function updateBudgetSums(){
+    const byCat={};
+    $$('[data-subbud]').forEach(inp=>{const cid=inp.dataset.subbud.split('|')[0];const v=evalAmount(inp.value);byCat[cid]=(byCat[cid]||0)+(isNaN(v)?0:v);});
+    let total=0;
+    Object.keys(byCat).forEach(cid=>{const el=document.getElementById('budsum-'+cid);if(el)el.textContent=taka(byCat[cid]);total+=byCat[cid]+catRollover(cid);});
+    const t=document.getElementById('budsum-total');if(t)t.textContent=taka(total);
+    const r=document.getElementById('budrem-total');if(r)r.textContent=taka(total-totalSpent());
+  }
+  function renderBudget(){
+    $('#budgetSummary').textContent='Budgeted '+taka(budgetTotal())+' · Spent '+taka(totalSpent())+' · Left '+taka(budgetTotal()-totalSpent());
+    const page=$('#budgetPage');
+    if(budgetView==='history'){
+      page.innerHTML='<table class="ob-table"><thead><tr><th>Period</th><th class="num">Budgeted</th><th class="num">Spent</th><th class="num">Saved</th><th>Status</th></tr></thead><tbody>'+
+        '<tr><td>May 2026</td><td class="num">৳70,000</td><td class="num">৳61,200</td><td class="num pos">৳8,800</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Closed</span></td></tr>'+
+        '<tr><td>Apr 2026</td><td class="num">৳70,000</td><td class="num">৳68,400</td><td class="num pos">৳1,600</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Closed</span></td></tr>'+
+        '<tr><td>Mar 2026</td><td class="num">৳68,000</td><td class="num">৳72,300</td><td class="num neg">−৳4,300</td><td><span class="ob-badge ob-badge--neutral ob-badge--sm">Closed</span></td></tr>'+
+        '</tbody></table>';
+    } else if(budgetEdit){
+      // allocate per subcategory — the category Budget cell auto-sums and is read-only
+      let rows='';
+      DB.categories.forEach(c=>{const base=catBase(c.id),roll=catRollover(c.id),spent=catSpent(c.id);
+        rows+='<tr><td><span class="cat-dot" style="background:'+c.color+'"></span><b>'+c.name+'</b></td><td class="num"><b id="budsum-'+c.id+'">'+taka(base)+'</b></td><td class="num muted">'+taka(spent)+'</td><td class="num">'+taka(base+roll-spent)+'</td><td></td><td></td></tr>';
+        (c.subs||[]).forEach(sub=>{rows+='<tr class="subrow"><td style="padding-left:34px">'+esc(sub)+'</td><td class="num"><input class="ob-input budinput" data-subbud="'+c.id+'|'+esc(sub)+'" value="'+subBudget(c.id,sub)+'"></td><td class="num muted">'+taka(subSpent(c.id,sub))+'</td><td></td><td></td><td></td></tr>';});});
+      page.innerHTML='<table class="ob-table"><thead><tr><th>Category / subcategory</th><th class="num">Budget</th><th class="num">Spent</th><th class="num">Remaining</th><th></th><th></th></tr></thead><tbody>'+rows+
+        '</tbody><tfoot><tr><td>Total</td><td class="num"><b id="budsum-total">'+taka(budgetTotal())+'</b></td><td class="num">'+taka(totalSpent())+'</td><td class="num" id="budrem-total">'+taka(budgetTotal()-totalSpent())+'</td><td></td><td></td></tr></tfoot></table>';
+    } else {
+      const showRoll=budgetView==='rollover';
+      let body=DB.budgets.map(b=>{
+        const c=cat(b.catId),spent=catSpent(b.catId),base=catBase(b.catId),bud=base+(b.rollover||0),rem=bud-spent,over=rem<0;
+        const pct=Math.min(100,Math.round(spent/Math.max(1,bud)*100));
+        const fill=over?'prog__fill--over':(pct<85?'prog__fill--good':'prog__fill');
+        const rollCell=showRoll?'<td class="num">'+(b.rollover?'<span class="ob-badge ob-badge--green ob-badge--sm"><i class="fa-solid fa-rotate"></i> '+taka(b.rollover)+'</span>':'<span class="muted">—</span>')+'</td>':'';
+        const status=over?'<span class="ob-badge ob-badge--red ob-badge--sm"><i class="fa-solid fa-triangle-exclamation"></i> Over</span>':(rem===0?'<span class="ob-badge ob-badge--neutral ob-badge--sm">On budget</span>':'<span class="ob-badge ob-badge--green ob-badge--sm">Under</span>');
+        const open=expandedCats.has(b.catId);
+        const nameCell='<td data-togcat="'+b.catId+'" style="cursor:pointer"><i class="fa-solid fa-chevron-'+(open?'down':'right')+' cat-caret"></i><span class="cat-dot" style="background:'+c.color+'"></span>'+c.name+'</td>';
+        const mainRow='<tr>'+nameCell+rollCell+'<td class="num">'+taka(base)+'</td><td class="num">'+taka(spent)+'</td><td class="num'+(over?' neg':'')+'">'+(over?'−'+taka(-rem):taka(rem))+'</td><td><div class="prog"><div class="prog__fill '+fill+'" style="width:'+pct+'%"></div></div></td><td>'+status+'</td></tr>';
+        return mainRow+(open?subRowsHTML(b.catId,showRoll):'');
+      }).join('');
+      const rollHead=showRoll?'<th class="num">Rollover</th>':'';
+      page.innerHTML='<table class="ob-table"><thead><tr><th>Category</th>'+rollHead+'<th class="num">Budgeted</th><th class="num">Spent</th><th class="num">Remaining</th><th style="width:200px">Progress</th><th>Status</th></tr></thead><tbody>'+body+
+        '</tbody><tfoot><tr><td>Total</td>'+(showRoll?'<td class="num">'+taka(DB.budgets.reduce((s,b)=>s+(b.rollover||0),0))+'</td>':'')+'<td class="num">'+taka(DB.budgets.reduce((s,b)=>s+catBase(b.catId),0))+'</td><td class="num">'+taka(totalSpent())+'</td><td class="num">'+taka(budgetTotal()-totalSpent())+'</td><td><div class="prog"><div class="prog__fill" style="width:'+Math.min(100,Math.round(totalSpent()/budgetTotal()*100))+'%"></div></div></td><td></td></tr></tfoot></table>';
+    }
+    $('#budgetActions').innerHTML = budgetEdit
+      ? '<button class="ob-btn ob-btn--secondary" data-act="cancel-budget">Cancel</button><button class="ob-btn ob-btn--primary" data-act="save-budget"><i class="fa-solid fa-check"></i> Save budget</button>'
+      : '<button class="ob-btn ob-btn--secondary" data-act="copy-prev"><i class="fa-solid fa-copy"></i> Copy previous</button><button class="ob-btn ob-btn--primary" data-act="edit-budget"><i class="fa-solid fa-pen"></i> Edit budget</button>';
+    wrapTables();
+  }
+
+  let lendsView='all';
+  function renderLends(){
+    $('#lendsSummary').textContent='Receivable '+taka(receivable())+' · Payable '+taka(payable());
+    const rows=DB.lends.filter(l=>lendsView==='all'||l.type===lendsView);
+    $('#lendsBody').innerHTML=rows.map(l=>{const idx=DB.lends.indexOf(l);const out=l.principal-l.settled;const typeBadge=l.type==='given'?'<span class="ob-badge ob-badge--neutral ob-badge--sm">Given</span>':'<span class="ob-badge ob-badge--purple ob-badge--sm">Taken</span>';
+      const status=out<=0?'<span class="ob-badge ob-badge--green ob-badge--sm"><i class="fa-solid fa-check"></i> Settled</span>':(l.settled>0?'<span class="ob-badge ob-badge--orange ob-badge--sm">Partial</span>':'<span class="ob-badge ob-badge--red ob-badge--sm">Open</span>');
+      const dot=l.type==='given'?'var(--blue-0)':'var(--marketing-purple)';
+      const act=out>0?'<button class="rowact" data-settle="'+idx+'" title="Settle">Settle</button>':'';
+      return '<tr><td><span class="cat-dot" style="background:'+dot+'"></span>'+esc(l.person)+'</td><td>'+typeBadge+'</td><td class="num">'+taka(l.principal)+'</td><td class="num">'+taka(l.settled)+'</td><td class="num">'+taka(out)+'</td><td class="muted num">'+l.since+'</td><td>'+status+'</td><td>'+act+'</td></tr>';}).join('')
+      ||'<tr><td colspan="8" class="muted" style="text-align:center;padding:32px">No lends in this view.</td></tr>';
+  }
+
+  function renderSavings(){
+    const hueMap={green:['--green-bg','--green-text'],purple:['--purple-bg','--purple-text'],orange:['--orange-bg','--orange-text'],coral:['--coral-bg','--coral-text']};
+    $('#goalsGrid').innerHTML=DB.goals.map((g,i)=>{const pct=Math.min(100,Math.round(g.saved/g.target*100));const h=hueMap[g.hue]||hueMap.green;const fill=pct>=80?'prog__fill--good':'prog__fill';
+      return '<div class="ob-card"><div class="goal__top"><span class="goal__icon" style="background:var('+h[0]+');color:var('+h[1]+')"><i class="fa-solid '+g.icon+'"></i></span><div><div class="goal__name">'+esc(g.name)+'</div><div class="muted" style="font-size:12px">'+esc(g.acct)+'</div></div><button class="rowact" style="margin-left:auto" data-addsave="'+i+'" title="Add money"><i class="fa-solid fa-plus"></i></button></div>'+
+      '<div style="display:flex;align-items:baseline;justify-content:space-between"><span class="goal__pct">'+pct+'%</span><span class="muted num" style="font-size:12px">'+taka(g.target)+' target</span></div>'+
+      '<div class="prog" style="margin-top:10px"><div class="prog__fill '+fill+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="goal__nums"><span class="num">'+taka(g.saved)+' saved</span><span class="num">'+taka(g.target-g.saved)+' to go</span></div></div>';}).join('');
+    $('#acctBody').innerHTML=DB.accounts.map(a=>'<tr><td><span class="acct"><i class="fa-solid '+a.icon+'"></i></span> '+a.name+'</td><td class="muted">'+a.type+'</td><td class="num">'+taka(a.balance)+'</td><td class="num" style="color:'+(a.delta<0?'var(--red-text)':'var(--green-text)')+'">'+(a.delta<0?'−'+taka(-a.delta):'+'+taka(a.delta))+'</td></tr>').join('');
+    $('#acctTotal').textContent=taka(inHand());
+    const td=DB.accounts.reduce((s,a)=>s+a.delta,0);
+    const el=$('#acctDelta');el.textContent=(td<0?'−'+taka(-td):'+'+taka(td));el.style.color=td<0?'var(--red-text)':'var(--green-text)';
+  }
+
+  function renderPlanner(){
+    $('#plannerList').innerHTML=DB.planner.map((p,i)=>{const a=acct(p.acctId),c=cat(p.catId);
+      return '<div class="plan-item '+(p.paid?'paid':'')+'"><span class="picon"><i class="fa-solid fa-calendar-days"></i></span><div class="pmeta"><div class="pname">'+esc(p.label)+'</div><div class="muted" style="font-size:12px">Due '+p.due+' · '+c.name+' · '+a.name+'</div></div><span class="num" style="font-weight:600">'+taka(p.amount)+'</span>'+
+      (p.paid?'<span class="ob-badge ob-badge--green ob-badge--sm" style="margin-left:14px"><i class="fa-solid fa-check"></i> Paid</span>':'<button class="ob-btn ob-btn--ghost" style="margin-left:14px" data-paid="'+i+'"><i class="fa-solid fa-check"></i> Mark paid</button>')+'</div>';}).join('');
+  }
+
+  /* ===================== INSIGHTS ===================== */
+  function sankeySVG(){
+    const income=periodIncome(); if(income<=0) return '<div class="muted">No income recorded for this cycle.</div>';
+    const cats=DB.categories.map(c=>({label:c.name,color:c.color,amt:catSpent(c.id)})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
+    const spent=cats.reduce((s,x)=>s+x.amt,0), saved=income-spent;
+    const items=cats.slice(); if(saved>0) items.push({label:'Saved / unspent',color:'var(--marketing-green)',amt:saved});
+    const W=900,H=300,TOP=22,BARW=14,LX=24,RX=720,LBLX=740,MID=(LX+BARW+RX)/2;
+    let y=TOP,ribbons='',nodes='',labels='';
+    items.forEach(it=>{const h=it.amt/income*H,y0=y,y1=y+h; y=y1;
+      ribbons+='<path d="M'+(LX+BARW)+' '+y0.toFixed(1)+' C'+MID+' '+y0.toFixed(1)+' '+MID+' '+y0.toFixed(1)+' '+RX+' '+y0.toFixed(1)+' L'+RX+' '+y1.toFixed(1)+' C'+MID+' '+y1.toFixed(1)+' '+MID+' '+y1.toFixed(1)+' '+(LX+BARW)+' '+y1.toFixed(1)+' Z" style="fill:'+it.color+';opacity:.45"></path>';
+      nodes+='<rect x="'+RX+'" y="'+y0.toFixed(1)+'" width="'+BARW+'" height="'+Math.max(1,h).toFixed(1)+'" rx="2" style="fill:'+it.color+'"></rect>';
+      if(h>=14){const cy=(y0+y1)/2; labels+='<text x="'+LBLX+'" y="'+(cy+4).toFixed(1)+'" style="font-family:var(--font-family-ui);font-size:12px;fill:var(--standard-0)">'+esc(it.label)+' <tspan style="fill:var(--standard-600)">'+taka(it.amt)+'</tspan></text>';}});
+    const incomeBar='<rect x="'+LX+'" y="'+TOP+'" width="'+BARW+'" height="'+H+'" rx="2" style="fill:var(--blue-0)"></rect>'+
+      '<text x="'+LX+'" y="'+(TOP-7)+'" style="font-family:var(--font-family-ui);font-size:12px;font-weight:600;fill:var(--standard-0)">Income '+taka(income)+'</text>';
+    return '<svg viewBox="0 0 '+W+' '+(H+TOP+8)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cash-flow from income to spending categories and savings">'+ribbons+incomeBar+nodes+labels+'</svg>';
+  }
+  function renderInsights(){
+    const income=periodIncome(),spent=totalSpent(),saved=income-spent,rate=income?Math.round(saved/income*100):0;
+    const cards='<div class="insight-cards">'+
+      '<div class="kpi"><div class="kpi__label"><i class="fa-solid fa-arrow-right-to-bracket"></i> Income</div><div class="kpi__value num">'+taka(income)+'</div><div class="kpi__sub">this cycle</div></div>'+
+      '<div class="kpi"><div class="kpi__label"><i class="fa-solid fa-receipt"></i> Spent</div><div class="kpi__value num">'+taka(spent)+'</div><div class="kpi__sub">'+(income?Math.round(spent/income*100):0)+'% of income</div></div>'+
+      '<div class="kpi"><div class="kpi__label"><i class="fa-solid fa-piggy-bank"></i> Net saved</div><div class="kpi__value num">'+taka(saved)+'</div><div class="kpi__sub">into savings & balance</div></div>'+
+      '<div class="kpi"><div class="kpi__label"><i class="fa-solid fa-percent"></i> Savings rate</div><div class="kpi__value num">'+rate+'%</div><div class="kpi__sub">of income kept</div></div>'+
+      '</div>';
+    let legend=''; DB.categories.forEach(c=>{const v=catSpent(c.id);if(v<=0)return;legend+='<div class="legend__item"><span class="cat-dot" style="background:'+c.color+'"></span><span class="nm">'+c.name+'</span><span class="vl num">'+taka(v)+'</span></div>';});
+    legend+='<div class="legend__item"><span class="cat-dot" style="background:var(--marketing-green)"></span><span class="nm">Saved / unspent</span><span class="vl num">'+taka(saved)+'</span></div>';
+    const sankey='<div class="ob-card sankey-card" style="margin-bottom:16px"><div class="ob-card__title-bar"><h3 class="ob-card__title">Where your money flows</h3><span class="muted" style="font-size:13px">Income → spending → saved</span></div>'+sankeySVG()+'<div class="legend" style="margin-top:16px">'+legend+'</div></div>';
+    let mom=''; DB.categories.map(c=>({c,amt:catSpent(c.id)})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt).forEach(o=>{const last=(DB.lastSpent&&DB.lastSpent[o.c.id])||0;const d=last?Math.round((o.amt-last)/last*100):100;const up=o.amt>last;
+      mom+='<div class="mom-row"><span class="cat-dot" style="background:'+o.c.color+'"></span><span class="nm">'+o.c.name+'</span><span class="vl num">'+taka(o.amt)+'</span><span class="mom-delta '+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+Math.abs(d)+'%</span></div>';});
+    const groups={}; DB.expenses.forEach(e=>{const k=e.catId+'|'+e.sub;groups[k]=(groups[k]||0)+e.amount;});
+    const arr=Object.keys(groups).map(k=>{const p=k.split('|');return{cid:p[0],sub:p.slice(1).join('|'),amt:groups[k]};}).sort((a,b)=>b.amt-a.amt).slice(0,6);
+    const mx=arr.length?arr[0].amt:1;
+    const topsubs=arr.map(g=>'<div class="topsub"><span class="nm">'+esc(cat(g.cid).name)+' · '+esc(g.sub)+'</span><span class="bar"><div class="prog"><div class="prog__fill" style="width:'+Math.round(g.amt/mx*100)+'%;background:'+cat(g.cid).color+'"></div></div></span><span class="vl num">'+taka(g.amt)+'</span></div>').join('');
+    const twocol='<div class="row row--6040" style="margin-bottom:0">'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Category trend vs last cycle</h3></div>'+mom+'</div>'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Top subcategories</h3></div>'+topsubs+'</div></div>';
+    $('#insightsPage').innerHTML=cards+sankey+twocol;
+  }
+
+  /* ===================== SETTINGS ===================== */
+  function renderSettings(){
+    const dark=document.documentElement.getAttribute('data-theme')==='dark';
+    const tog=(on,key)=>'<button class="ob-toggle'+(on?' on':'')+'" data-toggle="'+key+'" role="switch" aria-checked="'+on+'"></button>';
+    $('#settingsPage').innerHTML='<div class="set-grid">'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Profile</h3></div>'+
+        '<div class="set-profile"><span class="av">T</span><div><div class="lbl">Tanbir Rahman</div><div class="sub">tanbir.cse6.bu@gmail.com</div></div></div>'+
+        '<div class="set-row" style="margin-top:14px"><div><div class="lbl">Household</div><div class="sub">Solo — invite family to share</div></div><button class="ob-btn ob-btn--secondary" data-set="invite"><i class="fa-solid fa-user-plus"></i> Invite</button></div></div>'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Preferences</h3></div>'+
+        '<div class="set-row"><div><div class="lbl">Currency</div><div class="sub">Bangladeshi Taka</div></div><span class="num" style="font-weight:600">৳ BDT</span></div>'+
+        '<div class="set-row"><div><div class="lbl">Lakh digit grouping</div><div class="sub">12,34,567 — not 1,234,567</div></div>'+tog(appSettings.lakh,'lakh')+'</div>'+
+        '<div class="set-row"><div><div class="lbl">Dark mode</div><div class="sub">Theme across the app</div></div>'+tog(dark,'theme')+'</div>'+
+        '<div class="set-row"><div><div class="lbl">Salary cycle starts</div><div class="sub">Pay day of the month</div></div><span class="num" style="font-weight:600">25th</span></div></div>'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Categories</h3></div>'+
+        '<div class="set-row"><div><div class="lbl">Categories & subcategories</div><div class="sub">'+DB.categories.length+' categories · budget set per subcategory</div></div><button class="ob-btn ob-btn--secondary" data-set="cats"><i class="fa-solid fa-sitemap"></i> Manage</button></div></div>'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Security</h3></div>'+
+        '<div class="set-row"><div><div class="lbl">Two-factor authentication</div><div class="sub">'+(appSettings.twoFA?'Enabled · SMS to •••• 88':'Add a second step at sign-in')+'</div></div>'+tog(appSettings.twoFA,'twofa')+'</div>'+
+        '<div class="set-row"><div><div class="lbl">Chrome · Dhaka</div><div class="sub">This device · active now</div></div><span class="ob-badge ob-badge--green ob-badge--sm">Current</span></div>'+
+        '<div class="set-row"><div><div class="lbl">Android app · Dhaka</div><div class="sub">Last active 2h ago</div></div><button class="ob-btn ob-btn--ghost" data-set="signout-dev">Sign out</button></div>'+
+        '<div class="set-row"><div><div class="lbl">Password</div><div class="sub">Last changed 3 months ago</div></div><button class="ob-btn ob-btn--secondary" data-set="pwd">Change</button></div></div>'+
+      '<div class="ob-card"><div class="ob-card__title-bar"><h3 class="ob-card__title">Data</h3></div>'+
+        '<div class="set-row"><div><div class="lbl">Export expenses</div><div class="sub">This cycle as CSV</div></div><button class="ob-btn ob-btn--secondary" data-set="export"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button></div>'+
+        '<div class="set-row"><div><div class="lbl">Import from Excel</div><div class="sub">Your CostSheet workbook</div></div><button class="ob-btn ob-btn--secondary" data-set="import"><i class="fa-solid fa-file-import"></i> Import</button></div>'+
+        '<div class="set-row"><div><div class="lbl">Reset demo data</div><div class="sub">Restore the sample dataset</div></div><button class="ob-btn ob-btn--ghost" data-set="reset"><i class="fa-solid fa-rotate-left"></i> Reset</button></div></div>'+
+      '</div>';
+  }
+
+  function renderSidebar(){
+    const p=DB.periods.find(x=>x.id===DB.current);
+    let h='<div class="sidebar-section-title">Period · '+p.name+'</div>';
+    h+='<div class="kv"><span class="k">Cycle</span><span class="v num">'+p.cycle+'</span></div>';
+    h+='<div class="kv"><span class="k">Status</span><span class="v"><span class="ob-badge ob-badge--'+(p.status==='open'?'green':'neutral')+' ob-badge--sm">'+p.status+'</span></span></div>';
+    h+='<div class="kv"><span class="k">Spent</span><span class="v num">'+taka(totalSpent())+'</span></div>';
+    h+='<div class="kv"><span class="k">Budget left</span><span class="v num">'+taka(budgetTotal()-totalSpent())+'</span></div>';
+    h+='<div class="kv"><span class="k">In hand</span><span class="v num">'+taka(inHand())+'</span></div>';
+    h+='<div class="sidebar-section-title">Accounts</div>';
+    DB.accounts.forEach(a=>h+='<div class="kv"><span class="k"><i class="fa-solid '+a.icon+' muted"></i> '+a.name+'</span><span class="v num">'+taka(a.balance)+'</span></div>');
+    h+='<div class="sidebar-section-title">Upcoming</div>';
+    DB.planner.filter(x=>!x.paid).forEach(x=>h+='<div class="kv"><span class="k">'+esc(x.label)+' · '+x.due+'</span><span class="v num">'+taka(x.amount)+'</span></div>');
+    $('#sidebarContent').innerHTML=h;
+  }
+
+  function computeAlerts(){
+    const a=[];
+    DB.budgets.forEach(b=>{const spent=catSpent(b.catId),bud=catBase(b.catId)+(b.rollover||0);if(spent>bud)a.push({icon:'fa-triangle-exclamation',text:cat(b.catId).name+' over budget by '+taka(spent-bud),screen:'budget'});});
+    DB.planner.filter(p=>!p.paid).slice(0,2).forEach(p=>a.push({icon:'fa-calendar',text:p.label+' due '+p.due+' · '+taka(p.amount),screen:'planner'}));
+    return a;
+  }
+  function renderAlertsBadge(){const n=computeAlerts().length;const d=$('#bellDot');d.textContent=n;d.style.display=n?'grid':'none';}
+
+  /* ============================ custom select ============================ */
+  function selectHTML(opts,value,placeholder,pill){
+    const cur=opts.find(o=>o.value===value);const label=cur?cur.label:(placeholder||'Select');
+    return '<div class="ob-sel'+(pill?' ob-sel--pill':'')+'" data-value="'+(value||'')+'"><button type="button" class="ob-sel__trigger"><span class="ob-sel__label">'+label+'</span><i class="fa-solid fa-angle-down"></i></button><div class="ob-sel__menu" role="listbox">'+
+      opts.map(o=>'<div class="ob-sel__opt" role="option" data-value="'+o.value+'">'+(o.dot?'<span class="cat-dot" style="background:'+o.dot+'"></span>':'')+o.label+'</div>').join('')+'</div></div>';
+  }
+  // dependent subcategory select — options come from the category's fixed list, with inline add/delete
+  function subMenuInner(catId){const c=cat(catId);return (c.subs||[]).map(s=>'<div class="ob-sel__opt" role="option" data-value="'+esc(s)+'"><span class="opt-label">'+esc(s)+'</span><span class="opt-del" data-delsub="'+esc(s)+'" title="Delete subcategory">×</span></div>').join('')+
+    '<div class="sub-add-row"><input class="sub-add-input" placeholder="New subcategory…"><button type="button" class="sub-add-btn" data-addsub>Add</button></div>';}
+  function subSelectHTML(catId){const c=cat(catId);const first=(c.subs&&c.subs[0])||'';return '<div class="ob-sel" data-cat="'+catId+'" data-value="'+esc(first)+'"><button type="button" class="ob-sel__trigger"><span class="ob-sel__label">'+(esc(first)||'Select')+'</span><i class="fa-solid fa-angle-down"></i></button><div class="ob-sel__menu" role="listbox">'+subMenuInner(catId)+'</div></div>';}
+  function rebuildSubMenu(sel){sel.querySelector('.ob-sel__menu').innerHTML=subMenuInner(sel.dataset.cat);sel.classList.add('open');const inp=sel.querySelector('.sub-add-input');if(inp)inp.focus();}
+  const selVal=container=>{const s=container.querySelector('.ob-sel');return s?s.dataset.value:'';};
+  document.addEventListener('click',e=>{
+    const within=e.target.closest('.ob-sel');
+    const trig=e.target.closest('.ob-sel__trigger');
+    $$('.ob-sel.open').forEach(s=>{if(s!==within&&(!trig||s!==trig.closest('.ob-sel')))s.classList.remove('open');});
+    if(trig){trig.closest('.ob-sel').classList.toggle('open');return;}
+    const delSub=e.target.closest('[data-delsub]');
+    if(delSub){e.stopPropagation();const sel=delSub.closest('.ob-sel');const c=cat(sel.dataset.cat);c.subs=(c.subs||[]).filter(s=>s!==delSub.dataset.delsub);if(sel.dataset.value===delSub.dataset.delsub){const f=(c.subs[0])||'';sel.dataset.value=f;sel.querySelector('.ob-sel__label').textContent=f||'Select';}rebuildSubMenu(sel);return;}
+    const addBtn=e.target.closest('[data-addsub]');
+    if(addBtn){const sel=addBtn.closest('.ob-sel');const inp=sel.querySelector('.sub-add-input');const v=(inp.value||'').trim();if(v){const c=cat(sel.dataset.cat);c.subs=c.subs||[];if(!c.subs.includes(v))c.subs.push(v);sel.dataset.value=v;sel.querySelector('.ob-sel__label').textContent=v;}rebuildSubMenu(sel);return;}
+    if(e.target.closest('.sub-add-row'))return;
+    const opt=e.target.closest('.ob-sel__opt');
+    if(opt){const sel=opt.closest('.ob-sel');const lbl=opt.querySelector('.opt-label');sel.dataset.value=opt.dataset.value;sel.querySelector('.ob-sel__label').textContent=(lbl?lbl.textContent:opt.textContent).trim();sel.classList.remove('open');sel.dispatchEvent(new CustomEvent('ob-change',{bubbles:true,detail:opt.dataset.value}));}
+  });
+  const catOpts=all=>[].concat(all?[{value:'',label:'All categories'}]:[],DB.categories.map(c=>({value:c.id,label:c.name,dot:c.color})));
+  const acctOpts=all=>[].concat(all?[{value:'',label:'All accounts'}]:[],DB.accounts.map(a=>({value:a.id,label:a.name})));
+
+  /* ============================ modal / popover / toast ============================ */
+  function openModal(o){closeModal();const ov=document.createElement('div');ov.className='ob-modal-ov';ov.id='obModal';
+    ov.innerHTML='<div class="ob-modal" style="max-width:'+(o.width||520)+'px" role="dialog" aria-modal="true"><div class="ob-modal__head"><h2>'+o.title+'</h2><button class="ob-modal__close" aria-label="Close dialog"><i class="fa-solid fa-xmark"></i></button></div><div class="ob-modal__body">'+o.body+'</div>'+(o.footer?'<div class="ob-modal__foot">'+o.footer+'</div>':'')+'</div>';
+    document.body.appendChild(ov);document.body.style.overflow='hidden';
+    ov.addEventListener('click',e=>{if(e.target===ov)closeModal();});
+    ov.querySelector('.ob-modal__close').addEventListener('click',closeModal);
+    setTimeout(()=>{const f=ov.querySelector('.ob-modal__body input,.ob-modal__body .ob-sel__trigger');if(f)f.focus();},40);
+    return ov;}
+  function closeModal(){const ov=$('#obModal');if(ov){ov.remove();document.body.style.overflow='';}}
+
+  let curPop=null;
+  function closePop(){if(curPop){document.removeEventListener('click',curPop._out);curPop.remove();curPop=null;}}
+  function openPop(anchor,html,opt){opt=opt||{};closePop();const pop=document.createElement('div');pop.className='ob-pop';const w=opt.width||280;pop.style.width=w+'px';pop.innerHTML=html;document.body.appendChild(pop);
+    const r=anchor.getBoundingClientRect();let left=(opt.align==='left')?r.left:r.right-w;left=Math.max(8,Math.min(left,innerWidth-w-8));
+    pop.style.top=(r.bottom+6)+'px';pop.style.left=left+'px';
+    function out(e){if(!pop.contains(e.target)&&e.target!==anchor&&!anchor.contains(e.target))closePop();}
+    setTimeout(()=>document.addEventListener('click',out),0);pop._out=out;curPop=pop;return pop;}
+  function openMenu(anchor,items,opt){const html=items.map(it=>it==='divider'?'<div class="ob-menu__divider"></div>':'<button class="ob-menu__item" type="button"><i class="fa-solid '+it.icon+'"></i><span>'+it.label+'</span>'+(it.right?'<small>'+it.right+'</small>':'')+'</button>').join('');
+    const pop=openPop(anchor,html,opt);const real=items.filter(x=>x!=='divider');pop.querySelectorAll('.ob-menu__item').forEach((el,i)=>el.addEventListener('click',()=>{closePop();if(real[i].onClick)real[i].onClick();}));return pop;}
+
+  function toast(msg,action){const t=document.createElement('div');t.className='ob-toast';t.innerHTML='<span>'+msg+'</span>'+(action?'<button class="ob-toast__action">'+action.label+'</button>':'');document.body.appendChild(t);
+    if(action)t.querySelector('.ob-toast__action').addEventListener('click',()=>{action.onClick();t.classList.remove('show');setTimeout(()=>t.remove(),250);});
+    requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),250);},action?6000:2600);}
+
+  /* ============================ navigation ============================ */
+  function setScreen(id){closePop();$$('.screen').forEach(s=>s.classList.remove('active'));const el=$('#screen-'+id);if(el)el.classList.add('active');
+    $$('.navtab').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));
+    $$('.bnav-link').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));
+    $('.itp-content').scrollTop=0;}
+
+  /* ============================ forms ============================ */
+  function addExpenseModal(){
+    const body='<div class="ob-form"><div class="grid2">'+
+      '<div class="ff"><label>Date</label><input class="ob-input" id="f_date" value="24 Jun"></div>'+
+      '<div class="ff" data-field="acct"><label>Account</label>'+selectHTML(acctOpts(),'cash')+'</div></div>'+
+      '<div class="ff" data-field="cat"><label>Category</label>'+selectHTML(catOpts(),'bazar')+'</div>'+
+      '<div class="ff" data-field="sub"><label>Subcategory</label><div id="f_sub_wrap"></div></div>'+
+      '<div class="ff"><label>Amount <span class="hint">— type a sum like 360+20+330</span></label><input class="ob-input" id="f_amt" placeholder="0" autocomplete="off"><div class="amt-preview" id="f_amt_pv"></div></div>'+
+      '<div class="ff"><label>Remarks</label><input class="ob-input" id="f_rem" placeholder="optional"></div></div>';
+    const footer='<button class="ob-btn ob-btn--text" id="f_another" style="margin-right:auto"><i class="fa-solid fa-plus"></i> Save &amp; add another</button><button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="f_save"><i class="fa-solid fa-check"></i> Save expense</button>';
+    const ov=openModal({title:'Add expense',body,footer});
+    const fillSubs=catId=>{ov.querySelector('#f_sub_wrap').innerHTML=subSelectHTML(catId);};
+    fillSubs(quickDefaults.cat);
+    ov.querySelector('[data-field=cat]').addEventListener('ob-change',e=>fillSubs(e.detail));
+    // restore remembered account/category from the last quick-add
+    ov.querySelector('[data-field=acct] .ob-sel').dataset.value=quickDefaults.acct;
+    ov.querySelector('[data-field=acct] .ob-sel__label').textContent=acct(quickDefaults.acct).name;
+    ov.querySelector('[data-field=cat] .ob-sel').dataset.value=quickDefaults.cat;
+    ov.querySelector('[data-field=cat] .ob-sel__label').textContent=cat(quickDefaults.cat).name;
+    const amt=ov.querySelector('#f_amt'),pv=ov.querySelector('#f_amt_pv');
+    amt.addEventListener('input',()=>{const v=evalAmount(amt.value);amt.classList.remove('err');pv.innerHTML=(amt.value&&!isNaN(v))?('= <b>'+taka(v)+'</b>'):'';});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    function commit(another){
+      const v=evalAmount(amt.value);if(isNaN(v)||v<=0){amt.classList.add('err');amt.focus();return;}
+      const acctId=selVal(ov.querySelector('[data-field=acct]')),catId=selVal(ov.querySelector('[data-field=cat]'));const val=Math.round(v);
+      DB.expenses.unshift({date:ov.querySelector('#f_date').value||'Today',catId,sub:selVal(ov.querySelector('#f_sub_wrap'))||cat(catId).name,acctId,remarks:ov.querySelector('#f_rem').value||'',amount:val});
+      const a=acct(acctId);if(a){a.balance-=val;a.delta-=val;}
+      quickDefaults={acct:acctId,cat:catId}; // remember for the next quick entry
+      logAct('Added '+taka(val)+' · '+cat(catId).name);renderAll();
+      if(another){amt.value='';pv.innerHTML='';ov.querySelector('#f_rem').value='';fillSubs(catId);amt.focus();toast('Added '+taka(val)+' · add the next one');}
+      else{closeModal();toast('Expense added · '+taka(val));}
+    }
+    ov.querySelector('#f_save').addEventListener('click',()=>commit(false));
+    ov.querySelector('#f_another').addEventListener('click',()=>commit(true));
+  }
+
+  function newLendModal(){
+    const body='<div class="ob-form"><div class="ff"><label>Person</label><input class="ob-input" id="l_person" placeholder="Name"></div>'+
+      '<div class="grid2"><div class="ff" data-field="type"><label>Type</label>'+selectHTML([{value:'given',label:'Given (you lent)'},{value:'taken',label:'Taken (you borrowed)'}],'given')+'</div>'+
+      '<div class="ff" data-field="acct"><label>Account</label>'+selectHTML(acctOpts(),'cash')+'</div></div>'+
+      '<div class="grid2"><div class="ff"><label>Amount</label><input class="ob-input" id="l_amt" placeholder="0"></div>'+
+      '<div class="ff"><label>Since</label><input class="ob-input" id="l_since" value="24 Jun"></div></div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="l_save"><i class="fa-solid fa-check"></i> Save lend</button>';
+    const ov=openModal({title:'New lend',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#l_save').addEventListener('click',()=>{
+      const v=evalAmount(ov.querySelector('#l_amt').value);const person=ov.querySelector('#l_person').value.trim();
+      if(!person){ov.querySelector('#l_person').classList.add('err');return;}if(isNaN(v)||v<=0){ov.querySelector('#l_amt').classList.add('err');return;}
+      const type=selVal(ov.querySelector('[data-field=type]')),acctId=selVal(ov.querySelector('[data-field=acct]')),val=Math.round(v);
+      DB.lends.unshift({person,type,principal:val,settled:0,since:ov.querySelector('#l_since').value||'Today'});
+      const a=acct(acctId);if(a){if(type==='given'){a.balance-=val;a.delta-=val;}else{a.balance+=val;a.delta+=val;}}
+      logAct((type==='given'?'Lent ':'Borrowed ')+taka(val)+' · '+person);closeModal();renderAll();toast('Lend recorded · '+taka(val));});
+  }
+
+  function settleModal(preIdx){
+    const open=DB.lends.map((l,i)=>({l,i})).filter(x=>x.l.principal-x.l.settled>0);
+    if(!open.length){toast('Nothing outstanding to settle');return;}
+    const opts=open.map(x=>({value:String(x.i),label:x.l.person+' · '+taka(x.l.principal-x.l.settled)+' '+(x.l.type==='given'?'in':'out')}));
+    const initial=(preIdx!=null)?String(preIdx):opts[0].value;
+    const body='<div class="ob-form"><div class="ff" data-field="lend"><label>Lend</label>'+selectHTML(opts,initial)+'</div>'+
+      '<div class="grid2"><div class="ff"><label>Amount</label><input class="ob-input" id="s_amt" placeholder="0"></div>'+
+      '<div class="ff" data-field="acct"><label>Account</label>'+selectHTML(acctOpts(),'cash')+'</div></div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="s_save"><i class="fa-solid fa-check"></i> Record settlement</button>';
+    const ov=openModal({title:'Record settlement',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#s_save').addEventListener('click',()=>{
+      const idx=+selVal(ov.querySelector('[data-field=lend]'));const l=DB.lends[idx];const out=l.principal-l.settled;
+      let v=evalAmount(ov.querySelector('#s_amt').value);if(isNaN(v)||v<=0){ov.querySelector('#s_amt').classList.add('err');return;}
+      v=Math.min(Math.round(v),out);l.settled+=v;const acctId=selVal(ov.querySelector('[data-field=acct]')),a=acct(acctId);
+      if(a){if(l.type==='given'){a.balance+=v;a.delta+=v;}else{a.balance-=v;a.delta-=v;}}
+      logAct('Settled '+taka(v)+' · '+l.person);closeModal();renderAll();toast('Settlement recorded · '+taka(v));});
+  }
+
+  function newGoalModal(){
+    const body='<div class="ob-form"><div class="ff"><label>Goal name</label><input class="ob-input" id="g_name" placeholder="e.g. Umrah trip"></div>'+
+      '<div class="ff"><label>Holding account</label><input class="ob-input" id="g_acct" placeholder="e.g. DBBL savings"></div>'+
+      '<div class="grid2"><div class="ff"><label>Target amount</label><input class="ob-input" id="g_target" placeholder="0"></div>'+
+      '<div class="ff"><label>Already saved</label><input class="ob-input" id="g_saved" placeholder="0" value="0"></div></div>'+
+      '<div class="ff" data-field="hue"><label>Colour</label>'+selectHTML([{value:'green',label:'Green',dot:'var(--green-bg)'},{value:'purple',label:'Purple',dot:'var(--purple-bg)'},{value:'orange',label:'Orange',dot:'var(--orange-bg)'},{value:'coral',label:'Coral',dot:'var(--coral-bg)'}],'green')+'</div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="g_save"><i class="fa-solid fa-check"></i> Create goal</button>';
+    const ov=openModal({title:'New savings goal',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#g_save').addEventListener('click',()=>{
+      const name=ov.querySelector('#g_name').value.trim(),t=evalAmount(ov.querySelector('#g_target').value),s=evalAmount(ov.querySelector('#g_saved').value)||0;
+      if(!name){ov.querySelector('#g_name').classList.add('err');return;}if(isNaN(t)||t<=0){ov.querySelector('#g_target').classList.add('err');return;}
+      DB.goals.push({name,acct:ov.querySelector('#g_acct').value||'Savings',icon:'fa-piggy-bank',hue:selVal(ov.querySelector('[data-field=hue]')),target:Math.round(t),saved:Math.round(s)});
+      logAct('Created goal · '+name);closeModal();renderAll();toast('Goal created · '+name);});
+  }
+
+  function addSaveModal(gi){
+    const g=DB.goals[gi];
+    const body='<div class="ob-form"><div class="ff"><label>Add to “'+esc(g.name)+'”</label><input class="ob-input" id="as_amt" placeholder="0"></div>'+
+      '<div class="ff" data-field="acct"><label>From account</label>'+selectHTML(acctOpts(),'dbbl')+'</div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="as_save"><i class="fa-solid fa-check"></i> Add money</button>';
+    const ov=openModal({title:'Add to savings',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#as_save').addEventListener('click',()=>{const v=evalAmount(ov.querySelector('#as_amt').value);if(isNaN(v)||v<=0){ov.querySelector('#as_amt').classList.add('err');return;}
+      const val=Math.round(v);g.saved+=val;const a=acct(selVal(ov.querySelector('[data-field=acct]')));if(a){a.balance-=val;a.delta-=val;}
+      logAct('Saved '+taka(val)+' · '+g.name);closeModal();renderAll();toast('Added '+taka(val)+' to '+g.name);});
+  }
+
+  function moveMoneyModal(){
+    const body='<div class="ob-form"><div class="grid2"><div class="ff" data-field="from"><label>From</label>'+selectHTML(acctOpts(),'dbbl')+'</div>'+
+      '<div class="ff" data-field="to"><label>To</label>'+selectHTML(acctOpts(),'cash')+'</div></div>'+
+      '<div class="ff"><label>Amount</label><input class="ob-input" id="m_amt" placeholder="0"></div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="m_save"><i class="fa-solid fa-right-left"></i> Transfer</button>';
+    const ov=openModal({title:'Move money',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#m_save').addEventListener('click',()=>{const v=evalAmount(ov.querySelector('#m_amt').value);const from=selVal(ov.querySelector('[data-field=from]')),to=selVal(ov.querySelector('[data-field=to]'));
+      if(isNaN(v)||v<=0){ov.querySelector('#m_amt').classList.add('err');return;}if(from===to){toast('Pick two different accounts');return;}
+      const val=Math.round(v);const fa=acct(from),ta=acct(to);fa.balance-=val;fa.delta-=val;ta.balance+=val;ta.delta+=val;
+      logAct('Moved '+taka(val)+' · '+fa.name+' → '+ta.name);closeModal();renderAll();toast('Transferred '+taka(val)+' · '+fa.name+' → '+ta.name);});
+  }
+
+  function newReminderModal(){
+    const body='<div class="ob-form"><div class="ff"><label>Label</label><input class="ob-input" id="r_label" placeholder="e.g. Internet bill"></div>'+
+      '<div class="grid2"><div class="ff" data-field="cat"><label>Category</label>'+selectHTML(catOpts(),'utilities')+'</div>'+
+      '<div class="ff" data-field="acct"><label>Account</label>'+selectHTML(acctOpts(),'bkash')+'</div></div>'+
+      '<div class="grid2"><div class="ff"><label>Amount</label><input class="ob-input" id="r_amt" placeholder="0"></div>'+
+      '<div class="ff"><label>Due</label><input class="ob-input" id="r_due" value="1 Jul"></div></div></div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="r_save"><i class="fa-solid fa-check"></i> Add reminder</button>';
+    const ov=openModal({title:'Add reminder',body,footer});
+    ov.querySelector('[data-close]').addEventListener('click',closeModal);
+    ov.querySelector('#r_save').addEventListener('click',()=>{const v=evalAmount(ov.querySelector('#r_amt').value),label=ov.querySelector('#r_label').value.trim();
+      if(!label){ov.querySelector('#r_label').classList.add('err');return;}if(isNaN(v)||v<=0){ov.querySelector('#r_amt').classList.add('err');return;}
+      DB.planner.push({label,due:ov.querySelector('#r_due').value||'Soon',amount:Math.round(v),catId:selVal(ov.querySelector('[data-field=cat]')),acctId:selVal(ov.querySelector('[data-field=acct]')),paid:false});
+      logAct('Added reminder · '+label);closeModal();renderAll();toast('Reminder added · '+label);});
+  }
+
+  function markPaid(i){const p=DB.planner[i];if(p.paid)return;p.paid=true;
+    DB.expenses.unshift({date:p.due,catId:p.catId,sub:p.label,acctId:p.acctId,remarks:'Scheduled payment',amount:p.amount});
+    const a=acct(p.acctId);if(a){a.balance-=p.amount;a.delta-=p.amount;}
+    logAct('Paid '+taka(p.amount)+' · '+p.label);renderAll();toast(p.label+' marked paid · '+taka(p.amount));}
+
+  function exportCSV(){
+    const head=['Date','Category','Subcategory','Account','Remarks','Amount'];
+    const rows=DB.expenses.map(e=>[e.date,cat(e.catId).name,e.sub,acct(e.acctId).name,e.remarks,e.amount]);
+    const csv=[head].concat(rows).map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='expenses-jun-2026.csv';a.click();URL.revokeObjectURL(url);
+    toast('Exported '+DB.expenses.length+' expenses to CSV');}
+
+  function copyPrevious(){
+    // copy last period's per-subcategory allocation (demo: ~10% below current, rounded to ৳50)
+    const snap=DB.budgets.map(b=>({catId:b.catId,subs:Object.assign({},b.subs)}));
+    DB.budgets.forEach(b=>{Object.keys(b.subs).forEach(s=>{b.subs[s]=Math.max(0,Math.round((b.subs[s]*0.9)/50)*50);});});
+    renderAll();
+    toast('Copied last period’s allocation',{label:'Undo',onClick:()=>{snap.forEach((sn,i)=>{DB.budgets[i].subs=sn.subs;});renderAll();toast('Reverted');}});}
+
+  /* ============================ wiring ============================ */
+  document.addEventListener('click',e=>{
+    const nav=e.target.closest('[data-screen]');if(nav){setScreen(nav.dataset.screen);return;}
+    const act=e.target.closest('[data-act]');if(act){const a=act.dataset.act;
+      if(a==='add-expense')addExpenseModal();
+      else if(a==='export')exportCSV();
+      else if(a==='new-lend')newLendModal();
+      else if(a==='settle')settleModal();
+      else if(a==='new-goal')newGoalModal();
+      else if(a==='move-money')moveMoneyModal();
+      else if(a==='new-reminder')newReminderModal();
+      else if(a==='copy-prev')copyPrevious();
+      else if(a==='edit-budget'){budgetEdit=true;renderBudget();}
+      else if(a==='cancel-budget'){budgetEdit=false;renderBudget();}
+      else if(a==='save-budget'){$$('[data-subbud]').forEach(inp=>{const parts=inp.dataset.subbud.split('|'),cid=parts[0],sub=parts.slice(1).join('|');const e=budgetEntry(cid);const v=evalAmount(inp.value);if(e){e.subs=e.subs||{};e.subs[sub]=isNaN(v)?0:Math.round(v);}});budgetEdit=false;renderAll();toast('Budget updated');}
+      return;}
+    const del=e.target.closest('[data-del-exp]');if(del){const i=+del.dataset.delExp;const ex=DB.expenses[i];const a=acct(ex.acctId);if(a){a.balance+=ex.amount;a.delta+=ex.amount;}DB.expenses.splice(i,1);renderAll();toast('Expense removed');return;}
+    const st=e.target.closest('[data-settle]');if(st){settleModal(+st.dataset.settle);return;}
+    const pd=e.target.closest('[data-paid]');if(pd){markPaid(+pd.dataset.paid);return;}
+    const as=e.target.closest('[data-addsave]');if(as){addSaveModal(+as.dataset.addsave);return;}
+    const tgl=e.target.closest('[data-toggle]');if(tgl){const k=tgl.dataset.toggle;
+      if(k==='theme')toggleTheme();
+      else if(k==='twofa'){appSettings.twoFA=!appSettings.twoFA;renderSettings();toast(appSettings.twoFA?'Two-factor authentication enabled':'Two-factor disabled');}
+      else if(k==='lakh'){appSettings.lakh=!appSettings.lakh;renderSettings();toast('Preference saved');}
+      return;}
+    const stx=e.target.closest('[data-set]');if(stx){const k=stx.dataset.set;
+      if(k==='cats')manageSubsModal();
+      else if(k==='export')exportCSV();
+      else if(k==='reset'){DB=seed();$('#periodName').textContent='Jun 2026';$('#periodStatus').textContent='· Open';renderAll();setScreen('dashboard');toast('Demo data reset');}
+      else if(k==='import')toast('Excel import — demo');
+      else if(k==='invite')toast('Household invite — demo');
+      else if(k==='pwd')toast('Change password — demo');
+      else if(k==='signout-dev')toast('Signed out that device — demo');
+      return;}
+    const tog=e.target.closest('[data-togcat]');if(tog){const id=tog.dataset.togcat;if(expandedCats.has(id))expandedCats.delete(id);else expandedCats.add(id);renderBudget();return;}
+    const sub=e.target.closest('.subtab');if(sub){const g=sub.parentElement;g.querySelectorAll('.subtab').forEach(s=>s.classList.remove('active'));sub.classList.add('active');
+      if(g.id==='budgetTabs'){budgetView=sub.dataset.view;renderBudget();}else if(g.id==='lendsTabs'){lendsView=sub.dataset.view;renderLends();}return;}
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){closePop();closeModal();return;}
+    if(e.key==='Enter'&&e.target.classList){
+      if(e.target.classList.contains('sub-add-input')){e.preventDefault();const b=e.target.closest('.ob-sel').querySelector('[data-addsub]');if(b)b.click();}
+      else if(e.target.classList.contains('ms-add__in')){e.preventDefault();const b=document.querySelector('.ms-add__btn[data-cat="'+e.target.dataset.cat+'"]');if(b)b.click();}
+    }
+  });
+
+  /* ===== categories & subcategories manager ===== */
+  function manageSubsModal(){
+    function chips(){return DB.categories.map(c=>'<div class="ms-cat"><div class="ms-cat__name"><span class="cat-dot" style="background:'+c.color+'"></span>'+c.name+'</div><div class="ms-chips">'+
+      (c.subs||[]).map(s=>'<span class="ms-chip">'+esc(s)+'<button type="button" class="ms-chip__x" data-cat="'+c.id+'" data-sub="'+esc(s)+'" aria-label="Delete '+esc(s)+'">×</button></span>').join('')+
+      '<span class="ms-add"><input class="ms-add__in" data-cat="'+c.id+'" placeholder="Add…"><button type="button" class="ms-add__btn" data-cat="'+c.id+'" aria-label="Add subcategory">+</button></span></div></div>').join('');}
+    const ov=openModal({title:'Categories & subcategories',body:'<div id="msBody">'+chips()+'</div>',footer:'<button class="ob-btn ob-btn--primary" data-close><i class="fa-solid fa-check"></i> Done</button>',width:600});
+    const refresh=()=>{ov.querySelector('#msBody').innerHTML=chips();};
+    ov.querySelector('[data-close]').addEventListener('click',()=>{closeModal();renderAll();});
+    ov.addEventListener('click',e=>{
+      const x=e.target.closest('.ms-chip__x');if(x){const c=cat(x.dataset.cat);c.subs=(c.subs||[]).filter(s=>s!==x.dataset.sub);refresh();return;}
+      const add=e.target.closest('.ms-add__btn');if(add){const inp=ov.querySelector('.ms-add__in[data-cat="'+add.dataset.cat+'"]');const v=(inp.value||'').trim();if(v){const c=cat(add.dataset.cat);c.subs=c.subs||[];if(!c.subs.includes(v))c.subs.push(v);}refresh();return;}
+    });
+  }
+
+  $('#btnDetails').addEventListener('click',()=>{const sb=$('#sidebar');sb.setAttribute('data-state',sb.getAttribute('data-state')==='open'?'closed':'open');});
+  $('#sidebarClose').addEventListener('click',()=>$('#sidebar').setAttribute('data-state','closed'));
+  $('#btnPeriod').addEventListener('click',()=>{openMenu($('#btnPeriod'),DB.periods.map(p=>({icon:'fa-calendar',label:p.name,right:p.status,onClick:()=>{DB.current=p.id;$('#periodName').textContent=p.name;$('#periodStatus').textContent='· '+p.status.charAt(0).toUpperCase()+p.status.slice(1);renderSidebar();toast('Showing '+p.name+(p.status==='closed'?' (closed — read only)':''));}})),{align:'right'});});
+  $('#btnAvatar').addEventListener('click',()=>{openMenu($('#btnAvatar'),[
+    {icon:'fa-user',label:'Profile',onClick:()=>toast('Profile — demo')},
+    {icon:'fa-sitemap',label:'Categories & subcategories',onClick:()=>manageSubsModal()},
+    {icon:'fa-gear',label:'Settings',onClick:()=>setScreen('settings')},
+    'divider',
+    {icon:'fa-rotate-left',label:'Reset demo data',onClick:()=>{DB=seed();$('#periodName').textContent='Jun 2026';$('#periodStatus').textContent='· Open';renderAll();setScreen('dashboard');toast('Demo data reset');}},
+    {icon:'fa-arrow-right-from-bracket',label:'Sign out',onClick:()=>toast('Signed out — demo')}],{align:'right'});});
+  $('#btnBell').addEventListener('click',()=>{const al=computeAlerts();const html='<div class="ob-pop__head">Alerts</div>'+(al.length?al.map(a=>'<button class="ob-menu__item" type="button" data-go="'+a.screen+'"><i class="fa-solid '+a.icon+'"></i><span>'+a.text+'</span></button>').join(''):'<div class="ob-note">All clear — nothing needs attention.</div>');
+    const pop=openPop($('#btnBell'),html,{align:'right',width:320});pop.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>{closePop();setScreen(el.dataset.go);}));});
+  $('#btnActivity').addEventListener('click',()=>{const items=DB.activity.slice(0,7);const html='<div class="ob-pop__head">Recent activity</div>'+(items.length?items.map(a=>'<div class="ob-note" style="padding:8px 20px"><i class="fa-solid fa-circle" style="font-size:7px;color:var(--blue-0);vertical-align:middle;margin-right:8px"></i>'+esc(a.text)+' <span style="opacity:.6">· '+a.t+'</span></div>').join(''):'<div class="ob-note">No activity yet — add an expense to get started.</div>');openPop($('#btnActivity'),html,{align:'right',width:320});});
+  $('#btnAI').addEventListener('click',()=>{const safe=Math.max(0,Math.round((budgetTotal()-totalSpent())/DAYS_LEFT));const over=DB.budgets.filter(b=>catSpent(b.catId)>b.budgeted+b.rollover).map(b=>cat(b.catId).name);
+    const html='<div class="ob-pop__head"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--blue-0)"></i> Ask Xat</div>'+
+      '<button class="ai-chip" data-ai="safe">How much can I safely spend today?</button>'+
+      '<button class="ai-chip" data-ai="over">Where am I overspending?</button>'+
+      '<button class="ai-chip" data-ai="net">What\'s my net worth?</button>'+
+      '<div class="ai-answer" id="aiAns" style="display:none"></div>';
+    const pop=openPop($('#btnAI'),html,{align:'right',width:320});const ans=pop.querySelector('#aiAns');
+    pop.querySelectorAll('[data-ai]').forEach(el=>el.addEventListener('click',()=>{ans.style.display='block';
+      ans.innerHTML=el.dataset.ai==='safe'?('You can spend about <b>'+taka(safe)+'</b> per day for the remaining '+DAYS_LEFT+' days and still stay within budget.')
+        :el.dataset.ai==='over'?(over.length?('You\'re over budget in <b>'+over.join('</b>, <b>')+'</b>. Trimming these brings you back on track.'):'Nothing is over budget right now — nicely done.')
+        :('Your net worth is <b>'+taka(netWorth())+'</b> — in-hand '+taka(inHand())+' + savings '+taka(savingsTotal())+' + '+taka(receivable())+' receivable − '+taka(payable())+' owed.');}));});
+  $('#btnLauncher').addEventListener('click',()=>{
+    const apps=[{i:'fa-gauge',l:'Dashboard',s:'dashboard'},{i:'fa-receipt',l:'Expenses',s:'expenses'},{i:'fa-chart-pie',l:'Budget',s:'budget'},{i:'fa-chart-simple',l:'Insights',s:'insights'},{i:'fa-handshake',l:'Lends',s:'lends'},{i:'fa-piggy-bank',l:'Savings',s:'savings'},{i:'fa-calendar-check',l:'Planner',s:'planner'},{i:'fa-gear',l:'Settings',s:'settings'}];
+    const ov=document.createElement('div');ov.className='launcher-ov';ov.innerHTML='<div class="launcher"><h3>Ribnat apps</h3><div class="launcher-grid">'+apps.map(a=>'<button class="app-tile" data-app="'+a.s+'"><i class="fa-solid '+a.i+'"></i>'+a.l+'</button>').join('')+'</div></div>';
+    document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return;}const t=e.target.closest('[data-app]');if(t){ov.remove();if(t.dataset.app)setScreen(t.dataset.app);else toast(t.textContent.trim()+' — demo');}});});
+
+  $('#expSearch').addEventListener('input',e=>{expFilter.q=e.target.value.toLowerCase();renderExpenses();});
+  document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('budinput'))updateBudgetSums();});
+  $('#expCatSel').innerHTML=selectHTML(catOpts(true),'','All categories',true);
+  $('#expAcctSel').innerHTML=selectHTML(acctOpts(true),'','All accounts',true);
+  $('#expCatSel').addEventListener('ob-change',e=>{expFilter.cat=e.detail;renderExpenses();});
+  $('#expAcctSel').addEventListener('ob-change',e=>{expFilter.acct=e.detail;renderExpenses();});
+
+  function toggleTheme(){const dark=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+    const tb=$('#themeToggle');if(tb)tb.innerHTML=dark?'<i class="fa-solid fa-moon"></i> Dark':'<i class="fa-solid fa-sun"></i> Light';
+    if(typeof renderSettings==='function')renderSettings();}
+  $('#themeToggle').addEventListener('click',toggleTheme);
+
+  renderAll();
   </script>
 </body>
 </html>
