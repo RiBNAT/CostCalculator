@@ -222,7 +222,9 @@
   .ob-form{display:flex;flex-direction:column;gap:16px;}
   .ob-form .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .ff{display:flex;flex-direction:column;gap:4px;}
-  .ff>label{font-family:var(--font-family-ui);font-weight:var(--font-weight-medium);font-size:13px;color:var(--standard-0);}
+  .ff>label{font-family:var(--font-family-ui);font-weight:var(--font-weight-medium);font-size:13px;color:var(--standard-0);min-height:20px;}
+  /* keep labels on one line for side-by-side fields so the inputs stay aligned */
+  .ob-form .grid2 .ff>label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .ff .hint{color:var(--standard-600);font-weight:400;}
   .ob-input{height:45px;padding:0 15px;border:1px solid var(--standard-1000);border-radius:8px;background:var(--standard-1300);color:var(--standard-0);font-family:var(--font-family-ui);font-size:var(--type-size-14);outline:none;width:100%;}
   .ob-input:hover:not(:focus){border-color:var(--standard-700);}
@@ -414,6 +416,7 @@
       <nav class="itp-header__nav" aria-label="Main navigation">
         <button class="navtab active" data-screen="dashboard">Dashboard</button>
         <button class="navtab" data-screen="expenses">Expenses</button>
+        <button class="navtab" data-screen="transfers">Transfers</button>
         <button class="navtab" data-screen="budget">Budget</button>
         <button class="navtab" data-screen="insights">Insights</button>
         <button class="navtab" data-screen="lends">Lends</button>
@@ -512,6 +515,26 @@
               <thead><tr><th>Date</th><th>Category</th><th>Subcategory</th><th>Account</th><th>Remarks</th><th class="num">Amount</th><th></th></tr></thead>
               <tbody id="expBody"></tbody>
               <tfoot><tr><td colspan="5" id="expFootLabel"></td><td class="num" id="expFootTotal"></td><td></td></tr></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- TRANSFERS -->
+        <section class="screen" id="screen-transfers">
+          <div class="breadcrumb-bar">
+            <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Transfers</span></nav>
+            <div class="bc-actions">
+              <button class="ob-btn ob-btn--primary" data-act="move-money"><i class="fa-solid fa-right-left"></i> New transfer</button>
+            </div>
+          </div>
+          <div class="secondary-bar">
+            <span class="muted">Move money between your own accounts — bank, bKash, Nagad, cash.</span>
+            <span style="margin-left:auto" class="muted num" id="transfersSummary"></span>
+          </div>
+          <div class="page">
+            <table class="ob-table">
+              <thead><tr><th>Date</th><th>From</th><th></th><th>To</th><th class="num">Amount</th><th class="num">Fee / charge</th><th>Note</th><th></th></tr></thead>
+              <tbody id="transfersBody"></tbody>
             </table>
           </div>
         </section>
@@ -624,6 +647,7 @@
     <nav class="bottom-nav" aria-label="Primary">
       <a class="bnav-link active" data-screen="dashboard"><i class="fa-solid fa-gauge"></i><span>Home</span></a>
       <a class="bnav-link" data-screen="expenses"><i class="fa-solid fa-receipt"></i><span>Expenses</span></a>
+      <a class="bnav-link" data-screen="transfers"><i class="fa-solid fa-right-left"></i><span>Transfers</span></a>
       <a class="bnav-link" data-screen="budget"><i class="fa-solid fa-chart-pie"></i><span>Budget</span></a>
       <a class="bnav-link" data-screen="insights"><i class="fa-solid fa-chart-simple"></i><span>Insights</span></a>
       <a class="bnav-link" data-screen="savings"><i class="fa-solid fa-piggy-bank"></i><span>Savings</span></a>
@@ -653,7 +677,7 @@
                 {id:'eating',name:'Eating out',color:'var(--marketing-pink)',subs:['Dinner','Lunch','Cafe','Snacks']},
                 {id:'mobile',name:'Mobile / Internet',color:'var(--marketing-orange)',subs:['Recharge','Broadband','Data']},
                 {id:'health',name:'Health',color:'var(--coral-text)',subs:['Pharmacy','Doctor','Tests']},
-                {id:'misc',name:'Misc',color:'var(--standard-700)',subs:['Gift','Donation','Stationery','Other']}],
+                {id:'misc',name:'Misc',color:'var(--standard-700)',subs:['Gift','Donation','Stationery','Transfer/ATM fee','Other']}],
     // budget is allocated per SUBCATEGORY; the category total auto-sums from these
     budgets:[{catId:'rent',rollover:0,subs:{'House rent':18000,'Advance':0,'Service charge':0}},
              {catId:'bazar',rollover:2000,subs:{'Vegetables':3000,'Groceries':5000,'Fish & meat':3500,'Rice & staples':2000,'Fruits':500}},
@@ -692,7 +716,9 @@
       {date:'4 Jun',catId:'health',sub:'Tests',acctId:'cash',remarks:'diagnostic',amount:920},
       {date:'3 Jun',catId:'transport',sub:'Bus',acctId:'cash',remarks:'weekly pass',amount:400},
       {date:'2 Jun',catId:'bazar',sub:'Rice & staples',acctId:'cash',remarks:'25kg + oil',amount:2260},
-      {date:'1 Jun',catId:'misc',sub:'Stationery',acctId:'cash',remarks:'kids school',amount:1000}],
+      {date:'1 Jun',catId:'misc',sub:'Stationery',acctId:'cash',remarks:'kids school',amount:1000},
+      {date:'20 Jun',catId:'misc',sub:'Transfer/ATM fee',acctId:'dbbl',remarks:'ATM fee · DBBL → Cash',amount:15,feeKey:'seed-1'},
+      {date:'02 Jun',catId:'misc',sub:'Transfer/ATM fee',acctId:'dbbl',remarks:'NPSB fee · DBBL → bKash',amount:10,feeKey:'seed-3'}],
     lends:[{person:'Rahim Uddin',type:'given',principal:15000,settled:5000,since:'12 Apr'},
            {person:'Salma Akter',type:'given',principal:8000,settled:0,since:'02 Jun'},
            {person:'Karim Mia',type:'taken',principal:5000,settled:0,since:'28 May'},
@@ -705,6 +731,10 @@
              {label:'Broadband (Link3)',due:'5 Jul',amount:1200,catId:'mobile',acctId:'nagad',paid:false},
              {label:'Electricity (DESCO)',due:'8 Jul',amount:2000,catId:'utilities',acctId:'dbbl',paid:false},
              {label:'bKash cash-out fee',due:'25 Jun',amount:185,catId:'misc',acctId:'bkash',paid:false}],
+    // account-to-account transfers (display ledger; balances already reflect these)
+    transfers:[{date:'20 Jun',from:'dbbl',to:'cash',amount:5000,fee:15,feeKey:'seed-1',note:'ATM withdrawal — household cash'},
+               {date:'12 Jun',from:'bkash',to:'nagad',amount:2000,fee:0,note:'Rebalance mobile wallets'},
+               {date:'02 Jun',from:'dbbl',to:'bkash',amount:8000,fee:10,feeKey:'seed-3',note:'Top up bKash for bills'}],
     activity:[]
   };}
   let DB = seed();
@@ -735,10 +765,19 @@
 
   /* ============================ render ============================ */
   function wrapTables(){document.querySelectorAll('.ob-table').forEach(function(t){if(!t.parentElement.classList.contains('tscroll')){var w=document.createElement('div');w.className='tscroll';t.parentNode.insertBefore(w,t);w.appendChild(t);}});}
-  function renderAll(){renderDashboard();renderExpenses();renderBudget();renderLends();renderSavings();renderPlanner();renderInsights();renderSettings();renderSidebar();renderAlertsBadge();wrapTables();}
+  function renderAll(){renderDashboard();renderExpenses();renderTransfers();renderBudget();renderLends();renderSavings();renderPlanner();renderInsights();renderSettings();renderSidebar();renderAlertsBadge();wrapTables();}
+  function renderTransfers(){
+    const rows=DB.transfers||[];
+    $('#transfersBody').innerHTML=rows.map((t,i)=>{const f=acct(t.from),to=acct(t.to);const fee=t.fee||0;
+      return '<tr><td class="num">'+t.date+'</td><td><span class="acct"><i class="fa-solid '+f.icon+'"></i>'+f.name+'</span></td><td style="text-align:center;color:var(--standard-600)"><i class="fa-solid fa-arrow-right-long"></i></td><td><span class="acct"><i class="fa-solid '+to.icon+'"></i>'+to.name+'</span></td><td class="num">'+taka(t.amount)+'</td><td class="num'+(fee>0?'':' muted')+'">'+(fee>0?taka(fee):'—')+'</td><td class="muted">'+esc(t.note||'')+'</td><td><button class="rowact" title="Delete" data-del-transfer="'+i+'"><i class="fa-solid fa-trash-can"></i></button></td></tr>';}).join('')
+      ||'<tr><td colspan="8" class="muted" style="text-align:center;padding:32px">No transfers yet — use “New transfer” to move money between accounts.</td></tr>';
+    const total=rows.reduce((s,t)=>s+t.amount,0),fees=rows.reduce((s,t)=>s+(t.fee||0),0);
+    $('#transfersSummary').textContent=rows.length+' transfers · '+taka(total)+' moved'+(fees>0?' · '+taka(fees)+' in fees':'');
+  }
   const periodIncome=()=>{const p=DB.periods.find(x=>x.id===DB.current);return (p&&p.income)||0;};
   let appSettings={twoFA:false,lakh:true};
   let quickDefaults={acct:'cash',cat:'bazar'};
+  let txSeq=1000;
 
   function renderDashboard(){
     $('#kpiInHand').textContent=taka(inHand());
@@ -1118,16 +1157,29 @@
   }
 
   function moveMoneyModal(){
-    const body='<div class="ob-form"><div class="grid2"><div class="ff" data-field="from"><label>From</label>'+selectHTML(acctOpts(),'dbbl')+'</div>'+
-      '<div class="ff" data-field="to"><label>To</label>'+selectHTML(acctOpts(),'cash')+'</div></div>'+
-      '<div class="ff"><label>Amount</label><input class="ob-input" id="m_amt" placeholder="0"></div></div>';
+    const body='<div class="ob-form"><div class="grid2"><div class="ff" data-field="from"><label>From account</label>'+selectHTML(acctOpts(),'dbbl')+'</div>'+
+      '<div class="ff" data-field="to"><label>To account</label>'+selectHTML(acctOpts(),'cash')+'</div></div>'+
+      '<div class="grid2"><div class="ff"><label>Amount</label><input class="ob-input" id="m_amt" placeholder="0" autocomplete="off"><div class="amt-preview" id="m_amt_pv"></div></div>'+
+      '<div class="ff"><label>Fee / charge</label><input class="ob-input" id="m_fee" placeholder="0" autocomplete="off"><div class="amt-preview" id="m_fee_pv">ATM · NPSB · cash-out — posts to Expenses</div></div></div>'+
+      '<div class="grid2"><div class="ff"><label>Date</label><input class="ob-input" id="m_date" value="25 Jun"></div>'+
+      '<div class="ff"><label>Note</label><input class="ob-input" id="m_note" placeholder="e.g. cash-out at agent"></div></div></div>';
     const footer='<button class="ob-btn ob-btn--secondary" data-close>Cancel</button><button class="ob-btn ob-btn--primary" id="m_save"><i class="fa-solid fa-right-left"></i> Transfer</button>';
-    const ov=openModal({title:'Move money',body,footer});
+    const ov=openModal({title:'Transfer money',body,footer});
+    const ma=ov.querySelector('#m_amt'),mpv=ov.querySelector('#m_amt_pv'),mf=ov.querySelector('#m_fee'),mfpv=ov.querySelector('#m_fee_pv');
+    ma.addEventListener('input',()=>{const v=evalAmount(ma.value);ma.classList.remove('err');mpv.innerHTML=(ma.value&&!isNaN(v))?('= <b>'+taka(v)+'</b>'):'';});
+    mf.addEventListener('input',()=>{const v=evalAmount(mf.value);mfpv.innerHTML=(mf.value&&!isNaN(v)&&v>0)?('logged as an expense · <b>'+taka(v)+'</b>'):'ATM · NPSB · cash-out — posts to Expenses';});
     ov.querySelector('[data-close]').addEventListener('click',closeModal);
-    ov.querySelector('#m_save').addEventListener('click',()=>{const v=evalAmount(ov.querySelector('#m_amt').value);const from=selVal(ov.querySelector('[data-field=from]')),to=selVal(ov.querySelector('[data-field=to]'));
-      if(isNaN(v)||v<=0){ov.querySelector('#m_amt').classList.add('err');return;}if(from===to){toast('Pick two different accounts');return;}
-      const val=Math.round(v);const fa=acct(from),ta=acct(to);fa.balance-=val;fa.delta-=val;ta.balance+=val;ta.delta+=val;
-      logAct('Moved '+taka(val)+' · '+fa.name+' → '+ta.name);closeModal();renderAll();toast('Transferred '+taka(val)+' · '+fa.name+' → '+ta.name);});
+    ov.querySelector('#m_save').addEventListener('click',()=>{const v=evalAmount(ma.value);const from=selVal(ov.querySelector('[data-field=from]')),to=selVal(ov.querySelector('[data-field=to]'));
+      if(isNaN(v)||v<=0){ma.classList.add('err');return;}if(from===to){toast('Pick two different accounts');return;}
+      let fee=evalAmount(mf.value);if(isNaN(fee)||fee<0)fee=0;fee=Math.round(fee);
+      const val=Math.round(v),fa=acct(from),ta=acct(to),date=ov.querySelector('#m_date').value||'Today',note=ov.querySelector('#m_note').value||'';
+      fa.balance-=val;fa.delta-=val;ta.balance+=val;ta.delta+=val;
+      let feeKey=null;
+      if(fee>0){feeKey='tx'+(++txSeq);fa.balance-=fee;fa.delta-=fee; // fee is a real cost out of the From account
+        DB.expenses.unshift({date,catId:'misc',sub:'Transfer/ATM fee',acctId:from,remarks:'Transfer fee · '+fa.name+' → '+ta.name+(note?(' ('+note+')'):''),amount:fee,feeKey});}
+      DB.transfers.unshift({date,from,to,amount:val,fee,feeKey,note});
+      logAct('Transferred '+taka(val)+' · '+fa.name+' → '+ta.name+(fee>0?(' (fee '+taka(fee)+')'):''));
+      closeModal();renderAll();toast('Transferred '+taka(val)+' · '+fa.name+' → '+ta.name+(fee>0?(' · '+taka(fee)+' fee logged to Expenses'):''));});
   }
 
   function newReminderModal(){
@@ -1181,6 +1233,7 @@
       else if(a==='save-budget'){$$('[data-subbud]').forEach(inp=>{const parts=inp.dataset.subbud.split('|'),cid=parts[0],sub=parts.slice(1).join('|');const e=budgetEntry(cid);const v=evalAmount(inp.value);if(e){e.subs=e.subs||{};e.subs[sub]=isNaN(v)?0:Math.round(v);}});budgetEdit=false;renderAll();toast('Budget updated');}
       return;}
     const del=e.target.closest('[data-del-exp]');if(del){const i=+del.dataset.delExp;const ex=DB.expenses[i];const a=acct(ex.acctId);if(a){a.balance+=ex.amount;a.delta+=ex.amount;}DB.expenses.splice(i,1);renderAll();toast('Expense removed');return;}
+    const dtr=e.target.closest('[data-del-transfer]');if(dtr){const i=+dtr.dataset.delTransfer;const t=DB.transfers[i];const fee=t.fee||0;const fa=acct(t.from),ta=acct(t.to);if(fa){fa.balance+=t.amount+fee;fa.delta+=t.amount+fee;}if(ta){ta.balance-=t.amount;ta.delta-=t.amount;}if(t.feeKey)DB.expenses=DB.expenses.filter(ex=>ex.feeKey!==t.feeKey);DB.transfers.splice(i,1);renderAll();toast('Transfer removed');return;}
     const st=e.target.closest('[data-settle]');if(st){settleModal(+st.dataset.settle);return;}
     const pd=e.target.closest('[data-paid]');if(pd){markPaid(+pd.dataset.paid);return;}
     const as=e.target.closest('[data-addsave]');if(as){addSaveModal(+as.dataset.addsave);return;}
@@ -1249,7 +1302,7 @@
         :el.dataset.ai==='over'?(over.length?('You\'re over budget in <b>'+over.join('</b>, <b>')+'</b>. Trimming these brings you back on track.'):'Nothing is over budget right now — nicely done.')
         :('Your net worth is <b>'+taka(netWorth())+'</b> — in-hand '+taka(inHand())+' + savings '+taka(savingsTotal())+' + '+taka(receivable())+' receivable − '+taka(payable())+' owed.');}));});
   $('#btnLauncher').addEventListener('click',()=>{
-    const apps=[{i:'fa-gauge',l:'Dashboard',s:'dashboard'},{i:'fa-receipt',l:'Expenses',s:'expenses'},{i:'fa-chart-pie',l:'Budget',s:'budget'},{i:'fa-chart-simple',l:'Insights',s:'insights'},{i:'fa-handshake',l:'Lends',s:'lends'},{i:'fa-piggy-bank',l:'Savings',s:'savings'},{i:'fa-calendar-check',l:'Planner',s:'planner'},{i:'fa-gear',l:'Settings',s:'settings'}];
+    const apps=[{i:'fa-gauge',l:'Dashboard',s:'dashboard'},{i:'fa-receipt',l:'Expenses',s:'expenses'},{i:'fa-right-left',l:'Transfers',s:'transfers'},{i:'fa-chart-pie',l:'Budget',s:'budget'},{i:'fa-chart-simple',l:'Insights',s:'insights'},{i:'fa-handshake',l:'Lends',s:'lends'},{i:'fa-piggy-bank',l:'Savings',s:'savings'},{i:'fa-calendar-check',l:'Planner',s:'planner'},{i:'fa-gear',l:'Settings',s:'settings'}];
     const ov=document.createElement('div');ov.className='launcher-ov';ov.innerHTML='<div class="launcher"><h3>Ribnat apps</h3><div class="launcher-grid">'+apps.map(a=>'<button class="app-tile" data-app="'+a.s+'"><i class="fa-solid '+a.i+'"></i>'+a.l+'</button>').join('')+'</div></div>';
     document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();return;}const t=e.target.closest('[data-app]');if(t){ov.remove();if(t.dataset.app)setScreen(t.dataset.app);else toast(t.textContent.trim()+' — demo');}});});
 
