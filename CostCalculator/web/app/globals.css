@@ -226,6 +226,22 @@ button{font-family:inherit;}
 .ob-toggle.on{background:var(--blue-0);}
 .ob-toggle.on::after{transform:translateX(18px);}
 
+/* ===== categories & subcategories manager (Settings) ===== */
+.ms-cat{padding:16px 0;border-bottom:1px solid var(--standard-1100);}
+.ms-cat:first-child{padding-top:4px;}
+.ms-cat:last-child{border-bottom:none;padding-bottom:4px;}
+.ms-cat__name{display:flex;align-items:center;gap:10px;font-weight:var(--font-weight-medium);font-size:var(--type-size-15);margin-bottom:12px;}
+.ms-cat__name .rowact{margin-left:0;}
+.ms-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.ms-chip{display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 4px 0 12px;border:1px solid var(--standard-1000);border-radius:var(--radius-pill);font-size:13px;background:var(--standard-1300);color:var(--standard-0);}
+.ms-chip__x{display:inline-flex;align-items:center;justify-content:center;border:none;background:none;color:var(--standard-600);cursor:pointer;font-size:11px;width:20px;height:20px;border-radius:var(--radius-circle);flex-shrink:0;}
+.ms-chip__x:hover{background:var(--standard-1100);color:var(--danger-0);}
+.ms-add{display:inline-flex;gap:6px;align-items:center;}
+.ms-add__in{height:30px;width:140px;border:1px dashed var(--standard-900);border-radius:var(--radius-pill);padding:0 14px;font-family:var(--font-family-ui);font-size:13px;background:var(--standard-1400);color:var(--standard-0);outline:none;}
+.ms-add__in:focus{border-style:solid;border-color:var(--blue-0);}
+.ms-add__btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:none;border-radius:var(--radius-circle);background:var(--standard-1100);color:var(--standard-0);cursor:pointer;font-size:12px;flex-shrink:0;}
+.ms-add__btn:hover{background:var(--blue-0);color:#fff;}
+
 /* ===== modal (dialog.md) ===== */
 .ob-modal-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;animation:ovfade .2s ease;padding:16px;}
 @keyframes ovfade{from{opacity:0}to{opacity:1}}
