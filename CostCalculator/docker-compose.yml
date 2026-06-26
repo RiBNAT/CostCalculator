@@ -15,7 +15,7 @@ services:
       MONGO_URI: mongodb://mongo:27017
       MONGO_DB: ribnat  # legacy database name kept after the Cost Calculator rename
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8081}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}  # set to enable Sign in with Google
     depends_on:
       mongo:
@@ -23,12 +23,16 @@ services:
     ports:
       - "8080:8080"
 
+  # Next.js frontend (App Router). The browser talks same-origin and Next proxies /api/* to the api service.
+  # The legacy Angular app remains at ./frontend for reference until cutover is signed off.
   web:
-    build: ./frontend
+    build: ./web
+    environment:
+      API_TARGET: ${API_TARGET:-http://api:8080}
     depends_on:
       - api
     ports:
-      - "8081:80"
+      - "3000:3000"
 
 volumes:
   mongo-data:

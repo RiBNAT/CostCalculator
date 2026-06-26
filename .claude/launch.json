@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ng", "serve", "--port", "4200"],
+      "cwd": "CostCalculator/frontend",
+      "port": 4200
+    },
+    {
+      "name": "carbon-mockup",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "-l", "4321", "."],
+      "cwd": "CostCalculator/docs/mockups/carbon",
+      "port": 4321
+    },
+    {
+      "name": "web-next",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "CostCalculator/web",
+      "port": 3000
+    }
+  ]
+}
