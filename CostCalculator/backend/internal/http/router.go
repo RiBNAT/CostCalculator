@@ -18,7 +18,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 	periods := &service.Periods{DB: db}
 	summary := &service.Summary{DB: db, Periods: periods}
 
-	ah := &authHandlers{auth: auth, db: db, googleClientID: cfg.GoogleClientID}
+	ah := &authHandlers{auth: auth, db: db, googleClientID: cfg.GoogleClientID, cookieSecure: cfg.CookieSecure}
 	rh := &refdataHandlers{db: db}
 	ph := &periodHandlers{db: db, periods: periods, summary: summary}
 	eh := &entryHandlers{db: db, periods: periods}
@@ -41,6 +41,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 	a.POST("/login", ah.login)
 	a.POST("/refresh", ah.refresh)
 	a.POST("/google", ah.google)
+	a.POST("/logout", ah.logout)
 
 	mh := &meHandlers{db: db}
 

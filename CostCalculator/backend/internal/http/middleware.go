@@ -10,13 +10,18 @@ import (
 
 const ctxUserID = "userID"
 
-// AuthRequired validates the Bearer access token and stores the user id.
+// AuthRequired validates the access token (Bearer header or rib_access cookie)
+// and stores the user id.
 func AuthRequired(auth *service.Auth) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		header := c.GetHeader("Authorization")
-		token, ok := strings.CutPrefix(header, "Bearer ")
+		token, ok := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer ")
 		if !ok || token == "" {
-			Err(c, 401, "unauthorized", "missing bearer token")
+			if ck, err := c.Cookie(cookieAccess); err == nil {
+				token = ck
+			}
+		}
+		if token == "" {
+			Err(c, 401, "unauthorized", "missing credentials")
 			return
 		}
 		uid, err := auth.Verify(token)

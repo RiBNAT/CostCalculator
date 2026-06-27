@@ -33,6 +33,12 @@ type authHandlers struct {
 	auth           *service.Auth
 	db             *repo.DB
 	googleClientID string
+	cookieSecure   bool
+}
+
+func (h *authHandlers) writeAuthCookies(c *gin.Context, pair *service.TokenPair) {
+	setAuthCookies(c, pair.AccessToken, pair.RefreshToken,
+		int(h.auth.AccessTTL.Seconds()), int(h.auth.RefreshTTL.Seconds()), h.cookieSecure)
 }
 
 // config exposes the public client config the SPA needs to render the Google button.
@@ -70,6 +76,7 @@ func (h *authHandlers) google(c *gin.Context) {
 			return
 		}
 	}
+	h.writeAuthCookies(c, pair)
 	c.JSON(200, gin.H{"user": u, "tokens": pair})
 }
 
@@ -101,6 +108,7 @@ func (h *authHandlers) register(c *gin.Context) {
 		Internal(c, err)
 		return
 	}
+	h.writeAuthCookies(c, pair)
 	c.JSON(201, gin.H{"user": u, "tokens": pair})
 }
 
@@ -122,21 +130,35 @@ func (h *authHandlers) login(c *gin.Context) {
 		Internal(c, err)
 		return
 	}
+	h.writeAuthCookies(c, pair)
 	c.JSON(200, gin.H{"user": u, "tokens": pair})
 }
 
 func (h *authHandlers) refresh(c *gin.Context) {
 	var req struct {
-		RefreshToken string `json:"refreshToken" binding:"required"`
+		RefreshToken string `json:"refreshToken"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		BindError(c, err)
+	_ = c.ShouldBindJSON(&req) // body is optional; the cookie can drive refresh
+	rt := req.RefreshToken
+	if rt == "" {
+		if ck, err := c.Cookie(cookieRefresh); err == nil {
+			rt = ck
+		}
+	}
+	if rt == "" {
+		Err(c, 401, "invalid_token", "missing refresh token")
 		return
 	}
-	pair, err := h.auth.Refresh(c, req.RefreshToken)
+	pair, err := h.auth.Refresh(c, rt)
 	if err != nil {
 		Err(c, 401, "invalid_token", "invalid refresh token")
 		return
 	}
+	h.writeAuthCookies(c, pair)
 	c.JSON(200, gin.H{"tokens": pair})
+}
+
+func (h *authHandlers) logout(c *gin.Context) {
+	clearAuthCookies(c, h.cookieSecure)
+	c.Status(204)
 }
