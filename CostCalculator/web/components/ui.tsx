@@ -52,3 +52,16 @@ export function EmptyState({ icon, title, hint, action }: { icon: string; title:
 export function Spinner({ label }: { label?: string }) {
   return <div className="empty"><Icon name="spinner" className="spin" /><h3>{label || "Loading…"}</h3></div>;
 }
+
+export function ErrorState({ message, onRetry }: { message?: string; onRetry?: () => void }) {
+  return (
+    <div className="empty">
+      <Icon name="triangle-exclamation" />
+      <h3>Something went wrong</h3>
+      <p style={{ margin: "0 0 14px" }}>{message || "Could not load this data. Please try again."}</p>
+      {onRetry && (
+        <button className="ob-btn ob-btn--primary" onClick={onRetry}>Try again</button>
+      )}
+    </div>
+  );
+}

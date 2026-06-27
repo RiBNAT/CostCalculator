@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { usePeriods } from "@/lib/period";
 import { taka } from "@/lib/money";
 import { accountIcon, colorFor, fmtDate, lookup } from "@/lib/format";
-import { Icon, Spinner, EmptyState } from "@/components/ui";
+import { Icon, Spinner, EmptyState, ErrorState } from "@/components/ui";
 
 function daysLeftInclusive(endISO: string): number {
   const e = new Date(endISO); e.setHours(0, 0, 0, 0);
@@ -16,7 +16,7 @@ function daysLeftInclusive(endISO: string): number {
 export default function DashboardPage() {
   const { selected, loading } = usePeriods();
   const pid = selected?.id;
-  const { data: summary } = useQuery({ queryKey: ["summary", pid], queryFn: () => api.periodSummary(pid!), enabled: !!pid });
+  const { data: summary, isError: summaryError, error: summaryErr, refetch: refetchSummary } = useQuery({ queryKey: ["summary", pid], queryFn: () => api.periodSummary(pid!), enabled: !!pid });
   const { data: trends } = useQuery({ queryKey: ["trends", pid], queryFn: () => api.periodTrends(pid!), enabled: !!pid });
   const { data: categories } = useQuery({ queryKey: ["categories"], queryFn: api.listCategories });
   const { data: accounts } = useQuery({ queryKey: ["accounts"], queryFn: api.listAccounts });
@@ -33,6 +33,7 @@ export default function DashboardPage() {
 
   if (loading) return <>{header}<div className="page"><Spinner /></div></>;
   if (!selected) return <>{header}<div className="page"><EmptyState icon="calendar-plus" title="No period yet" hint="Create your first salary cycle to start tracking." action={<Link href="/settings" className="ob-btn ob-btn--primary">Create a period</Link>} /></div></>;
+  if (summaryError) return <>{header}<div className="page"><ErrorState message={(summaryErr as Error)?.message} onRetry={() => refetchSummary()} /></div></>;
   if (!summary) return <>{header}<div className="page"><Spinner /></div></>;
 
   const spent = summary.categoryTotals.reduce((s, c) => s + c.total, 0);
