@@ -1,6 +1,8 @@
 package http
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 
 	"costcalculator/backend/internal/config"
@@ -27,12 +29,13 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 	rch := &recurringHandlers{db: db}
 
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery(), CORS(cfg.CORSOrigin))
+	r.Use(RequestID(), gin.Logger(), gin.Recovery(), CORS(cfg.CORSOrigin))
 
 	v1 := r.Group("/api/v1")
 	v1.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
-	a := v1.Group("/auth")
+	// 10 attempts/min/IP on auth endpoints (login, register, refresh, google).
+	a := v1.Group("/auth", RateLimit(10, time.Minute))
 	a.GET("/config", ah.config)
 	a.POST("/register", ah.register)
 	a.POST("/login", ah.login)
@@ -64,6 +67,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 		p.PUT("/periods/:id", ph.update)
 		p.POST("/periods/:id/close", ph.close)
 		p.POST("/periods/:id/reopen", ph.reopen)
+		p.POST("/periods/:id/repair", ph.repair)
 		p.GET("/periods/:id/status", ph.status)
 		p.GET("/periods/:id/summary", ph.getSummary)
 		p.GET("/periods/:id/trends", ph.trends)

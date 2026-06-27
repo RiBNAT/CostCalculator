@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,14 @@ func Err(c *gin.Context, status int, code, message string) {
 
 func BadRequest(c *gin.Context, message string) { Err(c, 400, "bad_request", message) }
 func NotFound(c *gin.Context)                   { Err(c, 404, "not_found", "resource not found") }
-func Internal(c *gin.Context, err error)        { Err(c, 500, "internal", err.Error()) }
+
+// Internal logs the full error server-side with the request id and returns a
+// generic message to the client so internal details never leak.
+func Internal(c *gin.Context, err error) {
+	id := requestID(c)
+	log.Printf("internal error [%s] %s %s: %v", id, c.Request.Method, c.Request.URL.Path, err)
+	Err(c, 500, "internal", "internal server error (ref "+id+")")
+}
 
 // BindError writes a 400 with a human-readable message instead of the raw
 // validator/json error text (e.g. "amount is required", not
