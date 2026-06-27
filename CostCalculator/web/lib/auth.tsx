@@ -2,6 +2,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, tokens, storedUser, setOnAuthLost } from "./api";
+import { useToast } from "./toast";
 import type { User } from "./types";
 
 type AuthCtx = {
@@ -20,12 +21,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     setUser(storedUser.get());
     setReady(true);
-    setOnAuthLost(() => { storedUser.set(null); setUser(null); router.replace("/login"); });
-  }, [router]);
+    setOnAuthLost(() => {
+      storedUser.set(null);
+      setUser(null);
+      toast("Your session expired — please sign in again.");
+      router.replace("/login");
+    });
+  }, [router, toast]);
 
   const apply = (r: { user: User; tokens: { accessToken: string; refreshToken: string } }) => {
     tokens.set(r.tokens); storedUser.set(r.user); setUser(r.user);
