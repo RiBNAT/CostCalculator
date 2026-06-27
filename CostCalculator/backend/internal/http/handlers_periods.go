@@ -177,6 +177,18 @@ func (h *periodHandlers) reopen(c *gin.Context) {
 	}
 }
 
+func (h *periodHandlers) repair(c *gin.Context) {
+	err := h.periods.Repair(c, userID(c), c.Param("id"))
+	switch err {
+	case nil:
+		c.Status(204)
+	case service.ErrPeriodNotFound:
+		NotFound(c)
+	default:
+		Internal(c, err)
+	}
+}
+
 func (h *periodHandlers) status(c *gin.Context) {
 	period, err := repo.ByID[domain.Period](c, h.db.Periods, userID(c), c.Param("id"))
 	if err != nil {

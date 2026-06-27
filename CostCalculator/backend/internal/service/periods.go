@@ -158,6 +158,20 @@ func (p *Periods) Reopen(ctx context.Context, userID, periodID string) error {
 	return nil
 }
 
+// Repair re-derives the opening balances of every period downstream of the
+// given period from its (recomputed) closing balances. It is idempotent and
+// heals chains left inconsistent by a partial close or a back-dated edit.
+func (p *Periods) Repair(ctx context.Context, userID, periodID string) error {
+	period, err := repo.ByID[domain.Period](ctx, p.DB.Periods, userID, periodID)
+	if err != nil {
+		return err
+	}
+	if period == nil {
+		return ErrPeriodNotFound
+	}
+	return p.recomputeDownstream(ctx, period)
+}
+
 // RequireOpen loads a period and fails when it is closed.
 func (p *Periods) RequireOpen(ctx context.Context, userID, periodID string) (*domain.Period, error) {
 	period, err := repo.ByID[domain.Period](ctx, p.DB.Periods, userID, periodID)

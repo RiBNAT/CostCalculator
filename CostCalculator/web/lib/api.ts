@@ -107,6 +107,7 @@ export const api = {
   updatePeriod: (id: string, b: Partial<Period>) => request<void>("PUT", `/periods/${id}`, b),
   closePeriod: (id: string) => request<void>("POST", `/periods/${id}/close`),
   reopenPeriod: (id: string) => request<void>("POST", `/periods/${id}/reopen`),
+  repairPeriod: (id: string) => request<void>("POST", `/periods/${id}/repair`),
   periodSummary: (id: string) => request<PeriodSummary>("GET", `/periods/${id}/summary`),
   periodTrends: (id: string) => request<PeriodTrends>("GET", `/periods/${id}/trends`),
   savingsHistory: () => request<SavingsHistoryPoint[]>("GET", "/savings/history"),
