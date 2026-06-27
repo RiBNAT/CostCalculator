@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -32,8 +34,16 @@ func Load() (Config, error) {
 		CORSOrigin:     getenv("CORS_ORIGIN", "http://localhost:4200"),
 		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"),
 	}
-	if os.Getenv("GIN_MODE") == "release" && insecureSecrets[cfg.JWTSecret] {
-		return cfg, fmt.Errorf("JWT_SECRET must be set to a strong value when GIN_MODE=release")
+	if os.Getenv("GIN_MODE") == "release" {
+		if insecureSecrets[cfg.JWTSecret] {
+			return cfg, fmt.Errorf("JWT_SECRET must be set to a strong value when GIN_MODE=release")
+		}
+		if cfg.CORSOrigin == "" || strings.Contains(cfg.CORSOrigin, "localhost") {
+			log.Printf("warning: CORS_ORIGIN is %q in release mode; set it to your real frontend origin", cfg.CORSOrigin)
+		}
+		if !strings.HasPrefix(cfg.MongoURI, "mongodb+srv://") && !strings.Contains(cfg.MongoURI, "tls=true") {
+			log.Printf("warning: MONGO_URI is not using TLS in release mode; prefer mongodb+srv:// or tls=true unless Mongo is on a private network")
+		}
 	}
 	return cfg, nil
 }
