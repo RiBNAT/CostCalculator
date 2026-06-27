@@ -1,19 +1,15 @@
 // Fetch client for the Go backend. Same-origin /api/v1 (Next rewrites proxy to :8080 in dev).
 import type {
-  AuthResult, TokenPair, User, Category, Account, Period, PeriodSummary, PeriodTrends,
+  AuthResult, User, Category, Account, Period, PeriodSummary, PeriodTrends,
   Expense, Transfer, Budget, BudgetItem, Lend, PaymentWindowWithStatus, PaymentWindow,
   Reminder, RecurringExpense, SavingsHistoryPoint, ImportReport,
 } from "./types";
 
 const BASE = "/api/v1";
-const K_ACCESS = "ribnat.access", K_REFRESH = "ribnat.refresh", K_USER = "ribnat.user";
+const K_USER = "ribnat.user";
 
-export const tokens = {
-  get access() { return typeof localStorage !== "undefined" ? localStorage.getItem(K_ACCESS) : null; },
-  get refresh() { return typeof localStorage !== "undefined" ? localStorage.getItem(K_REFRESH) : null; },
-  set(pair: TokenPair) { localStorage.setItem(K_ACCESS, pair.accessToken); localStorage.setItem(K_REFRESH, pair.refreshToken); },
-  clear() { localStorage.removeItem(K_ACCESS); localStorage.removeItem(K_REFRESH); localStorage.removeItem(K_USER); },
-};
+// Tokens now live in HttpOnly cookies set by the backend; the SPA never holds
+// them. Only the non-secret user profile is cached for instant reload.
 export const storedUser = {
   get(): User | null { try { const v = localStorage.getItem(K_USER); return v ? JSON.parse(v) : null; } catch { return null; } },
   set(u: User | null) { if (u) localStorage.setItem(K_USER, JSON.stringify(u)); else localStorage.removeItem(K_USER); },
@@ -25,17 +21,14 @@ export class ApiError extends Error {
 
 let refreshing: Promise<boolean> | null = null;
 async function doRefresh(): Promise<boolean> {
-  if (!tokens.refresh) return false;
   if (!refreshing) {
     refreshing = fetch(`${BASE}/auth/refresh`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken: tokens.refresh }),
-    }).then(async (r) => {
-      if (!r.ok) return false;
-      const pair = (await r.json()) as TokenPair;
-      tokens.set(pair);
-      return true;
-    }).catch(() => false).finally(() => { setTimeout(() => (refreshing = null), 0); });
+      method: "POST",
+      credentials: "same-origin",
+    })
+      .then((r) => r.ok)
+      .catch(() => false)
+      .finally(() => { setTimeout(() => (refreshing = null), 0); });
   }
   return refreshing;
 }
@@ -49,14 +42,13 @@ async function request<T>(method: string, path: string, body?: unknown, retry = 
   let payload: BodyInit | undefined;
   if (body instanceof FormData) { payload = body; }
   else if (body !== undefined) { headers["Content-Type"] = "application/json"; payload = JSON.stringify(body); }
-  if (!isAuthPath && tokens.access) headers["Authorization"] = `Bearer ${tokens.access}`;
 
-  const res = await fetch(`${BASE}${path}`, { method, headers, body: payload });
+  const res = await fetch(`${BASE}${path}`, { method, headers, body: payload, credentials: "same-origin" });
 
   if (res.status === 401 && !isAuthPath && retry) {
     const ok = await doRefresh();
     if (ok) return request<T>(method, path, body, false);
-    tokens.clear(); onAuthLost?.();
+    storedUser.set(null); onAuthLost?.();
     throw new ApiError(401, "Session expired");
   }
   if (!res.ok) {
@@ -84,6 +76,7 @@ export const api = {
   register: (b: { name: string; email: string; password: string }) => request<AuthResult>("POST", "/auth/register", b),
   login: (b: { email: string; password: string }) => request<AuthResult>("POST", "/auth/login", b),
   google: (idToken: string) => request<AuthResult>("POST", "/auth/google", { idToken }),
+  logout: () => request<void>("POST", "/auth/logout"),
 
   // profile
   me: () => request<User>("GET", "/me"),
