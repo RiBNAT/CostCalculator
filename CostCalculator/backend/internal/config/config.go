@@ -14,6 +14,7 @@ type Config struct {
 	JWTSecret      string
 	CORSOrigin     string
 	GoogleClientID string
+	CookieSecure   bool
 }
 
 // insecureSecrets are placeholder values that must never reach production.
@@ -34,6 +35,7 @@ func Load() (Config, error) {
 		CORSOrigin:     getenv("CORS_ORIGIN", "http://localhost:4200"),
 		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"),
 	}
+	cfg.CookieSecure = os.Getenv("GIN_MODE") == "release"
 	if os.Getenv("GIN_MODE") == "release" {
 		if insecureSecrets[cfg.JWTSecret] {
 			return cfg, fmt.Errorf("JWT_SECRET must be set to a strong value when GIN_MODE=release")
