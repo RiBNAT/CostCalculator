@@ -10,6 +10,12 @@ import (
 // SeedDefaults creates the default categories and accounts extracted from the
 // CostSheet workbook's data sheet for a newly registered user.
 func SeedDefaults(ctx context.Context, db *repo.DB, userID string) error {
+	return db.WithTransaction(ctx, func(txCtx context.Context) error {
+		return seedDefaults(txCtx, db, userID)
+	})
+}
+
+func seedDefaults(ctx context.Context, db *repo.DB, userID string) error {
 	subs := func(names ...string) []domain.Subcategory {
 		out := make([]domain.Subcategory, len(names))
 		for i, n := range names {
