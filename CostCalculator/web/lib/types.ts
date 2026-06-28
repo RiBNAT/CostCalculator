@@ -44,3 +44,16 @@ export interface SavingsHistoryPoint { periodId: string; periodName: string; sta
 // Import report (internal/importer).
 export interface ImportSheetReport { sheet: string; skipped: boolean; expenses: number; transfers: number; budgetItems: number; lends: number; warnings?: string[]; }
 export interface ImportReport { sheets: ImportSheetReport[]; }
+
+// Statement / year-in-review report (Go: service.StatementReport).
+export interface StatementKPIs { totalIncome: number; totalSpent: number; netSaved: number; savingsRatePct: number; }
+export interface StatementCategory { categoryId: string; name: string; total: number; }
+export interface StatementSub { categoryId: string; name: string; subcategory: string; total: number; }
+export interface StatementSaving { accountId: string; name: string; deposited: number; }
+export interface StatementLends { givenOutstanding: number; takenOutstanding: number; settledInRange: number; }
+export interface StatementPeriod { periodId: string; name: string; start: string; end: string; income: number; spent: number; saved: number; }
+export interface StatementReport {
+  from: string; to: string; kpis: StatementKPIs;
+  categories: StatementCategory[]; topSubcategories: StatementSub[];
+  savings: StatementSaving[]; lends: StatementLends; periods: StatementPeriod[];
+}

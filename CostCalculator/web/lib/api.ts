@@ -2,7 +2,7 @@
 import type {
   AuthResult, User, Category, Account, Period, PeriodSummary, PeriodTrends,
   Expense, Transfer, Budget, BudgetItem, Lend, PaymentWindowWithStatus, PaymentWindow,
-  Reminder, RecurringExpense, SavingsHistoryPoint, ImportReport,
+  Reminder, RecurringExpense, SavingsHistoryPoint, ImportReport, StatementReport,
 } from "./types";
 
 const BASE = "/api/v1";
@@ -104,6 +104,7 @@ export const api = {
   periodSummary: (id: string) => request<PeriodSummary>("GET", `/periods/${id}/summary`),
   periodTrends: (id: string) => request<PeriodTrends>("GET", `/periods/${id}/trends`),
   savingsHistory: () => request<SavingsHistoryPoint[]>("GET", "/savings/history"),
+  statement: (from: string, to: string) => request<StatementReport>("GET", `/statement?from=${from}&to=${to}`),
   exportCsv: (id: string) => request<Blob>("GET", `/periods/${id}/export?format=csv`),
   downloadTemplate: () => request<Blob>("GET", "/template/excel"),
 
