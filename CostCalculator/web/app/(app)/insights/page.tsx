@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { usePeriods } from "@/lib/period";
@@ -7,12 +7,14 @@ import { taka } from "@/lib/money";
 import { colorFor } from "@/lib/format";
 import type { Account } from "@/lib/types";
 import { Icon, Spinner, EmptyState } from "@/components/ui";
+import { ReportDialog } from "@/components/ReportDialog";
 
 const isExternal = (a?: Account) => a?.kind === "virtual" && a?.virtualRole === "external";
 
 export default function InsightsPage() {
   const { selected } = usePeriods();
   const pid = selected?.id;
+  const [showReport, setShowReport] = useState(false);
   const { data: summary, isLoading } = useQuery({ queryKey: ["summary", pid], queryFn: () => api.periodSummary(pid!), enabled: !!pid });
   const { data: trends } = useQuery({ queryKey: ["trends", pid], queryFn: () => api.periodTrends(pid!), enabled: !!pid });
   const { data: accounts = [] } = useQuery({ queryKey: ["accounts"], queryFn: api.listAccounts });
@@ -32,7 +34,10 @@ export default function InsightsPage() {
   const header = (
     <div className="breadcrumb-bar">
       <nav className="breadcrumb"><Icon name="folder" solid={false} /><span className="crumb-link">Dashboard</span><Icon name="chevron-right" /><span className="crumb-cur">Insights</span></nav>
-      <div className="bc-actions"><button className="ob-btn ob-btn--secondary" onClick={exportCsv}><Icon name="arrow-up-from-bracket" /> Export CSV</button></div>
+      <div className="bc-actions">
+        <button className="ob-btn ob-btn--secondary" onClick={exportCsv}><Icon name="arrow-up-from-bracket" /> Export CSV</button>
+        <button className="ob-btn ob-btn--primary" onClick={() => setShowReport(true)}><Icon name="file-arrow-down" /> Download report</button>
+      </div>
     </div>
   );
 
@@ -106,6 +111,7 @@ export default function InsightsPage() {
           </div>
         </div>
       </div>
+      {showReport && <ReportDialog onClose={() => setShowReport(false)} />}
     </>
   );
 }
