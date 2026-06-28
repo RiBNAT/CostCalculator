@@ -93,6 +93,69 @@ func (p *Periods) ClosingBalances(ctx context.Context, period *domain.Period) (m
 	return balances, savings, nil
 }
 
+// periodData holds a user's movement documents grouped by period for batch
+// computation, plus the account list (fetched once).
+type periodData struct {
+	accounts        []domain.Account
+	savingsAccounts []domain.Account
+	expensesByPid   map[string][]domain.Expense
+	transfersByPid  map[string][]domain.Transfer
+}
+
+// LoadPeriodData fetches all of a user's expenses, transfers, and accounts in
+// three queries and groups the movements by period id.
+func (p *Periods) LoadPeriodData(ctx context.Context, userID string) (*periodData, error) {
+	expenses, err := repo.FindAll[domain.Expense](ctx, p.DB.Expenses, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+	transfers, err := repo.FindAll[domain.Transfer](ctx, p.DB.Transfers, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+	accounts, err := repo.FindAll[domain.Account](ctx, p.DB.Accounts, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+	pd := &periodData{
+		accounts:       accounts,
+		expensesByPid:  map[string][]domain.Expense{},
+		transfersByPid: map[string][]domain.Transfer{},
+	}
+	for _, e := range expenses {
+		pd.expensesByPid[e.PeriodID] = append(pd.expensesByPid[e.PeriodID], e)
+	}
+	for _, t := range transfers {
+		pd.transfersByPid[t.PeriodID] = append(pd.transfersByPid[t.PeriodID], t)
+	}
+	for _, a := range accounts {
+		if a.Kind == domain.AccountSavings {
+			pd.savingsAccounts = append(pd.savingsAccounts, a)
+		}
+	}
+	return pd, nil
+}
+
+// ClosingBalancesFrom computes a period's (accountBalances, savingsBalances)
+// from prefetched data — no DB access. Mirrors ClosingBalances exactly.
+func (pd *periodData) ClosingBalancesFrom(period *domain.Period) (map[string]int64, map[string]int64) {
+	expenses := pd.expensesByPid[period.ID]
+	transfers := pd.transfersByPid[period.ID]
+
+	opening := map[string]int64{}
+	for _, ob := range period.OpeningBalances {
+		opening[ob.AccountID] = ob.Amount
+	}
+	balances := domain.ComputeBalances(opening, transfers, expenses)
+
+	openingSav := map[string]int64{}
+	for _, os := range period.OpeningSavings {
+		openingSav[os.AccountID] = os.Amount
+	}
+	savings := domain.SavingsBalances(openingSav, pd.savingsAccounts, expenses)
+	return balances, savings
+}
+
 // Close marks a period closed and pushes its closing balances into the
 // opening balances of every downstream period (chain recompute).
 func (p *Periods) Close(ctx context.Context, userID, periodID string) error {
