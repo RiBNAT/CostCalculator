@@ -304,6 +304,46 @@
   .ob-toast.show{opacity:1;transform:translate(-50%,0);}
   .ob-toast__action{background:none;border:none;color:var(--marketing-yellow);font-family:var(--font-family-ui);font-weight:600;font-size:14px;cursor:pointer;}
 
+  /* ===== report wizard + statement (year-in-review) ===== */
+  .wiz-tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .wiz-tab{flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--standard-1000);font-family:var(--font-family-brand);font-weight:500;font-size:13px;color:var(--standard-600);background:var(--standard-1400);cursor:pointer;}
+  .wiz-tab.active{border-color:var(--blue-0);color:var(--standard-0);background:var(--standard-1300);}
+  .wiz-no{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;background:var(--standard-1100);color:var(--standard-600);}
+  .wiz-tab.active .wiz-no{background:var(--blue-0);color:#fff;}
+  .wiz-step[hidden]{display:none;}
+  .ob-btn[hidden]{display:none;}
+  .seg{display:flex;gap:4px;padding:4px;background:var(--standard-1300);border-radius:var(--radius-pill);margin-bottom:18px;}
+  .seg-btn{flex:1;height:34px;border:none;background:none;border-radius:var(--radius-pill);font-family:var(--font-family-ui);font-weight:600;font-size:13px;color:var(--standard-600);cursor:pointer;}
+  .seg-btn.active{background:var(--standard-1400);color:var(--standard-0);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+  .rng-panel[hidden]{display:none;}
+  .rng-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .rep-hint{color:var(--standard-600);font-size:13px;margin:0 0 14px;}
+  .rep-opt{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--standard-1000);border-radius:10px;margin-bottom:8px;cursor:pointer;}
+  .rep-opt:hover{border-color:var(--standard-700);}
+  .rep-opt input{width:18px;height:18px;margin-top:1px;accent-color:var(--blue-0);flex:0 0 auto;}
+  .rep-opt .rt{font-weight:500;}
+  .rep-opt small{color:var(--standard-600);display:block;margin-top:2px;}
+  .stmt{font-family:var(--font-family-ui);color:var(--standard-0);}
+  .stmt-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--standard-0);padding-bottom:14px;margin-bottom:20px;}
+  .stmt-title{font-family:var(--font-family-brand);font-weight:600;font-size:22px;}
+  .stmt-sub{color:var(--standard-600);font-size:13px;margin-top:4px;}
+  .stmt-brand{font-family:var(--font-family-brand);font-weight:600;font-size:16px;color:var(--blue-0);}
+  .stmt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .stmt-k{border:1px solid var(--standard-1000);border-radius:10px;padding:12px;}
+  .stmt-k .l{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--standard-600);font-weight:600;}
+  .stmt-k .v{font-family:var(--font-family-brand);font-weight:500;font-size:20px;margin-top:6px;}
+  .stmt-sec{margin-bottom:24px;}
+  .stmt-sec-h{font-family:var(--font-family-brand);font-weight:500;font-size:15px;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--standard-1000);}
+  .stmt-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;}
+  .stmt-bar .nm{width:150px;flex:0 0 auto;}
+  .stmt-bar .track{flex:1;height:8px;border-radius:99px;background:var(--standard-1100);overflow:hidden;}
+  .stmt-bar .fill{height:100%;border-radius:99px;}
+  .stmt-bar .vl{width:95px;text-align:right;font-variant-numeric:tabular-nums;}
+  .stmt-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .stmt-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--standard-1000);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--standard-600);}
+  .stmt-table td{padding:8px 10px;border-bottom:1px solid var(--standard-1100);}
+  .stmt-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+
   .mock-fab{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;gap:10px;}
   .mock-fab button{height:40px;padding:0 16px;border-radius:var(--radius-pill);border:1px solid var(--standard-1000);background:var(--standard-1400);color:var(--standard-0);font-family:var(--font-family-ui);font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(16,18,20,.14);}
 
@@ -342,6 +382,43 @@
   .ob-toggle.on{background:var(--blue-0);}
   .ob-toggle.on::after{transform:translateX(18px);}
 
+  /* ===== auth (login / register / forgot / 2fa) ===== */
+  .auth{position:fixed;inset:0;z-index:500;display:flex;background:var(--standard-1300);}
+  .auth[hidden]{display:none;}
+  .auth__brand{flex:1;background:var(--blue-0);color:#fff;padding:64px 56px;display:flex;flex-direction:column;justify-content:center;gap:16px;}
+  .auth__brand .b-logo{display:flex;align-items:center;gap:10px;font-family:var(--font-family-brand);font-size:22px;font-weight:600;}
+  .auth__brand .b-logo .m{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:grid;place-items:center;}
+  .auth__brand h2{font-family:var(--font-family-brand);font-weight:500;font-size:30px;line-height:1.25;margin:18px 0 4px;max-width:440px;}
+  .auth__brand ul{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:14px;max-width:440px;}
+  .auth__brand li{display:flex;align-items:center;gap:12px;font-family:var(--font-family-ui);font-size:15px;opacity:.96;}
+  .auth__brand li i{width:22px;text-align:center;}
+  .auth__brand .trust{margin-top:22px;font-size:13px;opacity:.85;display:flex;align-items:center;gap:8px;}
+  .auth__main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto;}
+  .auth-card{width:100%;max-width:380px;}
+  .auth-card[hidden]{display:none;}
+  .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+  .auth-mark{width:30px;height:30px;border-radius:8px;background:var(--blue-0);color:#fff;display:grid;place-items:center;font-family:var(--font-family-brand);font-weight:600;font-size:18px;}
+  .auth-name{font-family:var(--font-family-brand);font-size:18px;}
+  .auth-name b{font-weight:600;}
+  .auth-name span{color:var(--blue-0);font-weight:500;}
+  .auth-title{font-family:var(--font-family-brand);font-weight:500;font-size:26px;margin:0 0 4px;}
+  .auth-sub{color:var(--standard-600);font-size:14px;margin:0 0 24px;}
+  .auth-card .ff{margin-bottom:16px;}
+  .auth-full{width:100%;justify-content:center;}
+  .auth-row{display:flex;align-items:center;justify-content:space-between;margin:-2px 0 18px;font-size:13px;}
+  .auth-check{display:flex;align-items:center;gap:8px;color:var(--standard-600);cursor:pointer;}
+  .auth-check input{width:16px;height:16px;accent-color:var(--blue-0);}
+  .auth-link{color:var(--blue-0);cursor:pointer;font-weight:500;}
+  .auth-or{display:flex;align-items:center;gap:12px;color:var(--standard-600);font-size:12px;margin:18px 0;}
+  .auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--standard-1000);}
+  .auth-foot{margin-top:24px;font-size:14px;color:var(--standard-600);text-align:center;}
+  .auth-codes{display:flex;gap:10px;margin-bottom:18px;}
+  .auth-codes input{width:100%;height:54px;text-align:center;font-size:20px;font-variant-numeric:tabular-nums;border:1px solid var(--standard-1000);border-radius:8px;background:var(--standard-1300);color:var(--standard-0);outline:none;font-family:var(--font-family-ui);}
+  .auth-codes input:focus{border:2px solid var(--blue-0);}
+  .auth-note{font-size:13px;color:var(--standard-600);margin:0 0 20px;}
+  .auth-success{text-align:center;padding:6px 0;}
+  .auth-success .ico{width:60px;height:60px;border-radius:var(--radius-circle);background:var(--green-bg);color:var(--green-text);display:grid;place-items:center;font-size:24px;margin:0 auto 16px;}
+
   /* ===================== RESPONSIVE =====================
      The base Orbitax/ITP shell is desktop-only; Ribnat is a phone-first
      consumer app, so this mockup adds responsive behaviour on top. */
@@ -362,6 +439,7 @@
   @media (max-width:860px){
     .itp-shell{height:100dvh;}
     .itp-header__nav{display:none;}
+    .auth__brand{display:none;}
     .itp-header{padding:0 12px;}
     .wordmark{display:none;}
     #btnActivity{display:none;}
@@ -406,6 +484,84 @@
   </style>
 </head>
 <body>
+  <!-- ===================== AUTH (pre-app) ===================== -->
+  <div class="auth" id="auth" hidden>
+    <div class="auth__brand">
+      <div class="b-logo"><span class="m">৳</span> Ribnat Cost</div>
+      <h2>Your salary-cycle money, finally clear.</h2>
+      <ul>
+        <li><i class="fa-solid fa-calendar-check"></i> Budget by pay cycle, not the calendar month</li>
+        <li><i class="fa-solid fa-wallet"></i> Cash, bKash, Nagad & bank in one place</li>
+        <li><i class="fa-solid fa-gauge-high"></i> Know what's safe to spend, every day</li>
+      </ul>
+      <div class="trust"><i class="fa-solid fa-lock"></i> Bank-level encryption · optional 2-factor sign-in</div>
+    </div>
+
+    <div class="auth__main">
+      <!-- LOGIN -->
+      <div class="auth-card" data-auth="login">
+        <div class="auth-logo"><span class="auth-mark">৳</span><span class="auth-name"><b>Ribnat</b> <span>Cost</span></span></div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">Sign in to your dashboard.</p>
+        <div class="ff"><label>Email</label><input class="ob-input" type="email" value="tanbir.cse6.bu@gmail.com"></div>
+        <div class="ff"><label>Password</label><input class="ob-input" type="password" value="demo1234"></div>
+        <div class="auth-row"><label class="auth-check"><input type="checkbox" checked> Remember me</label><span class="auth-link" data-auth-go="forgot">Forgot password?</span></div>
+        <button class="ob-btn ob-btn--primary auth-full" data-auth-do="signin">Sign in</button>
+        <div class="auth-or"><span>or</span></div>
+        <button class="ob-btn ob-btn--secondary auth-full" data-auth-do="google"><i class="fa-brands fa-google"></i> Continue with Google</button>
+        <p class="auth-foot">New to Ribnat? <span class="auth-link" data-auth-go="register">Create an account</span></p>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-card" data-auth="register" hidden>
+        <div class="auth-logo"><span class="auth-mark">৳</span><span class="auth-name"><b>Ribnat</b> <span>Cost</span></span></div>
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-sub">Start tracking in minutes — free.</p>
+        <div class="ff"><label>Full name</label><input class="ob-input" type="text" placeholder="e.g. Tanbir Rahman"></div>
+        <div class="ff"><label>Email</label><input class="ob-input" type="email" placeholder="you@example.com"></div>
+        <div class="ff"><label>Password</label><input class="ob-input" type="password" placeholder="At least 8 characters"></div>
+        <button class="ob-btn ob-btn--primary auth-full" data-auth-do="create">Create account</button>
+        <div class="auth-or"><span>or</span></div>
+        <button class="ob-btn ob-btn--secondary auth-full" data-auth-do="google"><i class="fa-brands fa-google"></i> Sign up with Google</button>
+        <p class="auth-foot">By continuing you agree to the Terms &amp; Privacy Policy.</p>
+        <p class="auth-foot" style="margin-top:8px">Already have an account? <span class="auth-link" data-auth-go="login">Sign in</span></p>
+      </div>
+
+      <!-- FORGOT PASSWORD -->
+      <div class="auth-card" data-auth="forgot" hidden>
+        <div class="auth-logo"><span class="auth-mark">৳</span><span class="auth-name"><b>Ribnat</b> <span>Cost</span></span></div>
+        <h1 class="auth-title">Reset password</h1>
+        <p class="auth-sub">We'll email you a secure reset link.</p>
+        <div class="ff"><label>Email</label><input class="ob-input" type="email" placeholder="you@example.com"></div>
+        <button class="ob-btn ob-btn--primary auth-full" data-auth-do="reset">Send reset link</button>
+        <p class="auth-foot"><span class="auth-link" data-auth-go="login"><i class="fa-solid fa-arrow-left" style="font-size:11px"></i> Back to sign in</span></p>
+      </div>
+
+      <!-- FORGOT: SUCCESS -->
+      <div class="auth-card" data-auth="sent" hidden>
+        <div class="auth-success">
+          <div class="ico"><i class="fa-solid fa-envelope-circle-check"></i></div>
+          <h1 class="auth-title">Check your email</h1>
+          <p class="auth-sub">We've sent a reset link to your inbox. It expires in 30 minutes.</p>
+        </div>
+        <button class="ob-btn ob-btn--secondary auth-full" data-auth-go="login">Back to sign in</button>
+      </div>
+
+      <!-- 2FA -->
+      <div class="auth-card" data-auth="twofa" hidden>
+        <div class="auth-logo"><span class="auth-mark">৳</span><span class="auth-name"><b>Ribnat</b> <span>Cost</span></span></div>
+        <h1 class="auth-title">Verify it's you</h1>
+        <p class="auth-note">Enter the 6-digit code sent to your phone ending •••• 88.</p>
+        <div class="auth-codes">
+          <input maxlength="1" inputmode="numeric" value="4"><input maxlength="1" inputmode="numeric" value="2">
+          <input maxlength="1" inputmode="numeric" value="8"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+        </div>
+        <button class="ob-btn ob-btn--primary auth-full" data-auth-do="verify">Verify &amp; continue</button>
+        <p class="auth-foot">Didn't get it? <span class="auth-link" data-auth-do="resend">Resend code</span> · <span class="auth-link" data-auth-go="login">Back</span></p>
+      </div>
+    </div>
+  </div>
+
   <div class="itp-shell">
     <header class="itp-header">
       <div class="itp-header__left">
@@ -622,6 +778,7 @@
             <nav class="breadcrumb"><i class="fa-solid fa-folder"></i><a class="crumb-link" data-screen="dashboard">Dashboard</a><i class="fa-solid fa-chevron-right"></i><span class="crumb-cur">Insights</span></nav>
             <div class="bc-actions">
               <button class="ob-btn ob-btn--secondary" data-act="export"><i class="fa-solid fa-arrow-up-from-bracket"></i> Export</button>
+              <button class="ob-btn ob-btn--primary" data-act="report"><i class="fa-solid fa-file-arrow-down"></i> Download report</button>
             </div>
           </div>
           <div class="page" id="insightsPage"></div>
@@ -1055,6 +1212,100 @@
     $$('.bnav-link').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));
     $('.itp-content').scrollTop=0;}
 
+  /* ===================== AUTH ===================== */
+  let authed=false;
+  function showAuthCard(name){$$('#auth .auth-card').forEach(c=>{c.hidden=c.dataset.auth!==name;});const f=document.querySelector('#auth .auth-card:not([hidden]) input');if(f)setTimeout(()=>f.focus(),30);}
+  function showAuth(card){authed=false;closePop();closeModal();const sh=document.querySelector('.itp-shell');if(sh)sh.style.display='none';document.getElementById('auth').hidden=false;showAuthCard(card||'login');}
+  function enterApp(){authed=true;document.getElementById('auth').hidden=true;const sh=document.querySelector('.itp-shell');if(sh)sh.style.display='flex';renderAll();setScreen('dashboard');toast('Signed in');}
+
+  /* ===================== REPORT (year-in-review / statement) ===================== */
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function openReportModal(){
+    const monthOpts=MONTHS.map((m,i)=>'<option value="'+i+'"'+(i===5?' selected':'')+'>'+m+'</option>').join('');
+    const yearOpts=[2024,2025,2026].map(y=>'<option value="'+y+'"'+(y===2026?' selected':'')+'>'+y+'</option>').join('');
+    const opt=(sec,title,desc,on)=>'<label class="rep-opt"><input type="checkbox" data-sec="'+sec+'"'+(on?' checked':'')+'><div><span class="rt">'+title+'</span><small>'+desc+'</small></div></label>';
+    const body=
+      '<div class="wiz-tabs">'+
+        '<div class="wiz-tab active" data-step="1"><span class="wiz-no">1</span> Time range</div>'+
+        '<div class="wiz-tab" data-step="2"><span class="wiz-no">2</span> Sections</div>'+
+      '</div>'+
+      '<div class="wiz-step" data-step="1">'+
+        '<div class="seg">'+
+          '<button type="button" class="seg-btn active" data-range="month">Month</button>'+
+          '<button type="button" class="seg-btn" data-range="year">Year</button>'+
+          '<button type="button" class="seg-btn" data-range="custom">Date range</button>'+
+        '</div>'+
+        '<div class="rng-panel" data-range="month"><div class="rng-grid">'+
+          '<div class="ff"><label>Month</label><select class="ob-input" id="rngMonth">'+monthOpts+'</select></div>'+
+          '<div class="ff"><label>Year</label><select class="ob-input" id="rngMonthYear">'+yearOpts+'</select></div></div></div>'+
+        '<div class="rng-panel" data-range="year" hidden><div class="ff"><label>Year</label><select class="ob-input" id="rngYear">'+yearOpts+'</select></div></div>'+
+        '<div class="rng-panel" data-range="custom" hidden><div class="rng-grid">'+
+          '<div class="ff"><label>From</label><input type="date" class="ob-input" id="rngFrom" value="2026-01-01"></div>'+
+          '<div class="ff"><label>To</label><input type="date" class="ob-input" id="rngTo" value="2026-06-30"></div></div></div>'+
+      '</div>'+
+      '<div class="wiz-step" data-step="2" hidden>'+
+        '<p class="rep-hint">Choose what to include in the PDF.</p>'+
+        opt('kpis','Summary KPIs','Income, spent, net saved, savings rate',true)+
+        opt('income','Income &amp; spending','Totals and cash-flow overview',true)+
+        opt('categories','Category breakdown','Spending by category with chart',true)+
+        opt('savings','Savings','Deposits per savings account',true)+
+        opt('period','Period breakdown','Income, spent &amp; saved per cycle',true)+
+        opt('lends','Lends','Given, taken &amp; settled',false)+
+      '</div>';
+    const footer='<button class="ob-btn ob-btn--secondary" data-wiz="back" hidden><i class="fa-solid fa-arrow-left"></i> Back</button>'+
+      '<button class="ob-btn ob-btn--ghost" data-wiz="cancel">Cancel</button>'+
+      '<button class="ob-btn ob-btn--primary" data-wiz="next">Next <i class="fa-solid fa-arrow-right"></i></button>';
+    const ov=openModal({title:'Download report',body,footer,width:560});
+    const qa=s=>ov.querySelectorAll(s),q=s=>ov.querySelector(s);
+    qa('.seg-btn').forEach(b=>b.addEventListener('click',()=>{qa('.seg-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');qa('.rng-panel').forEach(p=>p.hidden=p.dataset.range!==b.dataset.range);}));
+    let step=1;const back=q('[data-wiz="back"]'),next=q('[data-wiz="next"]');
+    function setStep(n){step=n;qa('.wiz-step').forEach(s=>s.hidden=(+s.dataset.step!==n));qa('.wiz-tab').forEach(t=>t.classList.toggle('active',+t.dataset.step<=n));back.hidden=(n===1);next.innerHTML=(n===2?'<i class="fa-solid fa-download"></i> Download':'Next <i class="fa-solid fa-arrow-right"></i>');}
+    qa('.wiz-tab').forEach(t=>t.addEventListener('click',()=>setStep(+t.dataset.step)));
+    back.addEventListener('click',()=>setStep(1));
+    q('[data-wiz="cancel"]').addEventListener('click',closeModal);
+    next.addEventListener('click',()=>{
+      if(step===1){setStep(2);return;}
+      const secs=[...qa('[data-sec]')].filter(c=>c.checked).map(c=>c.dataset.sec);
+      const range=q('.seg-btn.active').dataset.range;
+      let label;
+      if(range==='month')label=MONTHS[+q('#rngMonth').value]+' '+q('#rngMonthYear').value;
+      else if(range==='year')label='Year '+q('#rngYear').value;
+      else label=fmtDay(q('#rngFrom').value)+' – '+fmtDay(q('#rngTo').value);
+      closeModal();openStatementPreview(label,secs);
+    });
+  }
+  function fmtDay(iso){if(!iso)return '';const d=new Date(iso);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+  function samplePeriods(inc,sp){return [{name:'Apr 2026',inc:Math.round(inc*0.95),sp:Math.round(sp*1.12)},{name:'May 2026',inc:Math.round(inc*0.98),sp:Math.round(sp*0.9)},{name:'Jun 2026',inc:inc,sp:sp}];}
+  function openStatementPreview(label,secs){
+    const has=s=>secs.includes(s);
+    const income=periodIncome(),spent=totalSpent(),saved=income-spent,rate=income?Math.round(saved/income*100):0;
+    const cats=DB.categories.map(c=>({c,amt:catSpent(c.id)})).filter(x=>x.amt>0).sort((a,b)=>b.amt-a.amt);
+    const mx=cats.length?cats[0].amt:1;
+    const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const kpi=(l,v)=>'<div class="stmt-k"><div class="l">'+l+'</div><div class="v num">'+v+'</div></div>';
+    let h='<div class="stmt">';
+    h+='<div class="stmt-head"><div><div class="stmt-title">Financial statement</div><div class="stmt-sub">'+label+' · generated '+today+'</div></div><div class="stmt-brand">৳ Ribnat</div></div>';
+    if(has('kpis'))h+='<div class="stmt-kpis">'+kpi('Income',taka(income))+kpi('Spent',taka(spent))+kpi('Net saved',taka(saved))+kpi('Savings rate',rate+'%')+'</div>';
+    if(has('income'))h+='<div class="stmt-sec"><h3 class="stmt-sec-h">Income &amp; spending</h3>'+
+      '<div class="stmt-bar"><span class="nm">Income</span><span class="track"><span class="fill" style="width:100%;background:var(--marketing-green)"></span></span><span class="vl">'+taka(income)+'</span></div>'+
+      '<div class="stmt-bar"><span class="nm">Spent</span><span class="track"><span class="fill" style="width:'+(income?Math.round(spent/income*100):0)+'%;background:var(--blue-0)"></span></span><span class="vl">'+taka(spent)+'</span></div>'+
+      '<div class="stmt-bar"><span class="nm">Net saved</span><span class="track"><span class="fill" style="width:'+(income?Math.max(0,Math.round(saved/income*100)):0)+'%;background:var(--marketing-purple)"></span></span><span class="vl">'+taka(saved)+'</span></div></div>';
+    if(has('categories')&&cats.length){h+='<div class="stmt-sec"><h3 class="stmt-sec-h">Spending by category</h3>';
+      cats.forEach(o=>{h+='<div class="stmt-bar"><span class="nm">'+esc(o.c.name)+'</span><span class="track"><span class="fill" style="width:'+Math.round(o.amt/mx*100)+'%;background:'+o.c.color+'"></span></span><span class="vl">'+taka(o.amt)+'</span></div>';});h+='</div>';}
+    if(has('period')){h+='<div class="stmt-sec"><h3 class="stmt-sec-h">Period breakdown</h3><table class="stmt-table"><thead><tr><th>Cycle</th><th class="num">Income</th><th class="num">Spent</th><th class="num">Saved</th></tr></thead><tbody>';
+      samplePeriods(income,spent).forEach(r=>{h+='<tr><td>'+r.name+'</td><td class="num">'+taka(r.inc)+'</td><td class="num">'+taka(r.sp)+'</td><td class="num">'+taka(r.inc-r.sp)+'</td></tr>';});h+='</tbody></table></div>';}
+    if(has('savings')){const sav=DB.accounts.filter(a=>/saving|dps|fdr|_root|bank_/i.test(a.name)).slice(0,4);
+      const rows=(sav.length?sav.map(a=>({n:a.name,v:Math.max(2500,Math.round(Math.abs(a.balance||0)*0.1))})):[{n:'EximBank_2.5',v:12500},{n:'CityBank_10',v:8000}]);
+      h+='<div class="stmt-sec"><h3 class="stmt-sec-h">Savings</h3><table class="stmt-table"><thead><tr><th>Account</th><th class="num">Deposited</th></tr></thead><tbody>'+
+        rows.map(r=>'<tr><td>'+esc(r.n)+'</td><td class="num">'+taka(r.v)+'</td></tr>').join('')+'</tbody></table></div>';}
+    if(has('lends'))h+='<div class="stmt-sec"><h3 class="stmt-sec-h">Lends</h3><table class="stmt-table"><thead><tr><th>Type</th><th class="num">Amount</th></tr></thead><tbody>'+
+      '<tr><td>Given · outstanding</td><td class="num">'+taka(15000)+'</td></tr><tr><td>Taken · outstanding</td><td class="num">'+taka(0)+'</td></tr><tr><td>Settled this range</td><td class="num">'+taka(8000)+'</td></tr></tbody></table></div>';
+    h+='</div>';
+    const ov=openModal({title:'Statement preview',body:h,width:860,footer:'<button class="ob-btn ob-btn--secondary" data-wiz="close">Close</button><button class="ob-btn ob-btn--primary" data-wiz="savepdf"><i class="fa-solid fa-download"></i> Save as PDF</button>'});
+    ov.querySelector('[data-wiz="close"]').addEventListener('click',closeModal);
+    ov.querySelector('[data-wiz="savepdf"]').addEventListener('click',()=>{closeModal();toast('Report downloaded · print dialog → Save as PDF');});
+  }
+
   /* ============================ forms ============================ */
   function addExpenseModal(){
     const body='<div class="ob-form"><div class="grid2">'+
@@ -1222,6 +1473,7 @@
     const act=e.target.closest('[data-act]');if(act){const a=act.dataset.act;
       if(a==='add-expense')addExpenseModal();
       else if(a==='export')exportCSV();
+      else if(a==='report')openReportModal();
       else if(a==='new-lend')newLendModal();
       else if(a==='settle')settleModal();
       else if(a==='new-goal')newGoalModal();
@@ -1286,7 +1538,7 @@
     {icon:'fa-gear',label:'Settings',onClick:()=>setScreen('settings')},
     'divider',
     {icon:'fa-rotate-left',label:'Reset demo data',onClick:()=>{DB=seed();$('#periodName').textContent='Jun 2026';$('#periodStatus').textContent='· Open';renderAll();setScreen('dashboard');toast('Demo data reset');}},
-    {icon:'fa-arrow-right-from-bracket',label:'Sign out',onClick:()=>toast('Signed out — demo')}],{align:'right'});});
+    {icon:'fa-arrow-right-from-bracket',label:'Sign out',onClick:()=>showAuth('login')}],{align:'right'});});
   $('#btnBell').addEventListener('click',()=>{const al=computeAlerts();const html='<div class="ob-pop__head">Alerts</div>'+(al.length?al.map(a=>'<button class="ob-menu__item" type="button" data-go="'+a.screen+'"><i class="fa-solid '+a.icon+'"></i><span>'+a.text+'</span></button>').join(''):'<div class="ob-note">All clear — nothing needs attention.</div>');
     const pop=openPop($('#btnBell'),html,{align:'right',width:320});pop.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>{closePop();setScreen(el.dataset.go);}));});
   $('#btnActivity').addEventListener('click',()=>{const items=DB.activity.slice(0,7);const html='<div class="ob-pop__head">Recent activity</div>'+(items.length?items.map(a=>'<div class="ob-note" style="padding:8px 20px"><i class="fa-solid fa-circle" style="font-size:7px;color:var(--blue-0);vertical-align:middle;margin-right:8px"></i>'+esc(a.text)+' <span style="opacity:.6">· '+a.t+'</span></div>').join(''):'<div class="ob-note">No activity yet — add an expense to get started.</div>');openPop($('#btnActivity'),html,{align:'right',width:320});});
@@ -1318,7 +1570,22 @@
     if(typeof renderSettings==='function')renderSettings();}
   $('#themeToggle').addEventListener('click',toggleTheme);
 
+  // auth wiring
+  document.getElementById('auth').addEventListener('click',function(e){
+    const go=e.target.closest('[data-auth-go]');if(go){showAuthCard(go.dataset.authGo);return;}
+    const act=e.target.closest('[data-auth-do]');if(!act)return;const a=act.dataset.authDo;
+    if(a==='signin'){appSettings.twoFA?showAuthCard('twofa'):enterApp();}
+    else if(a==='create'||a==='google'||a==='verify'){enterApp();}
+    else if(a==='reset'){showAuthCard('sent');}
+    else if(a==='resend'){toast('New code sent (demo)');}
+  });
+  $$('#auth .auth-codes input').forEach(function(inp,idx,list){
+    inp.addEventListener('input',function(){if(inp.value.length>=1&&list[idx+1])list[idx+1].focus();});
+    inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!inp.value&&list[idx-1])list[idx-1].focus();});
+  });
+
   renderAll();
+  showAuth('login');   // start at the login screen; "Sign in" → dashboard
   </script>
 </body>
 </html>
