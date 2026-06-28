@@ -72,12 +72,13 @@ func (s *Summary) SavingsHistory(ctx context.Context, userID string) ([]SavingsH
 		return nil, err
 	}
 	sortPeriodsByStart(periods)
+	pd, err := s.Periods.LoadPeriodData(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]SavingsHistoryPoint, 0, len(periods))
 	for i := range periods {
-		_, savings, err := s.Periods.ClosingBalances(ctx, &periods[i])
-		if err != nil {
-			return nil, err
-		}
+		_, savings := pd.ClosingBalancesFrom(&periods[i])
 		var total int64
 		for _, v := range savings {
 			total += v
@@ -144,21 +145,19 @@ func (s *Summary) Trends(ctx context.Context, userID, periodID string) (*PeriodT
 		start = 0
 	}
 
-	accounts, err := repo.FindAll[domain.Account](ctx, s.DB.Accounts, bson.M{"userId": userID})
+	pd, err := s.Periods.LoadPeriodData(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
+	accounts := pd.accounts
 
 	out := &PeriodTrends{}
 	for i := start; i <= sel; i++ {
-		spend, err := s.periodSpend(ctx, userID, periods[i].ID)
-		if err != nil {
-			return nil, err
+		var spend int64
+		for _, e := range pd.expensesByPid[periods[i].ID] {
+			spend += e.Amount
 		}
-		balances, savings, err := s.Periods.ClosingBalances(ctx, &periods[i])
-		if err != nil {
-			return nil, err
-		}
+		balances, savings := pd.ClosingBalancesFrom(&periods[i])
 		var saved int64
 		for _, v := range savings {
 			saved += v
@@ -170,18 +169,12 @@ func (s *Summary) Trends(ctx context.Context, userID, periodID string) (*PeriodT
 		})
 	}
 
-	// Current vs previous per-category comparison.
-	current, err := s.categorySpend(ctx, userID, periods[sel].ID)
-	if err != nil {
-		return nil, err
-	}
+	// Current vs previous per-category comparison (from prefetched data).
+	current := categoryTotalsFrom(pd.expensesByPid[periods[sel].ID])
 	previous := map[string]int64{}
 	if sel > 0 {
 		out.PreviousPeriodName = periods[sel-1].Name
-		previous, err = s.categorySpend(ctx, userID, periods[sel-1].ID)
-		if err != nil {
-			return nil, err
-		}
+		previous = categoryTotalsFrom(pd.expensesByPid[periods[sel-1].ID])
 	}
 
 	categories, err := repo.FindAll[domain.Category](ctx, s.DB.Categories, bson.M{"userId": userID})
@@ -211,28 +204,12 @@ func (s *Summary) Trends(ctx context.Context, userID, periodID string) (*PeriodT
 	return out, nil
 }
 
-func (s *Summary) periodSpend(ctx context.Context, userID, periodID string) (int64, error) {
-	expenses, err := repo.FindAll[domain.Expense](ctx, s.DB.Expenses, bson.M{"userId": userID, "periodId": periodID})
-	if err != nil {
-		return 0, err
-	}
-	var total int64
-	for _, e := range expenses {
-		total += e.Amount
-	}
-	return total, nil
-}
-
-func (s *Summary) categorySpend(ctx context.Context, userID, periodID string) (map[string]int64, error) {
-	expenses, err := repo.FindAll[domain.Expense](ctx, s.DB.Expenses, bson.M{"userId": userID, "periodId": periodID})
-	if err != nil {
-		return nil, err
-	}
+func categoryTotalsFrom(expenses []domain.Expense) map[string]int64 {
 	totals := map[string]int64{}
 	for _, e := range expenses {
 		totals[e.CategoryID] += e.Amount
 	}
-	return totals, nil
+	return totals
 }
 
 func (s *Summary) Build(ctx context.Context, userID, periodID string, today time.Time) (*PeriodSummary, error) {
