@@ -241,3 +241,22 @@ func (h *periodHandlers) getSummary(c *gin.Context) {
 	}
 	c.JSON(200, sum)
 }
+
+func (h *periodHandlers) statement(c *gin.Context) {
+	from, err1 := time.Parse("2006-01-02", c.Query("from"))
+	to, err2 := time.Parse("2006-01-02", c.Query("to"))
+	if err1 != nil || err2 != nil {
+		BadRequest(c, "from and to must be YYYY-MM-DD dates")
+		return
+	}
+	if to.Before(from) {
+		BadRequest(c, "to must not be before from")
+		return
+	}
+	rep, err := h.summary.Statement(c, userID(c), from, to)
+	if err != nil {
+		Internal(c, err)
+		return
+	}
+	c.JSON(200, rep)
+}

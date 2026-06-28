@@ -85,6 +85,13 @@ func (db *DB) ensureIndexes(ctx context.Context) error {
 			return err
 		}
 	}
+	for _, c := range []*mongo.Collection{db.Expenses, db.Transfers} {
+		if _, err := c.Indexes().CreateOne(ctx, mongo.IndexModel{
+			Keys: bson.D{{Key: "userId", Value: 1}, {Key: "date", Value: 1}},
+		}); err != nil {
+			return err
+		}
+	}
 	for _, c := range []*mongo.Collection{db.Categories, db.Accounts, db.Periods} {
 		if _, err := c.Indexes().CreateOne(ctx, mongo.IndexModel{
 			Keys: bson.D{{Key: "userId", Value: 1}, {Key: "name", Value: 1}}, Options: unique,

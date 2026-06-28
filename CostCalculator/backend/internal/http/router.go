@@ -64,6 +64,7 @@ func NewRouter(cfg config.Config, db *repo.DB) *gin.Engine {
 
 		p.GET("/periods", ph.list)
 		p.GET("/savings/history", ph.savingsHistory)
+		p.GET("/statement", ph.statement)
 		p.POST("/periods", ph.create)
 		p.PUT("/periods/:id", ph.update)
 		p.POST("/periods/:id/close", ph.close)
