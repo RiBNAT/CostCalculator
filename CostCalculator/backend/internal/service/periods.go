@@ -103,11 +103,13 @@ func (p *Periods) Close(ctx context.Context, userID, periodID string) error {
 	if period == nil {
 		return ErrPeriodNotFound
 	}
-	if _, err := repo.UpdateByID(ctx, p.DB.Periods, userID, periodID, bson.M{"status": domain.PeriodClosed}); err != nil {
-		return err
-	}
-	period.Status = domain.PeriodClosed
-	return p.recomputeDownstream(ctx, period)
+	return p.DB.WithTransaction(ctx, func(txCtx context.Context) error {
+		if _, err := repo.UpdateByID(txCtx, p.DB.Periods, userID, periodID, bson.M{"status": domain.PeriodClosed}); err != nil {
+			return err
+		}
+		period.Status = domain.PeriodClosed
+		return p.recomputeDownstream(txCtx, period)
+	})
 }
 
 func (p *Periods) recomputeDownstream(ctx context.Context, period *domain.Period) error {

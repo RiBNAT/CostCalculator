@@ -55,6 +55,21 @@ func Connect(ctx context.Context, uri, dbName string) (*DB, error) {
 	return db, db.ensureIndexes(ctx)
 }
 
+// WithTransaction runs fn inside a MongoDB transaction, passing a session-bound
+// context that fn must use for all DB operations so they join the transaction.
+// Requires the deployment to be a replica set.
+func (db *DB) WithTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
+	session, err := db.Client.StartSession()
+	if err != nil {
+		return err
+	}
+	defer session.EndSession(ctx)
+	_, err = session.WithTransaction(ctx, func(sc mongo.SessionContext) (interface{}, error) {
+		return nil, fn(sc)
+	})
+	return err
+}
+
 func (db *DB) ensureIndexes(ctx context.Context) error {
 	unique := options.Index().SetUnique(true)
 	_, err := db.Users.Indexes().CreateOne(ctx, mongo.IndexModel{
