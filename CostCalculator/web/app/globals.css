@@ -344,3 +344,52 @@ button{font-family:inherit;}
   .donut-wrap{flex-direction:column;align-items:flex-start;gap:18px;}
   .ob-form .grid2{grid-template-columns:1fr;}
 }
+
+/* ===== statement / report (year-in-review) ===== */
+.stmt-page{max-width:820px;margin:0 auto;padding:24px;}
+.stmt-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.stmt{font-family:var(--font-family-ui);color:var(--standard-0);}
+.stmt-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--standard-0);padding-bottom:14px;margin-bottom:20px;}
+.stmt-title{font-family:var(--font-family-brand);font-weight:600;font-size:22px;}
+.stmt-sub{color:var(--standard-600);font-size:13px;margin-top:4px;}
+.stmt-brand{font-family:var(--font-family-brand);font-weight:600;font-size:16px;color:var(--blue-0);}
+.stmt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stmt-k{border:1px solid var(--standard-1000);border-radius:10px;padding:12px;}
+.stmt-k .l{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--standard-600);font-weight:600;}
+.stmt-k .v{font-family:var(--font-family-brand);font-weight:500;font-size:20px;margin-top:6px;}
+.stmt-sec{margin-bottom:24px;break-inside:avoid;}
+.stmt-sec-h{font-family:var(--font-family-brand);font-weight:500;font-size:15px;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--standard-1000);}
+.stmt-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;}
+.stmt-bar .nm{width:150px;flex:0 0 auto;}
+.stmt-bar .track{flex:1;height:8px;border-radius:99px;background:var(--standard-1100);overflow:hidden;}
+.stmt-bar .fill{height:100%;border-radius:99px;}
+.stmt-bar .vl{width:95px;text-align:right;font-variant-numeric:tabular-nums;}
+.stmt-table{width:100%;border-collapse:collapse;font-size:13px;}
+.stmt-table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--standard-1000);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--standard-600);}
+.stmt-table td{padding:8px 10px;border-bottom:1px solid var(--standard-1100);}
+.stmt-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+.stmt-empty{color:var(--standard-600);font-size:14px;padding:12px 0;}
+
+/* ===== report wizard (dialog) ===== */
+.wiz-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.wiz-tab{flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--standard-1000);font-family:var(--font-family-brand);font-weight:500;font-size:13px;color:var(--standard-600);background:var(--standard-1400);}
+.wiz-tab.active{border-color:var(--blue-0);color:var(--standard-0);background:var(--standard-1300);}
+.wiz-no{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;background:var(--standard-1100);color:var(--standard-600);}
+.wiz-tab.active .wiz-no{background:var(--blue-0);color:#fff;}
+.seg{display:flex;gap:4px;padding:4px;background:var(--standard-1300);border-radius:var(--radius-pill);margin-bottom:18px;}
+.seg-btn{flex:1;height:34px;border:none;background:none;border-radius:var(--radius-pill);font-family:var(--font-family-ui);font-weight:600;font-size:13px;color:var(--standard-600);cursor:pointer;}
+.seg-btn.active{background:var(--standard-1400);color:var(--standard-0);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.rng-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rep-hint{color:var(--standard-600);font-size:13px;margin:0 0 14px;}
+.rep-opt{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--standard-1000);border-radius:10px;margin-bottom:8px;cursor:pointer;}
+.rep-opt:hover{border-color:var(--standard-700);}
+.rep-opt input{width:18px;height:18px;margin-top:1px;accent-color:var(--blue-0);flex:0 0 auto;}
+.rep-opt .rt{font-weight:500;}
+.rep-opt small{color:var(--standard-600);display:block;margin-top:2px;}
+
+@media print{
+  .stmt-actions{display:none !important;}
+  .stmt-page{max-width:none;padding:0;}
+  body{background:#fff !important;}
+  @page{margin:16mm;}
+}
