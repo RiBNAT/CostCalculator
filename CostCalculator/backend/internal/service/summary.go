@@ -352,3 +352,181 @@ func (s *Summary) Build(ctx context.Context, userID, periodID string, today time
 	}
 	return sum, nil
 }
+
+type StatementKPIs struct {
+	TotalIncome    int64 `json:"totalIncome"`
+	TotalSpent     int64 `json:"totalSpent"`
+	NetSaved       int64 `json:"netSaved"`
+	SavingsRatePct int   `json:"savingsRatePct"`
+}
+type StatementCategory struct {
+	CategoryID string `json:"categoryId"`
+	Name       string `json:"name"`
+	Total      int64  `json:"total"`
+}
+type StatementSub struct {
+	CategoryID  string `json:"categoryId"`
+	Name        string `json:"name"`
+	Subcategory string `json:"subcategory"`
+	Total       int64  `json:"total"`
+}
+type StatementSaving struct {
+	AccountID string `json:"accountId"`
+	Name      string `json:"name"`
+	Deposited int64  `json:"deposited"`
+}
+type StatementLends struct {
+	GivenOutstanding int64 `json:"givenOutstanding"`
+	TakenOutstanding int64 `json:"takenOutstanding"`
+	SettledInRange   int64 `json:"settledInRange"`
+}
+type StatementPeriod struct {
+	PeriodID string    `json:"periodId"`
+	Name     string    `json:"name"`
+	Start    time.Time `json:"start"`
+	End      time.Time `json:"end"`
+	Income   int64     `json:"income"`
+	Spent    int64     `json:"spent"`
+	Saved    int64     `json:"saved"`
+}
+type StatementReport struct {
+	From             time.Time           `json:"from"`
+	To               time.Time           `json:"to"`
+	KPIs             StatementKPIs       `json:"kpis"`
+	Categories       []StatementCategory `json:"categories"`
+	TopSubcategories []StatementSub      `json:"topSubcategories"`
+	Savings          []StatementSaving   `json:"savings"`
+	Lends            StatementLends      `json:"lends"`
+	Periods          []StatementPeriod   `json:"periods"`
+}
+
+// Statement aggregates a user's flows over the calendar range [from, to]
+// (inclusive). Dates are stored at UTC midnight, so $lte to-midnight is inclusive.
+func (s *Summary) Statement(ctx context.Context, userID string, from, to time.Time) (*StatementReport, error) {
+	dateFilter := bson.M{"$gte": from, "$lte": to}
+	expenses, err := repo.FindAll[domain.Expense](ctx, s.DB.Expenses, bson.M{"userId": userID, "date": dateFilter})
+	if err != nil {
+		return nil, err
+	}
+	transfers, err := repo.FindAll[domain.Transfer](ctx, s.DB.Transfers, bson.M{"userId": userID, "date": dateFilter})
+	if err != nil {
+		return nil, err
+	}
+	accounts, err := repo.FindAll[domain.Account](ctx, s.DB.Accounts, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+	categories, err := repo.FindAll[domain.Category](ctx, s.DB.Categories, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+	lends, err := repo.FindAll[domain.Lend](ctx, s.DB.Lends, bson.M{"userId": userID})
+	if err != nil {
+		return nil, err
+	}
+
+	var externalID string
+	savingsByName := map[string]domain.Account{}
+	for _, a := range accounts {
+		if a.Kind == domain.AccountVirtual && a.VirtualRole == domain.RoleExternal {
+			externalID = a.ID
+		}
+		if a.Kind == domain.AccountSavings {
+			savingsByName[a.Name] = a
+		}
+	}
+	catName := map[string]string{}
+	for _, c := range categories {
+		catName[c.ID] = c.Name
+	}
+
+	rep := &StatementReport{
+		From: from, To: to,
+		Categories:       []StatementCategory{},
+		TopSubcategories: []StatementSub{},
+		Savings:          []StatementSaving{},
+		Periods:          []StatementPeriod{},
+	}
+
+	periodIncome := map[string]int64{}
+	for _, t := range transfers {
+		if externalID != "" && t.FromAccountID == externalID {
+			rep.KPIs.TotalIncome += t.Amount
+			periodIncome[t.PeriodID] += t.Amount
+		}
+	}
+
+	catTotals := map[string]int64{}
+	subTotals := map[string]*StatementSub{}
+	savDep := map[string]int64{}
+	periodSpend := map[string]int64{}
+	for _, e := range expenses {
+		rep.KPIs.TotalSpent += e.Amount
+		catTotals[e.CategoryID] += e.Amount
+		periodSpend[e.PeriodID] += e.Amount
+		k := e.CategoryID + "|" + e.Subcategory
+		if subTotals[k] == nil {
+			subTotals[k] = &StatementSub{CategoryID: e.CategoryID, Name: catName[e.CategoryID], Subcategory: e.Subcategory}
+		}
+		subTotals[k].Total += e.Amount
+		if _, ok := savingsByName[e.Subcategory]; ok {
+			savDep[e.Subcategory] += e.Amount
+		}
+	}
+	rep.KPIs.NetSaved = rep.KPIs.TotalIncome - rep.KPIs.TotalSpent
+	if rep.KPIs.TotalIncome > 0 {
+		rep.KPIs.SavingsRatePct = int(rep.KPIs.NetSaved * 100 / rep.KPIs.TotalIncome)
+	}
+
+	for id, total := range catTotals {
+		rep.Categories = append(rep.Categories, StatementCategory{CategoryID: id, Name: catName[id], Total: total})
+	}
+	sort.Slice(rep.Categories, func(i, j int) bool { return rep.Categories[i].Total > rep.Categories[j].Total })
+
+	for _, sub := range subTotals {
+		rep.TopSubcategories = append(rep.TopSubcategories, *sub)
+	}
+	sort.Slice(rep.TopSubcategories, func(i, j int) bool { return rep.TopSubcategories[i].Total > rep.TopSubcategories[j].Total })
+	if len(rep.TopSubcategories) > 6 {
+		rep.TopSubcategories = rep.TopSubcategories[:6]
+	}
+
+	for name, acc := range savingsByName {
+		if dep := savDep[name]; dep != 0 {
+			rep.Savings = append(rep.Savings, StatementSaving{AccountID: acc.ID, Name: name, Deposited: dep})
+		}
+	}
+	sort.Slice(rep.Savings, func(i, j int) bool { return rep.Savings[i].Deposited > rep.Savings[j].Deposited })
+
+	for _, l := range lends {
+		if l.Status == domain.LendOpen {
+			switch l.Type {
+			case domain.LendGiven:
+				rep.Lends.GivenOutstanding += l.Outstanding()
+			case domain.LendTaken:
+				rep.Lends.TakenOutstanding += l.Outstanding()
+			}
+		}
+		for _, st := range l.Settlements {
+			if !st.Date.Before(from) && !st.Date.After(to) {
+				rep.Lends.SettledInRange += st.Amount
+			}
+		}
+	}
+
+	periods, err := repo.FindAll[domain.Period](ctx, s.DB.Periods, bson.M{
+		"userId": userID, "startDate": bson.M{"$lte": to}, "endDate": bson.M{"$gte": from},
+	})
+	if err != nil {
+		return nil, err
+	}
+	sortPeriodsByStart(periods)
+	for i := range periods {
+		inc, sp := periodIncome[periods[i].ID], periodSpend[periods[i].ID]
+		rep.Periods = append(rep.Periods, StatementPeriod{
+			PeriodID: periods[i].ID, Name: periods[i].Name, Start: periods[i].StartDate, End: periods[i].EndDate,
+			Income: inc, Spent: sp, Saved: inc - sp,
+		})
+	}
+	return rep, nil
+}
