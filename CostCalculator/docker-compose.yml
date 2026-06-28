@@ -29,7 +29,6 @@ services:
       - "8080:8080"
 
   # Next.js frontend (App Router). The browser talks same-origin and Next proxies /api/* to the api service.
-  # The legacy Angular app remains at ./frontend for reference until cutover is signed off.
   web:
     build: ./web
     environment:

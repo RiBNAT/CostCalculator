@@ -5,13 +5,13 @@ tracking by category, inter-account transfers with fees, salary-cycle periods wi
 rollover, budgets vs actuals, lending registers, savings tracking, recurring-bill payment
 windows and reminders — with a one-time importer for the original workbook.
 
-**Stack:** Go 1.22+ (Gin) · MongoDB 7 · Angular 18 + Material · JWT auth · Docker
+**Stack:** Go (Gin) · MongoDB 7 (single-node replica set) · Next.js 14 (App Router, React) · httpOnly cookie auth · Docker
 
 ## Quick start (Docker)
 
 ```bash
 docker compose up --build
-# web: http://localhost:8081   api: http://localhost:8080/api/v1/health
+# web: http://localhost:3000   api: http://localhost:8080/api/v1/health
 ```
 
 Register an account (default categories/accounts from the workbook are seeded
@@ -21,25 +21,31 @@ history from June 25 onward.
 ## Development
 
 ```bash
-# MongoDB
-docker run -d --name costcalc-mongo -p 27017:27017 mongo:7
+# MongoDB (single-node replica set rs0 — required for transactions)
+docker compose up -d mongo
 
 # API  (http://localhost:8080)
 cd backend && go run ./cmd/server
 
-# Web  (http://localhost:4200, proxies API via environment.development.ts)
-cd frontend && npx ng serve
+# Web  (http://localhost:3000, Next proxies /api/* to the API — see next.config.mjs)
+cd web && npm run dev
 ```
 
 ### Tests
 
 ```bash
-cd backend && go test ./...          # domain engines, auth, API flow, importer golden test
-cd frontend && npx ng test --watch=false --browsers=ChromeHeadless
+# Backend: connect with directConnection so transactions work against the single-node RS
+cd backend && MONGO_URI='mongodb://localhost:27017/?directConnection=true' go test ./...
+
+# Frontend: typecheck + production build
+cd web && npx tsc --noEmit && npm run build
+
+# Type drift: regenerate TS types from Go and fail if out of date
+cd backend && ./tools/check-types.sh
 ```
 
-The importer golden test and the API flow test use the local MongoDB and are skipped
-automatically when it is not running.
+The importer golden test and the API/transaction tests use the local MongoDB and are
+skipped automatically when it is not running.
 
 ## Architecture
 
@@ -53,12 +59,14 @@ backend/
   internal/service      auth (JWT + bcrypt), seeding, period close/rollover chain, summary
   internal/http         Gin router, middleware, handlers (REST /api/v1)
   internal/importer     CostSheet workbook importer (excelize), idempotent per sheet
-frontend/src/app
-  core/                 typed API client, auth (interceptor/guard), period state,
-                        amount-expression parser, BDT money pipe
-  layout/               app shell (sidenav + period selector)
-  features/             dashboard, expenses, transfers, budget, lends, savings,
-                        planner, settings, import
+  tools/                tygo config + gen/check scripts (Go structs -> web/lib/types.gen.ts)
+web/
+  app/                  App Router: (app) route group (dashboard, expenses, transfers,
+                        budget, insights, lends, savings, planner, settings, import),
+                        plus login/register
+  components/           AppShell, Modal, fields, ui (incl. ErrorState), Select
+  lib/                  fetch client (cookie auth), auth/period/toast/confirm providers,
+                        money + amount-expression helpers, generated + hand types
 ```
 
 ### Key concepts
@@ -77,9 +85,9 @@ frontend/src/app
 
 ## API overview
 
-`POST /api/v1/auth/{register,login,refresh}` ·
+`POST /api/v1/auth/{register,login,refresh,logout,google}` (sets/clears httpOnly cookies) ·
 `/categories` `/accounts` CRUD ·
-`/periods` CRUD + `/close` `/reopen` `/status` `/summary` `/export?format=csv` ·
+`/periods` CRUD + `/close` `/reopen` `/repair` `/status` `/summary` `/export?format=csv` ·
 `/savings/history` (total savings per period, one call) ·
 `/periods/{id}/expenses` `/periods/{id}/transfers` CRUD with filters ·
 `/periods/{id}/budget` (+ `/copy-previous`) ·
